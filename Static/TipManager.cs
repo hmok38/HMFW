@@ -29,7 +29,7 @@ namespace HMFW
         {
             this.LoadPrefeb();
             myCanvas = prefebObj.GetComponent<Canvas>();
-            myCanvas.worldCamera = Camera.main;
+            myCanvas.sortingOrder = 1000;
             InitShowPanel();
         }
 
