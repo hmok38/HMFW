@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 此单例继承于Mono，绝大多情况下，都不需要使用此单例类型。请使用Singleton
+/// 此单例继承于Mono,如果需要挂接预制体(部分UI单例),则请在awake里面加载预制体,并成为子物体
 /// 不需要手动挂载
 /// </summary>
-public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
 {
     private static T _instance;
     /// <summary>
@@ -22,9 +22,11 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     /// </summary>
     protected static bool isGolbal = true;
 
+   
     static MonoSingleton()
     {
         ApplicationIsQuitting = false;
+       
     }
 
     public static T Instance
@@ -63,10 +65,11 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
                     // 场景中找不到就创建新物体挂载
                     if (_instance == null)
                     {
+                       
                         GameObject singletonObj = new GameObject();
                         _instance = singletonObj.AddComponent<T>();
                         singletonObj.name = "(singleton) " + typeof(T);
-
+                        
                         if (isGolbal && Application.isPlaying)
                         {
                             DontDestroyOnLoad(singletonObj);

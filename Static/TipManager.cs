@@ -12,50 +12,11 @@ namespace HMFW
     /// 自消失提示信息(安卓那样的) editdate: 20201123
     /// 本单例不需要手动挂载物体,只需要制作好预制体就可以动态加载
     /// </summary>
-    public class TipManager : MonoBehaviour
+    public class TipManager : MonoSingleton<TipManager>
     {
-        static TipManager _Instance = null;
-        public static TipManager Instance
-        {
-            get
-            {
-                if (TipManager._Instance == null || !TipManager._Instance.gameObject)
-                {
-                    TipManager._Instance = TipManager.SingletonInit();
-                }
 
-                return TipManager._Instance;
-            }
-        }
-        private static TipManager SingletonInit()
-        {
-            GameObject gameObject = GameObject.Find("TipsPrefeb");
-            if (!gameObject)
-            {
-                gameObject = GameObject.Find("TipsPrefeb(Clone)");
-                if (!gameObject)
-                {
-                    Object tipsPrefeb = Resources.Load("TipsPrefeb");
-                    gameObject = GameObject.Instantiate(tipsPrefeb) as GameObject;
-                }
-            }
-            if (!gameObject)
-            {
-                throw new System.Exception("TipsManager AddToScene 添加预制体失败");
-            }
-
-            TipManager comp = gameObject.GetComponent<TipManager>();
-            if (!comp)
-            {
-                comp = gameObject.AddComponent<TipManager>();
-            }
-
-            Debug.Log("TipsManager添加成功!");
-            GameObject on = comp.gameObject;
-            return comp;
-        }
+        private GameObject prefebObj;
         private Canvas myCanvas;
-
 
         /// <summary>
         /// 消息队列
@@ -66,17 +27,27 @@ namespace HMFW
 
         void Awake()
         {
-            myCanvas = gameObject.GetComponent<Canvas>();
+            this.LoadPrefeb();
+            myCanvas = prefebObj.GetComponent<Canvas>();
             myCanvas.worldCamera = Camera.main;
             InitShowPanel();
         }
+
+
+        protected void LoadPrefeb()
+        {
+            Object tipsPrefeb = Resources.Load("TipManagerPrefeb");
+            prefebObj = GameObject.Instantiate(tipsPrefeb, transform) as GameObject;
+            prefebObj.name = "TipManagerPrefeb";
+        }
+
         private void InitShowPanel()
         {
-            var Bg0 = this.transform.Find("ShowPanel") as RectTransform;
+            var Bg0 = prefebObj.transform.Find("ShowPanel") as RectTransform;
             waiteShowPanels.Add(Bg0);
             for (int i = 0; i < 10; i++)
             {
-                RectTransform transform = GameObject.Instantiate(Bg0, this.transform);
+                RectTransform transform = GameObject.Instantiate(Bg0, prefebObj.transform);
                 waiteShowPanels.Add(transform);
             }
 
@@ -135,18 +106,18 @@ namespace HMFW
             Text InfoText = panel.GetComponentInChildren<Text>();
             InfoText.text = infom;
             RectTransform infoTextTran = (InfoText.transform as RectTransform);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(infoTextTran);
+          LayoutRebuilder.ForceRebuildLayoutImmediate(infoTextTran);
 
             RectTransform bgImg = panel.GetChild(0) as RectTransform;
-            bgImg.sizeDelta = new Vector2(InfoText.preferredWidth + 50, InfoText.preferredHeight + 30);
-
+            LayoutRebuilder.ForceRebuildLayoutImmediate(bgImg);
+           
             Animator animator = panel.GetChild(0).GetComponent<Animator>();
             animator.Play("TipsAnim", 0);
             for (int i = 0; i < alreadyShowPanels.Count; i++)
             {
                 RectTransform alreadyShowPanel = alreadyShowPanels[i];
                 Vector3 pos = alreadyShowPanel.anchoredPosition;
-                pos.y += (InfoText.preferredHeight + 40);
+                pos.y += (bgImg.sizeDelta.y + 20);
                 alreadyShowPanel.anchoredPosition = pos;
             }
 
