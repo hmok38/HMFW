@@ -10,7 +10,7 @@ using UnityEngine;
 namespace HMFW
 {
     /// <summary>
-    /// 全局事件管理器_请在EventDefine中自定义事件类型 editdate: 20201123
+    /// 全局事件管理器_请在HMFW/Custom/EventDefine中自定义事件类型 editdate: 20201123
     /// </summary>
     public static class EventManager
     {

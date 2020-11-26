@@ -7,11 +7,17 @@ using UnityEngine;
 /// </summary>
 public  class AssetManager : MonoSingleton<AssetManager>
 {
-   
-   public static GameObject GetGameObjectByType(System.Type type)
+
+    /// <summary>
+    /// 根据名字获取游戏物体
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public GameObject GetGameObjectByName(string name)
     {
-        return null;
-       
-    } 
+        var obj = Resources.Load(name);
+        return GameObject.Instantiate(obj) as GameObject;
+
+    }
 
 }
