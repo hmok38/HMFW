@@ -23,9 +23,9 @@ public abstract class Singleton<T> where T : class, new()
         {
             throw new SingletonException("This " + typeof(T).ToString() + " Singleton Instance is not null !!!");
         }
-        Init();
+        _Init();
     }
-    public virtual void Init()
+    protected virtual void _Init()
     { }
 }
 public class SingletonException : Exception

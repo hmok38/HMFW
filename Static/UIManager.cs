@@ -10,7 +10,14 @@ namespace HMFW
     /// </summary>
     public class UIManager : MonoSingleton<UIManager>
     {
-        protected static bool isGolbal = false;
+        /// <summary>
+        /// 是否全局-UIManager分场景挂载,不全局
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsGolbal()
+        {
+            return false;
+        }
         [SerializeField]
         public UIBase[] RegistUIs;
 
@@ -25,7 +32,7 @@ namespace HMFW
             }
         }
         /// <summary>
-        /// 获取UI类
+        /// 获取UI类--返回Null的话代表此场景不存在此UI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

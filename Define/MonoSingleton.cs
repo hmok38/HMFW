@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 /// <summary>
 /// 此单例继承于Mono,如果需要挂接预制体(部分UI单例),则请在awake里面加载预制体,并成为子物体
 /// 不需要手动挂载
 /// </summary>
-public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
+public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T> 
 {
+
+    public virtual bool IsGolbal() { return true; }
+    
     private static T _instance;
     /// <summary>
     /// 线程锁
@@ -17,12 +22,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
     /// 程序是否正在退出
     /// </summary>
     protected static bool ApplicationIsQuitting { get; private set; }
-    /// <summary>
-    /// 是否为全局单例
-    /// </summary>
-    protected static bool isGolbal = true;
 
-   
     static MonoSingleton()
     {
         ApplicationIsQuitting = false;
@@ -70,7 +70,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
                         _instance = singletonObj.AddComponent<T>();
                         singletonObj.name = "(singleton) " + typeof(T);
                         
-                        if (isGolbal && Application.isPlaying)
+                        if (_instance.IsGolbal() && Application.isPlaying)
                         {
                             DontDestroyOnLoad(singletonObj);
                         }
@@ -84,6 +84,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
         }
     }
 
+    
     /// <summary>
     /// 当工程运行结束，在退出时，不允许访问单例
     /// </summary>

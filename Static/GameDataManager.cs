@@ -4,123 +4,171 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 
-/// <summary>
-/// 需要保存的数据,请先在Custom/GameDataDefine/RegGameDataType()中注册类型和枚举
-/// </summary>
-public class GameDataManager : Singleton<GameDataManager>
+namespace HMFW
 {
-    Dictionary<GameDataType, object> dataMap = new Dictionary<GameDataType, object>();
-   
 
-    public override void Init()
-    {
-        base.Init();
-        GameDataDefine.RegGameDataType();
-        LoadAllFromIO();
-    }
-
-   
 
 
     /// <summary>
-    /// 从硬盘读取数据
+    /// 需要保存的数据,请先在Custom/GameSaveData 中添加进去,如果可以保存100个存档数据,S/L大法,因为比较耗时,建议在游戏初始化阶段调用InitData
     /// </summary>
-    public void LoadAllFromIO()
+    public class GameDataManager : Singleton<GameDataManager>
     {
-        dataMap.Clear();
+        List<int> gameSaveList = new List<int>();
+        Dictionary<int, GameSaveData> dataMap = new Dictionary<int, GameSaveData>();
+        /// <summary>
+        /// 当前使用的存档ID
+        /// </summary>
+        public GameSaveData currentSaveData { get; private set; }
        
-        foreach (GameDataType item in Enum.GetValues(typeof( GameDataType)))
+
+        /// <summary>
+        /// 初始化游戏数据,加载硬盘游戏数据
+        /// </summary>
+        public void InitData()
         {
-            Type type = GameDataDefine.dataTypeMap[item];
-            if (PlayerPrefs.HasKey(item.ToString()))
+            LoadSaveListFromIO();
+            LoadAllFromIO();
+        }
+
+        /// <summary>
+        /// 从硬盘中获取游戏存档列表(key列表)
+        /// </summary>
+        private void LoadSaveListFromIO()
+        {
+            if (PlayerPrefs.HasKey("GameSaveList"))
             {
-                var str = PlayerPrefs.GetString(item.ToString(), "");
-               
-                dataMap.Add(item, JsonConvert.DeserializeObject(str, type));
+                var str = PlayerPrefs.GetString("GameSaveList", "");
+                gameSaveList = JsonConvert.DeserializeObject<List<int>>(str);
             }
-            else
+        }
+        /// <summary>
+        /// 从硬盘读取数据
+        /// </summary>
+        private void LoadAllFromIO()
+        {
+            dataMap.Clear();
+
+            for (int i = 0; i < gameSaveList.Count; i++)
             {
-                dataMap.Add(item, type.Assembly.CreateInstance(type.FullName));
-            }
-        
-
-        }
-    }
-
-    /// <summary>
-    /// 存档所有数据
-    /// </summary>
-    public void SaveAllData()
-    {
-        foreach (GameDataType item in Enum.GetValues(typeof(GameDataType)))
-        {
-            SaveDataHandle(item);
-        }
-        PlayerPrefs.Save();
-    }
-
-    /// <summary>
-    /// 将某个数据存档
-    /// </summary>
-    /// <param name="gameDataType"></param>
-    /// <returns></returns>
-    public bool SaveSingleData(GameDataType gameDataType)
-    {
-      var suc= SaveDataHandle(gameDataType);
-        PlayerPrefs.Save();
-        return suc;
-    }
-
-   
-    /// <summary>
-    /// 获取数据,得到的数据要求保持引用关系,不得删除
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="gameDataType"></param>
-    /// <returns></returns>
-    public T GetGameData<T>(GameDataType gameDataType) where T : class
-    {
-        if (CheckType<T>(gameDataType))
-        {
-            return dataMap[gameDataType] as T;
-        }
-        
-        return null;
-    }
-   
-
-    private bool SaveDataHandle(GameDataType gameDataType)
-    {
-        object value;
-        if(dataMap.TryGetValue(gameDataType,out value))
-        {
-           string str= JsonConvert.SerializeObject(value);
-            PlayerPrefs.SetString(gameDataType.ToString(), str);
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckType<T>(GameDataType gameDataType)
-    {
-        if (dataMap.ContainsKey(gameDataType))
-        {
-            var right = typeof(T) == GameDataDefine.dataTypeMap[gameDataType];
-
-            if (!right)
-            {
-                Debug.LogError("获取数据时,发现" + gameDataType + " 获取的类型=" + GameDataDefine.dataTypeMap[gameDataType].Name + " 跟要求的类型" + typeof(T).Name + " 不符");
+                string id = "GameSaveID" + gameSaveList[i];
+                if (PlayerPrefs.HasKey(id))
+                {
+                  var str=  PlayerPrefs.GetString(id, "");
+                  var save=  JsonConvert.DeserializeObject<GameSaveData>(str);
+                    dataMap[save.SaveID] = save;
+                }
+                else
+                {
+                    HMFW.TipManager.Instance.ShowTips(string.Format("不好啦,{0}号存档丢失了!", id));
+                }
             }
 
-            return right;
         }
 
-        Debug.LogError("获取数据时,发现" + gameDataType + " 获取的数据不存在");
-        return false;
+        /// <summary>
+        /// 创建一个新的存档
+        /// </summary>
+        public void CreatNewSave()
+        {
+            this.currentSaveData = new GameSaveData();
+            this.currentSaveData.SaveID = GetNewSaveID();
+        }
+        /// <summary>
+        /// 获取全部的存档数据
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<int, GameSaveData> GetAllSaveData()
+        {
+            return dataMap;
+        }
+        /// <summary>
+        /// 使用一个旧的存档
+        /// </summary>
+        public void UseOldSave(int saveID)
+        {
+            this.currentSaveData = this.dataMap[saveID].MyClone();
+        }
+
+        /// <summary>
+        /// 保存数据到一个新的存档位置
+        /// </summary>
+        public void SaveCurrentDataToNew()
+        {
+            var id = GetNewSaveID();
+
+            SaveCurrentDataToID(id);
+        }
+        /// <summary>
+        /// 将数据保存到某个位置
+        /// </summary>
+        public void SaveCurrentDataToID(int saveId)
+        {
+            if (currentSaveData != null)
+            {
+                currentSaveData.SaveID = saveId;
+                if (!gameSaveList.Contains(saveId))
+                {
+                    gameSaveList.Add(currentSaveData.SaveID);
+                    SaveGameSaveList();
+                }
+              
+                SaveData(currentSaveData);
+                PlayerPrefs.Save();
+                GameSaveData newDate = currentSaveData.MyClone();
+                if (dataMap.ContainsKey(saveId))
+                {
+                    dataMap[currentSaveData.SaveID] = newDate;
+                }
+                else
+                {
+                    dataMap.Add(currentSaveData.SaveID, newDate);
+                }
+                
+
+            }
+        }
+
+        /// <summary>
+        /// 保存数据
+        /// </summary>
+        /// <param name="gameSaveData"></param>
+        private void SaveData(GameSaveData gameSaveData)
+        {
+            string id = "GameSaveID" + gameSaveData.SaveID;
+            gameSaveData.SaveTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            PlayerPrefs.SetString(id, JsonConvert.SerializeObject(gameSaveData));
+        }
+        /// <summary>
+        /// 获取新的存档ID
+        /// </summary>
+        /// <returns></returns>
+       private int GetNewSaveID()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                if (!gameSaveList.Contains(i))
+                {
+                    return i;
+                }
+            }
+            TipManager.Instance.ShowTips("存档超过100个啦!");
+            return 100;
+        }
+        /// <summary>
+        /// 保存游戏列表
+        /// </summary>
+        private void SaveGameSaveList()
+        {
+            PlayerPrefs.SetString("GameSaveList", JsonConvert.SerializeObject(gameSaveList));
+        }
+
+
+
 
     }
+
+
+
+
 }
-
-
-
-
