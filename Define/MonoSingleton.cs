@@ -4,14 +4,19 @@ using UnityEngine;
 
 
 
+
 /// <summary>
 /// 此单例继承于Mono,如果需要挂接预制体(部分UI单例),则请在awake里面加载预制体,并成为子物体
 /// 不需要手动挂载
 /// </summary>
 public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T> 
 {
-
+    /// <summary>
+    /// 是否需要成为全局物体
+    /// </summary>
+    /// <returns></returns>
     public virtual bool IsGolbal() { return true; }
+    
     
     private static T _instance;
     /// <summary>

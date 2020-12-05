@@ -14,13 +14,20 @@ namespace HMFW
     /// </summary>
     public class GameDataManager : Singleton<GameDataManager>
     {
+        /// <summary>
+        /// 已经保存到了硬盘的存档ID列表
+        /// </summary>
         List<int> gameSaveList = new List<int>();
-        Dictionary<int, GameSaveData> dataMap = new Dictionary<int, GameSaveData>();
+        int lastUseSaveId = -1;
+        /// <summary>
+        /// 保存过的存档
+        /// </summary>
+        Dictionary<int, GameSaveData> savedDataMap = new Dictionary<int, GameSaveData>();
         /// <summary>
         /// 当前使用的存档ID
         /// </summary>
         public GameSaveData currentSaveData { get; private set; }
-       
+        
 
         /// <summary>
         /// 初始化游戏数据,加载硬盘游戏数据
@@ -41,13 +48,18 @@ namespace HMFW
                 var str = PlayerPrefs.GetString("GameSaveList", "");
                 gameSaveList = JsonConvert.DeserializeObject<List<int>>(str);
             }
+            if (PlayerPrefs.HasKey("LastUseSaveId"))
+            {
+                var str = PlayerPrefs.GetInt("LastUseSaveId", 0);
+                lastUseSaveId = str;
+            }
         }
         /// <summary>
         /// 从硬盘读取数据
         /// </summary>
         private void LoadAllFromIO()
         {
-            dataMap.Clear();
+            savedDataMap.Clear();
 
             for (int i = 0; i < gameSaveList.Count; i++)
             {
@@ -56,23 +68,57 @@ namespace HMFW
                 {
                   var str=  PlayerPrefs.GetString(id, "");
                   var save=  JsonConvert.DeserializeObject<GameSaveData>(str);
-                    dataMap[save.SaveID] = save;
+                    savedDataMap[save.SaveID] = save;
                 }
                 else
                 {
                     HMFW.TipManager.Instance.ShowTips(string.Format("不好啦,{0}号存档丢失了!", id));
                 }
             }
+            //获取之前使用的存档
+            if(savedDataMap.ContainsKey( lastUseSaveId))
+            {
+                currentSaveData = savedDataMap[lastUseSaveId].MyClone();
+            }
 
         }
-
+        private void SaveLastUseSaveIdToIo()
+        {
+            PlayerPrefs.SetInt("LastUseSaveId", this.lastUseSaveId);
+        }
         /// <summary>
         /// 创建一个新的存档
         /// </summary>
-        public void CreatNewSave()
+        public void CreatNewSave(ActorData playerData)
         {
+           
             this.currentSaveData = new GameSaveData();
             this.currentSaveData.SaveID = GetNewSaveID();
+            if (playerData != null)
+            {
+                this.currentSaveData.PlayerTeamActorDatas.Add(playerData);
+                this.currentSaveData.PlayerName = playerData.Name;
+                this.currentSaveData.PlayerArmyName = playerData.Name + "的佣兵团";
+                
+            }
+           
+        }
+        /// <summary>
+        /// 检查当前使用的存档是否被保存,没有保存的话恢复上一次保存的存档
+        /// </summary>
+        public void RestoreToSavedGameSaveData()
+        {
+            if(this.currentSaveData==null|| !gameSaveList.Contains(this.currentSaveData.SaveID))
+            {
+                if (this.lastUseSaveId >= 0)
+                {
+                    this.currentSaveData = savedDataMap[this.lastUseSaveId].MyClone();
+                }
+                else
+                {
+                    this.currentSaveData = null;
+                }
+            }
         }
         /// <summary>
         /// 获取全部的存档数据
@@ -80,14 +126,16 @@ namespace HMFW
         /// <returns></returns>
         public Dictionary<int, GameSaveData> GetAllSaveData()
         {
-            return dataMap;
+            return savedDataMap;
         }
         /// <summary>
         /// 使用一个旧的存档
         /// </summary>
         public void UseOldSave(int saveID)
         {
-            this.currentSaveData = this.dataMap[saveID].MyClone();
+            this.currentSaveData = this.savedDataMap[saveID].MyClone();
+            this.lastUseSaveId = saveID;
+            SaveLastUseSaveIdToIo();
         }
 
         /// <summary>
@@ -116,15 +164,15 @@ namespace HMFW
                 SaveData(currentSaveData);
                 PlayerPrefs.Save();
                 GameSaveData newDate = currentSaveData.MyClone();
-                if (dataMap.ContainsKey(saveId))
+                if (savedDataMap.ContainsKey(saveId))
                 {
-                    dataMap[currentSaveData.SaveID] = newDate;
+                    savedDataMap[currentSaveData.SaveID] = newDate;
                 }
                 else
                 {
-                    dataMap.Add(currentSaveData.SaveID, newDate);
+                    savedDataMap.Add(currentSaveData.SaveID, newDate);
                 }
-                
+               
 
             }
         }
@@ -138,6 +186,8 @@ namespace HMFW
             string id = "GameSaveID" + gameSaveData.SaveID;
             gameSaveData.SaveTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             PlayerPrefs.SetString(id, JsonConvert.SerializeObject(gameSaveData));
+            lastUseSaveId = gameSaveData.SaveID;
+            SaveLastUseSaveIdToIo();
         }
         /// <summary>
         /// 获取新的存档ID

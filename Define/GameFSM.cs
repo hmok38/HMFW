@@ -120,7 +120,7 @@ public abstract class FsmBase
     public T GetState<T>() where T : StateBase
     {
 
-        if (this.stateMap[typeof(T).Name] == null)
+        if (!this.stateMap.ContainsKey(typeof(T).Name) )
         {
             Debug.LogError("没有找到Game状态:" + typeof(T).Name);
             return null;

@@ -6,25 +6,57 @@ namespace HMFW
 {
 
     /// <summary>
-    /// UI管理器,请手动挂载,并手动注册UI
+    /// UI管理器,请在场景中创建UIRoot空物体,并将本场景中需要用到的UI放入其下,不需要在UIRoot中手动添加本类
     /// </summary>
-    public class UIManager : MonoSingleton<UIManager>
+    public class UIManager : MonoBehaviour
     {
-        /// <summary>
-        /// 是否全局-UIManager分场景挂载,不全局
-        /// </summary>
-        /// <returns></returns>
-        public override bool IsGolbal()
+        private static UIManager _Instance;
+        
+        public static UIManager Instance
         {
-            return false;
-        }
-        [SerializeField]
-        public UIBase[] RegistUIs;
+            get
+            {
+                if (_Instance && _Instance.gameObject && _Instance.gameObject.activeSelf)
+                {
+                    
+                    return _Instance;
+                }
+                else
+                {
+                    var uiRoot = GameObject.Find("UIRoot");
+                    if (!uiRoot)
+                    {
+                        uiRoot = new GameObject("UIRoot");
+                    }
+                    var uiManager = uiRoot.GetComponent<UIManager>();
+                    if (!uiManager)
+                    {
+                        uiManager = uiRoot.AddComponent<UIManager>();
+                    }
+                    _Instance = uiManager;
 
-        private Dictionary<Type, UIBase> UIMap;
+
+                    return _Instance;
+                }
+            }
+
+        }
+
+
+        private UIBase[] RegistUIs ;
+
+        private Dictionary<Type, UIBase> UIMap=new Dictionary<Type, UIBase>();
         private void Awake()
         {
-            UIMap = new Dictionary<Type, UIBase>();
+            this.FindAllUI();
+        }
+
+        private void FindAllUI()
+        {
+            
+             RegistUIs =  this.gameObject.GetComponentsInChildren<UIBase>(true);
+
+            UIMap.Clear();
             for (int i = 0; i < RegistUIs.Length; i++)
             {
                 var ins = RegistUIs[i];
@@ -38,14 +70,17 @@ namespace HMFW
         /// <returns></returns>
         public T GetUI<T>() where T : UIBase
         {
-            if (UIMap.ContainsKey(typeof(T)))
+          return  GetUI(typeof(T)) as T;
+        }
+        private UIBase GetUI(Type type)
+        {
+            if (UIMap.ContainsKey(type))
             {
-                return UIMap[typeof(T)] as T;
+                return UIMap[type];
             }
 
             return null;
         }
-
         /// <summary>
         /// UI是否显示
         /// </summary>
@@ -53,9 +88,13 @@ namespace HMFW
         /// <returns></returns>
         public bool BeUIShow<T>()
         {
-            if (UIMap.ContainsKey(typeof(T)))
+            return BeUIShow(typeof(T));
+        }
+        private bool BeUIShow(Type type)
+        {
+            if (UIMap.ContainsKey(type))
             {
-                return UIMap[typeof(T)].gameObject.activeSelf;
+                return UIMap[type].gameObject.activeSelf;
             }
             return false;
         }
@@ -68,7 +107,12 @@ namespace HMFW
         /// <returns></returns>
         public T OpenUI<T>(params object[] args) where T : UIBase
         {
-            var ui = GetUI<T>();
+
+            return OpenUI(typeof(T), args) as T;
+        }
+        private UIBase OpenUI(Type type, params object[] args)
+        {
+            var ui = GetUI(type);
             if (ui != null)
             {
                 ui.Open(args);
@@ -76,10 +120,9 @@ namespace HMFW
             }
             else
             {
-                Debug.LogError("需要打开的UI不存在,type=" + typeof(T));
+                Debug.LogError("需要打开的UI不存在,type=" + type);
                 return null;
             }
-
         }
 
         /// <summary>
@@ -90,7 +133,12 @@ namespace HMFW
         /// <returns></returns>
         public T CloseUI<T>(params object[] args) where T : UIBase
         {
-            var ui = GetUI<T>();
+
+            return CloseUI(typeof(T), args) as T;
+        }
+        private UIBase CloseUI(Type type, params object[] args)
+        {
+            var ui = GetUI(type);
             if (ui != null)
             {
                 if (ui.gameObject.activeSelf == true)
@@ -102,10 +150,19 @@ namespace HMFW
             }
             else
             {
-                Debug.LogError("需要关闭的UI不存在,type=" + typeof(T));
+                Debug.LogError("需要关闭的UI不存在,type=" + type);
                 return null;
             }
-
+        }
+        public void CloseAllUI()
+        {
+            foreach (var item in UIMap)
+            {
+               if(BeUIShow(item.Key))
+                {
+                    CloseUI(item.Key);
+                }
+            }
         }
     }
 }

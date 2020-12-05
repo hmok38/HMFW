@@ -14,5 +14,6 @@ public static class GameFsmDefine
     {
         GameManager.Instance.GameStateFsm.RegState<InitState>();
         GameManager.Instance.GameStateFsm.RegState<MainMenuState>();
+        GameManager.Instance.GameStateFsm.RegState<ReadyState>();
     }
 }
