@@ -99,6 +99,7 @@ namespace HMFW
                 this.currentSaveData.PlayerTeamActorDatas.Add(playerData);
                 this.currentSaveData.PlayerName = playerData.Name;
                 this.currentSaveData.PlayerArmyName = playerData.Name + "的佣兵团";
+                this.currentSaveData.AlreadyOnStageActorIDAndTeamPos.Add(playerData.ActorID, new Vector2());
                 
             }
            

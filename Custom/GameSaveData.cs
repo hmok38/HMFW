@@ -34,8 +34,11 @@ public class GameSaveData : ICloneable
     /// 玩家军队名称
     /// </summary>
     public string PlayerArmyName;
-
-
+   
+    /// <summary>
+    /// 玩家已经上场的角色ID列表及队列相对位置
+    /// </summary>
+    public Dictionary<int, Vector2> AlreadyOnStageActorIDAndTeamPos = new Dictionary<int, Vector2>(); 
    public GameSaveData MyClone()
     {
         return (GameSaveData)Clone();
