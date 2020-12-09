@@ -87,22 +87,15 @@ namespace HMFW
             PlayerPrefs.SetInt("LastUseSaveId", this.lastUseSaveId);
         }
         /// <summary>
-        /// 创建一个新的存档
+        /// 创建一个新的存档,并设置为当前使用的存档
         /// </summary>
-        public void CreatNewSave(ActorData playerData)
+        public GameSaveData CreatNewSave()
         {
            
             this.currentSaveData = new GameSaveData();
             this.currentSaveData.SaveID = GetNewSaveID();
-            if (playerData != null)
-            {
-                this.currentSaveData.PlayerTeamActorDatas.Add(playerData);
-                this.currentSaveData.PlayerName = playerData.Name;
-                this.currentSaveData.PlayerArmyName = playerData.Name + "的佣兵团";
-                this.currentSaveData.AlreadyOnStageActorIDAndTeamPos.Add(playerData.ActorID, new Vector2());
-                
-            }
-           
+
+            return this.currentSaveData;
         }
         /// <summary>
         /// 检查当前使用的存档是否被保存,没有保存的话恢复上一次保存的存档
