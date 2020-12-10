@@ -12,6 +12,7 @@ public abstract class StateBase
         
     }
    
+    
     /**状态的管理机 */
     public FsmBase fsm;
 
@@ -24,26 +25,20 @@ public abstract class StateBase
     
 }
 
-/**游戏状态基类 */
-public abstract class GameStateBase : StateBase
+/**游戏状态基类,一个状态管理一个场景 */
+public abstract class GameStateBase
 {
-    /**游戏状态基类 参数为具体子类的名字*/
-    public GameStateBase() 
-    {
+    /// <summary>
+    /// 获得所管理的场景名字
+    /// </summary>
+    /// <returns></returns>
+    public abstract string SceneName { get; }
+   
+    public abstract void EnterGameState(params object[] args);
+    public abstract void OnUpdata();
+    
+    public abstract void LeaveState(params object[] args);
 
-    }
-
-    /**进入状态 */
-    public override void EnterState(params object[] args)
-    {
-        Debug.Log("进入游戏状态:" + this.GetType().Name);
-    }
-    /**离开状态 */
-    public override void LeaveState(params object[] args)
-    {
-
-        Debug.Log("离开游戏状态:" + this.GetType().Name);
-    }
 
 
 }
@@ -149,14 +144,5 @@ public abstract class FsmBase
 }
 
 
-/**游戏主逻辑状态机 */
-public class GameStateFsm : FsmBase
-{
-    public GameStateFsm(Object ower):base(ower)
-    {
 
-    }
-
-
-}
 

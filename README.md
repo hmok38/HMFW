@@ -10,4 +10,4 @@ hmok的unity游戏框架
 4:添加UI管理器,使用HMFW.UIManager访问,可以传递参数数据(请在场景中创建UIRoot空物体,并将本场景中需要用到的UI放入其下,不需要在UIRoot中手动添加本类)
 5:添加游戏数据管理器,使用HMFW.GameDataManager访问,可以持久化游戏数据,最多可以保存100个存档数据(暂时保存单机数据),所有需要保存的数据,请在Custom/GameSaveData.cs中添加
 6:添加游戏资源管理器,使用HMFW.AssetManager访问,可以根据名字获取到GameObject(暂时使用 Resources.load方式)
-7:添加游戏状态管理器,使用HMFW.GameManager.Instance.GameStateFsm 访问,可以实现切换主游戏状态,同时各状态请继承SateBase,并需要在Custom/GameFsmDefine.RegGameFsm()中添加注册
+7:添加游戏状态管理器,使用HMFW.GameStateManager 访问,可以实现切换主游戏状态(一个状态对应一个场景),新建游戏状态时请继承GameSateBase,并需要在Custom/GameFsmDefine.RegGameFsm()中添加注册

@@ -11,11 +11,11 @@ namespace HMFW
         // Start is called before the first frame update
         void Start()
         {
-           
-            GameManager.Instance.GameStateFsm.ChangeState<InitState>();
+
+            GameStateManager.Instance.ChangeState<InitState>();
         }
 
-       
+
         void Update()
         {
 
