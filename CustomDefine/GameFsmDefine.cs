@@ -9,7 +9,7 @@ public static class GameFsmDefine
 {
     
     /// <summary>
-    /// 向游戏管理器的状态机注册各状态
+    /// 向游戏管理器的状态机注册各状态(内容可编辑,函数请保留)
     /// </summary>
    public static void RegGameFsm(GameStateManager gameStateManager)
     {

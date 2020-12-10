@@ -1,6 +1,6 @@
 ﻿
 /// <summary>
-/// 框架使用者自定义的事件类型
+/// 框架使用者自定义的事件类型(枚举请保留,内容可编辑)
 /// </summary>
 public  enum EventName 
 {

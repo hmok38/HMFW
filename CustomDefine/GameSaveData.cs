@@ -17,11 +17,11 @@ public class GameSaveData : ICloneable
     /// <summary>
     /// 玩家部队角色数据
     /// </summary>
-    public List<ActorData> PlayerTeamActorDatas=new List<ActorData>();
+    public List<ActorData> PlayerTeamActorDatas = new List<ActorData>();
     /// <summary>
     /// 随机姓名系统-用过的玩家数据
     /// </summary>
-    public Dictionary<int, List<int>> alreadyUseNames=new Dictionary<int, List<int>>();
+    public Dictionary<int, List<int>> alreadyUseNames = new Dictionary<int, List<int>>();
     /// <summary>
     /// 玩家的游戏进程
     /// </summary>
@@ -34,17 +34,27 @@ public class GameSaveData : ICloneable
     /// 玩家军队名称
     /// </summary>
     public string PlayerArmyName;
-   
+
     /// <summary>
     /// 玩家已经上场的角色ID列表及队列相对位置
     /// </summary>
-    public Dictionary<int, Vector2> AlreadyOnStageActorIDAndTeamPos = new Dictionary<int, Vector2>(); 
-   public GameSaveData MyClone()
+    public Dictionary<int, Vector2> AlreadyOnStageActorIDAndTeamPos = new Dictionary<int, Vector2>();
+
+
+    /// <summary>
+    /// 克隆(请保留)
+    /// </summary>
+    /// <returns></returns>
+    public GameSaveData MyClone()
     {
         return (GameSaveData)Clone();
     }
 
-   public object Clone()
+    /// <summary>
+    /// 克隆(请保留)
+    /// </summary>
+    /// <returns></returns>
+    public object Clone()
     {
         return (GameSaveData)MemberwiseClone();
     }
