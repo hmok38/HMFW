@@ -16,6 +16,7 @@ public  class AssetManager : MonoSingleton<AssetManager>
     public GameObject GetGameObjectByName(string name)
     {
         var obj = Resources.Load(name);
+        
         return GameObject.Instantiate(obj) as GameObject;
 
     }

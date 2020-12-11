@@ -10,4 +10,8 @@ public  enum EventName
     /// ui上的角色模型改变
     /// </summary>
     E_OnUIActorModelNameChange,
+    /// <summary>
+    /// 角色即将进入舞台
+    /// </summary>
+    E_ActorWillEnterStage,
 }

@@ -88,7 +88,7 @@ namespace HMFW
                 this.lastState.LeaveState(args);
             }
             Debug.Log("进入游戏状态:" + this.currentState.GetType().Name);
-            this.currentState.EnterGameState(args);
+            this.currentState.EnterState(args);
         }
         /**获取游戏状态 */
         public T GetState<T>() where T : GameStateBase
@@ -113,7 +113,7 @@ namespace HMFW
             return false;
         }
 
-        public void OnUpdate()
+        public void Update()
         {
             if (currentState != null)
             {
