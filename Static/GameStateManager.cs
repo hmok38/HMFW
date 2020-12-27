@@ -89,6 +89,13 @@ namespace HMFW
             }
             Debug.Log("进入游戏状态:" + this.currentState.GetType().Name);
             this.currentState.EnterState(args);
+            StartCoroutine(DelayEnterStateNextFrame());
+        }
+
+        IEnumerator DelayEnterStateNextFrame()
+        {
+            yield return 0;
+            this.currentState.EnterStateNextFrame();
         }
         /**获取游戏状态 */
         public T GetState<T>() where T : GameStateBase

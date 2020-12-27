@@ -10,8 +10,22 @@ public  enum EventName
     /// ui上的角色模型改变
     /// </summary>
     E_OnUIActorModelNameChange,
+ 
     /// <summary>
-    /// 角色即将进入舞台
+    /// 角色直接放置上舞台
     /// </summary>
-    E_ActorWillEnterStage,
+    E_ReadyState_ActorDirectPlaceOnStage,
+    /// <summary>
+    /// 角色离开舞台
+    /// </summary>
+    E_ReadyState_ActorLeaveStage,
+    /// <summary>
+    /// 角色被从舞台提起(移动位置,手持状态)
+    /// </summary>
+    E_ReadyState_ActorBeTake,
+    /// <summary>
+    /// 玩家的上场角色数据需要刷新
+    /// </summary>
+    E_PlayerStageActorDataNeedUpdate,
+
 }

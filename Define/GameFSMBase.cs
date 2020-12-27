@@ -27,8 +27,14 @@ public abstract class GameStateBase: StateBase
     /// </summary>
     /// <returns></returns>
     public abstract string SceneName { get; }
-   
-   
+
+    /// <summary>
+    /// 进入场景的下一帧(即第一帧),需要的话子类实现即可
+    /// </summary>
+    public virtual void EnterStateNextFrame()
+    {
+
+    }
 
 }
 
@@ -83,17 +89,17 @@ public abstract class FsmBase<T> :MonoBehaviour where T: StateBase
             this.currentState = stateTemp;
             if (this.lastState != null && lastStateChangen)
             {
-                Debug.Log("离开状态:" + this.lastState.GetType().Name);
+                //Debug.Log("离开状态:" + this.lastState.GetType().Name);
                 this.lastState.LeaveState(args);
             }
-            Debug.Log("进入状态:" + this.currentState.GetType().Name);
+            //Debug.Log("进入状态:" +this.owner.name+ this.currentState.GetType().Name);
             this.currentState.EnterState(args);
 
         }
         else
         {
 
-            Debug.Log("状态切换失败:" + typeof(C).Name);
+            Debug.Log(this.owner.name+"状态切换失败:" + typeof(C).Name);
         }
 
     }

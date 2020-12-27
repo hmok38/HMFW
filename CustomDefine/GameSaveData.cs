@@ -40,6 +40,15 @@ public class GameSaveData : ICloneable
     /// </summary>
     public Dictionary<int, Vector2> AlreadyOnStageActorIDAndTeamPos = new Dictionary<int, Vector2>();
 
+    /// <summary>
+    /// 根据Id获得角色信息
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public ActorData GetActorDataById(int id)
+    {
+      return  PlayerTeamActorDatas.Find(x => x.ActorID == id);
+    }
 
     /// <summary>
     /// 克隆(请保留)
