@@ -26,8 +26,9 @@ public abstract class UIBase:UnityEngine.MonoBehaviour
     /// <param name="args"></param>
     public void Close(params object[] args)
     {
-        gameObject.SetActive(false);
         OnClose(args);
+        gameObject.SetActive(false);
+        
     }
     
     /// <summary>
