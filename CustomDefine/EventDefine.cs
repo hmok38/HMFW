@@ -23,9 +23,16 @@ public  enum EventName
     /// 角色被从舞台提起(移动位置,手持状态)
     /// </summary>
     E_ReadyState_ActorBeTake,
+
+    /// <summary>
+    /// 角色被放下
+    /// </summary>
+    E_ReadyState_AcotorBePutDown,
     /// <summary>
     /// 玩家的上场角色数据需要刷新
     /// </summary>
     E_PlayerStageActorDataNeedUpdate,
+
+    
 
 }

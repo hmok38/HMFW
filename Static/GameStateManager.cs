@@ -9,7 +9,7 @@ namespace HMFW
         public GameStateManager()
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += LoadSceneOver;
-            GameFsmDefine.RegGameFsm(this);
+            
         }
         /**当前状态 */
         public GameStateBase currentState;
@@ -36,7 +36,7 @@ namespace HMFW
         private object[] args = null;
         private bool lastStateChangen = false;
         /**改变游戏状态 注意:如果再次改变到当前状态会重走一次当前状态的流程*/
-        public void ChangeState<T>(params object[] args) where T : GameStateBase
+        public void ChangeState<T>(params object[] args) where T : GameStateBase,new ()
         {
 
             var stateTemp = this.GetState<T>();
@@ -98,13 +98,14 @@ namespace HMFW
             this.currentState.EnterStateNextFrame();
         }
         /**获取游戏状态 */
-        public T GetState<T>() where T : GameStateBase
+        public T GetState<T>() where T : GameStateBase, new()
         {
 
             if (!this.stateMap.ContainsKey(typeof(T).Name))
             {
-                Debug.LogError("没有找到Game状态:" + typeof(T).Name);
-                return null;
+                this.stateMap.Add(typeof(T).Name, new T());
+                //Debug.LogError("没有找到Game状态:" + typeof(T).Name);
+               
             }
             return this.stateMap[typeof(T).Name] as T;
 
