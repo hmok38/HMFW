@@ -1,0 +1,18 @@
+{
+    "name": "HM.HMFW.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:06fd7cd6753992542807da39c929808f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

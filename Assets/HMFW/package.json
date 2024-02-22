@@ -1,14 +1,37 @@
 {
   "name": "com.hm.hmfw",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "displayName": "HMFW",
   "description": "HMFramework",
   "unity": "2022.3",
   "dependencies": {
- },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "64792b672d35e43b3412fc74861f8bdbf41e3a6f"
+    },
+    "com.hm.hmaddressable": {
+      "version": "https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.addressables": "1.20.5"
+      },
+      "hash": "be91592cd610df53652e9f446973c5cb23a994a2"
+    }
+  },
   "author": {
-    "name": "hmok",
+    "name": "HuangMin",
     "email": "hmok@163.com",
     "url": "https://github.com/hmok38/HMFW"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "sample",
+      "description": "示例项目",
+      "path": "Samples/SampleURP"
+    }
+  ]
 }
