@@ -1,0 +1,14 @@
+{
+  "name": "com.hm.hmfw",
+  "version": "0.0.1",
+  "displayName": "HMFW",
+  "description": "HMFramework",
+  "unity": "2022.3",
+  "dependencies": {
+ },
+  "author": {
+    "name": "hmok",
+    "email": "hmok@163.com",
+    "url": "https://github.com/hmok38/HMFW"
+  }
+}
