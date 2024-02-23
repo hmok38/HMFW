@@ -17,6 +17,13 @@
       },
       "hash": "be91592cd610df53652e9f446973c5cb23a994a2"
     },
+    "com.hm.hmexcelconfig": {
+      "version": "https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "45189f78a69b42bfa7254004dbf1844616cec387"
+    },
     "com.unity.addressables": {
       "version": "1.21.19",
       "depth": 1,
