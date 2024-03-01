@@ -15,7 +15,7 @@ namespace HMFW.SampleURP
             //FW.API.GameFsmMgr = new GameObject("GM").AddComponent<GameFsmMgr>();
 
 
-            FW.API.GameFsmMgr.ChangeState<GameStateInit>();
+            FW.API.GameFsmMgr.ChangeState<GameStateSampleInit>();
             
             /*
              * 注意:首个场景中的其他脚本尽量不要在Awake中调用框架的逻辑和接口,

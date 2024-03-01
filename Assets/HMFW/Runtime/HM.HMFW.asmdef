@@ -2,7 +2,8 @@
     "name": "HM.HMFW",
     "rootNamespace": "",
     "references": [
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:da1e8bfedc24eb2498687fb2c96e3a67"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

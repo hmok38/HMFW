@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ConfigHMAddressables
   m_EditorClassIdentifier: 
   LocalAseetsPaths:
-  - Assets/Bundles
+  - Assets/HMFW/Samples/SampleURP/Bundle
   RemoteAseetsPaths: []
   RemoteLoadPath: http://[PrivateIpAddress]/[BuildTarget]
   TestRemoteLoadPath: http://[PrivateIpAddress]/Test/[BuildTarget]

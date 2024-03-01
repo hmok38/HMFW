@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HMFW.SampleURP.GameState
 {
-    public class GameStateLoading : HMFW.Core.GameStateBase
+    public class GameStateSampleLoading : HMFW.Core.GameStateBase
     {
         public override async UniTask EnterState(params object[] args)
         {
@@ -13,7 +13,8 @@ namespace HMFW.SampleURP.GameState
              * 游戏的整体逻辑不会受到影响,等完成后再关掉之前开启的遮蔽用的UI
              */
             await UniTask.Delay(4000);
-
+            await FW.API.AssetsMgr.LoadSceneAsync("Assets/HMFW/Samples/SampleURP/Scenes/SampleMainScene.unity");
+            // FW.API.UIMgr.
             Debug.Log($"进入完成{this.GetType()}");
         }
 
