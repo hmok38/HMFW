@@ -12,9 +12,13 @@ namespace HMFW.SampleURP.GameState
              * 这里也可以使用一些耗时操作.例如加载某个很大的场景,最好是异步
              * 游戏的整体逻辑不会受到影响,等完成后再关掉之前开启的遮蔽用的UI
              */
-            await UniTask.Delay(4000);
+
             await FW.API.AssetsMgr.LoadSceneAsync("Assets/HMFW/Samples/SampleURP/Scenes/SampleMainScene.unity");
-            // FW.API.UIMgr.
+
+            await UniTask.NextFrame();//等待一帧
+            await UniTask.NextFrame();//等待一帧
+            
+            await FW.API.UIMgr.CloseUI("UISampleLoading");//慢慢关闭ui
             Debug.Log($"进入完成{this.GetType()}");
         }
 
@@ -28,7 +32,6 @@ namespace HMFW.SampleURP.GameState
 
         public override void OnUpdate()
         {
-            
         }
     }
 }

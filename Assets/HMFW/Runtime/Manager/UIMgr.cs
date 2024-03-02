@@ -7,20 +7,18 @@ using Object = UnityEngine.Object;
 
 namespace HMFW
 {
-    /// <summary>
-    /// UI管理器
-    /// </summary>
-    public class UIMgr
+    public class UIMgr : UIMgrBase
     {
         private readonly Dictionary<string, UGUIBase> _uguiMap = new Dictionary<string, UGUIBase>();
         private readonly Dictionary<string, UGUIBase> _uguiTopMap = new Dictionary<string, UGUIBase>();
         private readonly List<string> _uguiSortList = new List<string>();
         private readonly List<string> _uguiTopSortList = new List<string>();
         private readonly Dictionary<string, Type> _allUIBaseTypes = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> _allUIAliasTypes = new Dictionary<string, Type>();
         private bool _inited;
         private Transform _uguiRoot;
 
-        public Transform UguiRoot
+        public override Transform UguiRoot
         {
             get
             {
@@ -35,7 +33,7 @@ namespace HMFW
 
         private Transform _uguiTopRoot;
 
-        public Transform UguiTopRoot
+        public override Transform UguiTopRoot
         {
             get
             {
@@ -55,7 +53,7 @@ namespace HMFW
         /// <param name="uguiRoot"></param>
         /// <param name="uguiTopRoot"></param>
         /// <returns></returns>
-        public void Init(Transform uguiRoot = null, Transform uguiTopRoot = null)
+        public override void Init(Transform uguiRoot = null, Transform uguiTopRoot = null)
         {
             GameObject rootTeam = null;
             if (_uguiRoot == null && uguiRoot == null)
@@ -102,32 +100,63 @@ namespace HMFW
         }
 
         /// <summary> 打开UI </summary>
-        public async UniTask<UGUIBase> OpenUI(string uiFullName, params Object[] args)
+        public override async UniTask<bool> OpenUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
-            return await GetUI(this.GetUIDataType(uiFullName), _uguiMap, UguiRoot,
+            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uguiMap, UguiRoot,
                 _uguiSortList, args);
+            return ui != null;
         }
 
         /// <summary> 打开UI </summary>
-        public async UniTask<T> OpenUI<T>(params Object[] args) where T : UGUIBase
+        public async UniTask<T> OpenUI<T>(params System.Object[] args) where T : UGUIBase
         {
-            return await GetUI(typeof(T), _uguiMap, UguiRoot, _uguiSortList, args) as T;
+            return await OpenUIHandle(typeof(T), _uguiMap, UguiRoot, _uguiSortList, args) as T;
         }
 
         /// <summary> 打开TopUI 保证在普通UI上部 </summary>
-        public async UniTask<UGUIBase> OpenTopUI(string uiFullName, params Object[] args)
+        public override async UniTask<bool> OpenTopUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
-            return await GetUI(this.GetUIDataType(uiFullName), _uguiTopMap, UguiTopRoot,
+            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uguiTopMap, UguiTopRoot,
                 _uguiTopSortList,
                 args);
+
+            return ui != null;
         }
 
         /// <summary> 打开TopUI 保证在普通UI上部 </summary>
-        public async UniTask<T> OpenTopUI<T>(params Object[] args) where T : UGUIBase
+        public async UniTask<T> OpenTopUI<T>(params System.Object[] args) where T : UGUIBase
         {
             var uiFullName = typeof(T).FullName;
-            return await GetUI(typeof(T), _uguiTopMap, UguiTopRoot, _uguiTopSortList,
+            return await OpenUIHandle(typeof(T), _uguiTopMap, UguiTopRoot, _uguiTopSortList,
                 args) as T;
+        }
+
+
+        /// <summary>
+        /// 关闭ui,会等待OnUIClose函数执行完毕后再销毁ui对象,如果有关闭动画等可以重写ui的OnUIClose函数.
+        /// </summary>
+        /// <param name="uiFullNameOrAliasName"></param>
+        /// <param name="args"></param>
+        public override async UniTask CloseUI(string uiFullNameOrAliasName, params System.Object[] args)
+        {
+            Type uiType = GetUIDataType(uiFullNameOrAliasName);
+            UGUIBase uguiBase = null;
+            if (_uguiMap.ContainsKey(uiType.FullName))
+            {
+                uguiBase = _uguiMap[uiType.FullName];
+                _uguiMap.Remove(uiType.FullName);
+            }
+
+            if (uguiBase == null && _uguiTopMap.ContainsKey(uiType.FullName))
+            {
+                uguiBase = _uguiTopMap[uiType.FullName];
+                _uguiTopMap.Remove(uiType.FullName);
+            }
+
+            if (uguiBase == null) return;
+            await uguiBase.OnUIClose(args);
+            if (uguiBase != null)
+                UnityEngine.Object.Destroy(uguiBase.gameObject); //销毁
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
@@ -137,7 +166,7 @@ namespace HMFW
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        public string UGUILoadResUrl(Type uiType)
+        private string UGUILoadResUrl(Type uiType)
         {
             var attribute =
                 (UGUIResUrlAttribute) Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
@@ -153,9 +182,9 @@ namespace HMFW
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        public string UGUILoadResUrl(string uiFullname)
+        public override string UGUILoadResUrl(string uiFullNameOrAliasName)
         {
-            return UGUILoadResUrl(this.GetUIDataType(uiFullname));
+            return UGUILoadResUrl(this.GetUIDataType(uiFullNameOrAliasName));
         }
 
         /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
@@ -165,7 +194,7 @@ namespace HMFW
         }
 
         /// <summary>获得某个UI预制体及其依赖的资源加载地址 返回的是新的字符串数组</summary>
-        public string[] UGUIPreLoadResUrl(Type uiType)
+        private string[] UGUIPreLoadResUrl(Type uiType)
         {
             var attribute =
                 (UGUIResUrlAttribute) Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
@@ -185,13 +214,13 @@ namespace HMFW
         }
 
         /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
-        public string[] UGUIPreLoadResUrl(string uiClassFullname)
+        public override string[] UGUIPreLoadResUrl(string uiFullNameOrAliasName)
         {
-            var type = this.GetUIDataType(uiClassFullname);
+            var type = this.GetUIDataType(uiFullNameOrAliasName);
             return UGUIPreLoadResUrl(type);
         }
 
-        public void ResetRectTransform(RectTransform rectTransform)
+        private void ResetRectTransform(RectTransform rectTransform)
         {
             rectTransform.anchorMax = new Vector2(1, 1);
             rectTransform.anchorMin = new Vector2(0, 0);
@@ -202,27 +231,19 @@ namespace HMFW
             rectTransform.offsetMax = Vector2.zero;
         }
 
-        /// <summary>重新初始化UI类型数据,主要是用来给热更程序集后使用的</summary>
-        public void ResetUITypeData()
-        {
-            _allUIBaseTypes.Clear();
-            this.UITypeDataInit();
-        }
-
-
-        private async UniTask<UGUIBase> GetUI(Type uiType, Dictionary<string, UGUIBase> map, Transform root,
+        private async UniTask<UGUIBase> OpenUIHandle(Type uiType, Dictionary<string, UGUIBase> map, Transform root,
             List<string> sortList,
-            params Object[] args)
+            params System.Object[] args)
         {
             if (map.ContainsKey(uiType.FullName))
             {
                 sortList.Remove(uiType.FullName);
                 sortList.Add(uiType.FullName);
                 var uiComTemp = map[uiType.FullName];
-                uiComTemp.Args = args;
+                SortUI(map, sortList);
                 uiComTemp.gameObject.SetActive(false);
                 uiComTemp.gameObject.SetActive(true);
-                SortUI(map, sortList);
+                await uiComTemp.OnUIOpen(args);
                 return uiComTemp;
             }
 
@@ -235,10 +256,10 @@ namespace HMFW
             if (map.ContainsKey(uiType.FullName))
             {
                 var uiComTemp = map[uiType.FullName];
-                uiComTemp.Args = args;
+                SortUI(map, sortList);
                 uiComTemp.gameObject.SetActive(false);
                 uiComTemp.gameObject.SetActive(true);
-                SortUI(map, sortList);
+                await uiComTemp.OnUIOpen(args);
                 return uiComTemp;
             }
 
@@ -248,9 +269,9 @@ namespace HMFW
             var uiCom = ui.GetComponent(uiType) as UGUIBase;
 
             if (uiCom == null) uiCom = ui.AddComponent(uiType) as UGUIBase;
-            uiCom.Args = args;
             map.Add(uiType.FullName, uiCom);
             SortUI(map, sortList);
+            if (uiCom != null) await uiCom.OnUIOpen(args);
             return map[uiType.FullName];
         }
 
@@ -279,8 +300,8 @@ namespace HMFW
                 this.UITypeDataInit();
             }
 
+            if (_allUIAliasTypes.ContainsKey(typeName)) return _allUIAliasTypes[typeName];
             if (_allUIBaseTypes.ContainsKey(typeName)) return _allUIBaseTypes[typeName];
-
             Debug.LogError($"未找到名为{typeName} 的UI类");
             return null;
         }
@@ -289,19 +310,22 @@ namespace HMFW
         {
             if (!_inited) Init();
             _allUIBaseTypes.Clear();
-            var allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            for (int i = 0; i < allAssemblies.Length; i++)
+            _allUIAliasTypes.Clear();
+            var subTypes = Tools.Util.GetAllSubClass(typeof(UGUIBase));
+            for (int i = 0; i < subTypes.Count; i++)
             {
-                var assembly = allAssemblies[i];
-                var types = assembly.GetTypes();
-                for (int j = 0; j < types.Length; j++)
+                var tempType = subTypes[i];
+
+                var attribute =
+                    (UGUIResUrlAttribute) Attribute.GetCustomAttribute(tempType, typeof(UGUIResUrlAttribute));
+                if (attribute == null)
                 {
-                    var typeTmp = types[j];
-                    if (typeTmp.BaseType == typeof(UGUIBase))
-                    {
-                        _allUIBaseTypes.Add(typeTmp.FullName, typeTmp);
-                    }
+                    Debug.LogError($"{tempType.FullName} 无指定特性,UI必须添加UGUIResUrlAttribute 特性");
+                    continue;
                 }
+
+                _allUIBaseTypes.Add(tempType.FullName, tempType);
+                _allUIAliasTypes.Add(attribute.UIAlias, tempType);
             }
         }
 
@@ -309,5 +333,38 @@ namespace HMFW
         {
             return str.Replace("[L]", FW.API.FwData.CurrentLanguageStr);
         }
+    }
+
+    /// <summary>
+    /// UI管理器基类
+    /// </summary>
+    public abstract class UIMgrBase
+    {
+        public abstract Transform UguiRoot { get; }
+        public abstract Transform UguiTopRoot { get; }
+
+        /// <summary>
+        /// 初始化UI,主要是自定义UIRoot对象用的,否则可以不单独调用,
+        /// 如果要自定义UIRoot,那么请在开启任何UI之前调用此Init
+        /// </summary>
+        /// <param name="uguiRoot"></param>
+        /// <param name="uguiTopRoot"></param>
+        /// <returns></returns>
+        public abstract void Init(Transform uguiRoot = null, Transform uguiTopRoot = null);
+
+        /// <summary> 打开UI </summary>
+        public abstract UniTask<bool> OpenUI(string uiFullNameOrAliasName, params System.Object[] args);
+
+        /// <summary> 打开TopUI 保证在普通UI上部 </summary>
+        public abstract UniTask<bool> OpenTopUI(string uiFullNameOrAliasName, params System.Object[] args);
+
+        /// <summary> 关闭ui,会等待OnUIClose函数执行完毕后再销毁ui对象,如果有关闭动画等可以重写ui的OnUIClose函数. </summary>
+        public abstract UniTask CloseUI(string uiFullNameOrAliasName, params System.Object[] args);
+
+        /// <summary>获得某个UI预制体的资源加载地址</summary>
+        public abstract string UGUILoadResUrl(string uiFullNameOrAliasName);
+
+        /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
+        public abstract string[] UGUIPreLoadResUrl(string uiFullNameOrAliasName);
     }
 }

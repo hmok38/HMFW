@@ -47,6 +47,6 @@ namespace HMFW
         /// <summary>
         /// UI管理器
         /// </summary>
-        public UIMgr UIMgr { get; set; } = new UIMgr();
+        public UIMgrBase UIMgr { get; set; } = new UIMgr();
     }
 }
