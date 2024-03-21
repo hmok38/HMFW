@@ -48,5 +48,10 @@ namespace HMFW
         /// UI管理器
         /// </summary>
         public UIMgrBase UIMgr { get; set; } = new UIMgr();
+        
+        /// <summary>
+        /// 全局事件管理器
+        /// </summary>
+        public GEventMgrBase GEventMgr { get; set; } = new GEventMgr();
     }
 }
