@@ -11,12 +11,14 @@
 ***
 ###框架前置依赖
 请按顺序添加
->* 异步编程插件:  
+* 异步编程插件:  
    >  https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.3.3
->* 基于UnityAddressables的资源管理系统插件:  
+* 基于UnityAddressables的资源管理系统插件:  
    >  https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable
->* 自动化配置表插件:  
-   > https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig
+* 自动化配置表插件:  
+   > https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig  
+* 安装路径:  
+   > https://github.com/hmok38/HMFW.git?path=Assets/HMFW
 
 ###框架的使用
 
