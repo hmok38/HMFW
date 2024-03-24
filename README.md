@@ -9,6 +9,14 @@
 >* 各功能模块接口统一,但又可方便的自行扩展接口
 
 ***
+###框架前置依赖
+请按顺序添加
+>* 异步编程插件:  
+   >  https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.3.3
+>* 基于UnityAddressables的资源管理系统插件:  
+   >  https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable
+>* 自动化配置表插件:  
+   > https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig
 
 ###框架的使用
 
