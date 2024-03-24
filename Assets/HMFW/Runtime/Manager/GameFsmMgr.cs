@@ -18,6 +18,16 @@ namespace HMFW
         public override GameStateBase CurrentState { get; protected set; }
         public override GameStateBase LastState { get; protected set; }
 
+        public override GameStateBase RegState(string type)
+        {
+            if (type == null)
+            {
+                Debug.Log($"GameFsmManager RegState 不允许空类型");
+                return null;
+            }
+
+            return RegState(GetStateType(type));
+        }
 
         public override GameStateBase RegState(Type type)
         {
@@ -46,6 +56,11 @@ namespace HMFW
         public override GameStateBase RegState<T>()
         {
             return this.RegState(typeof(T));
+        }
+
+        public override async UniTask ChangeState(string type, params object[] args)
+        {
+            await ChangeState(GetStateType(type), args);
         }
 
 
@@ -90,6 +105,10 @@ namespace HMFW
             this.BeStateChanging = false;
         }
 
+        public override GameStateBase GetStateInstance(string type)
+        {
+            return GetStateInstance(GetStateType(type));
+        }
 
         public override T GetStateInstance<T>()
         {
@@ -106,15 +125,39 @@ namespace HMFW
             return this._stateMap[tp.Name];
         }
 
+        public override bool CheckCurrentState(string type)
+        {
+            return this.CurrentState != null && (this.CurrentState).GetType().Name.Equals(type);
+        }
 
         public override bool CheckCurrentState<T>()
         {
-            if (this.CurrentState != null && (this.CurrentState).GetType().Name.Equals(typeof(T).Name))
+            return CheckCurrentState(typeof(T).FullName);
+        }
+
+        private readonly Dictionary<string, Type> _allGameStateTypes = new Dictionary<string, Type>();
+
+        private Type GetStateType(string typeName)
+        {
+            if (_allGameStateTypes.Count <= 0)
             {
-                return true;
+                this.UITypeDataInit();
             }
 
-            return false;
+            if (_allGameStateTypes.ContainsKey(typeName)) return _allGameStateTypes[typeName];
+            Debug.LogError($"未找到名为{typeName} 的GameState类");
+            return null;
+        }
+
+        private void UITypeDataInit()
+        {
+            _allGameStateTypes.Clear();
+            var subTypes = Tools.Util.GetAllSubClass(typeof(GameStateBase));
+            for (var i = 0; i < subTypes.Count; i++)
+            {
+                var tempType = subTypes[i];
+                _allGameStateTypes.Add(tempType.FullName, tempType);
+            }
         }
 
         protected override void Update()
@@ -149,10 +192,21 @@ namespace HMFW
         public abstract GameStateBase LastState { get; protected set; }
 
         /**向状态管理机注册状态 */
+        public abstract GameStateBase RegState(string type);
+
+        /**向状态管理机注册状态 */
         public abstract GameStateBase RegState(Type type);
 
         /**向状态管理机注册状态 */
         public abstract GameStateBase RegState<T>() where T : GameStateBase, new();
+
+        /// <summary>
+        /// 改变游戏状态 注意:如果再次改变到当前状态会重走一次当前状态的流程
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public abstract UniTask ChangeState(string type, params object[] args);
 
         /// <summary>
         /// 改变游戏状态 注意:如果再次改变到当前状态会重走一次当前状态的流程
@@ -172,6 +226,13 @@ namespace HMFW
         /// <summary>
         /// 获取游戏状态实例(没有话会自动创建)
         /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public abstract GameStateBase GetStateInstance(string type);
+
+        /// <summary>
+        /// 获取游戏状态实例(没有话会自动创建)
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public abstract T GetStateInstance<T>() where T : GameStateBase, new();
@@ -182,6 +243,9 @@ namespace HMFW
         /// <param name="tp"></param>
         /// <returns></returns>
         public abstract GameStateBase GetStateInstance(Type tp);
+
+        /**检查当前游戏状态是不是参数传入的状态 */
+        public abstract bool CheckCurrentState(string type);
 
         /**检查当前游戏状态是不是参数传入的状态 */
         public abstract bool CheckCurrentState<T>() where T : GameStateBase;
