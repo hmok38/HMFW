@@ -95,14 +95,13 @@ namespace HMFW
                     await this.LastState.LeaveState();
                 }
 
+                this.BeStateChanging = false;
                 await this.CurrentState.EnterState(args);
             }
             else
             {
                 Debug.LogError("状态切换失败:" + type.Name);
             }
-
-            this.BeStateChanging = false;
         }
 
         public override GameStateBase GetStateInstance(string type)
