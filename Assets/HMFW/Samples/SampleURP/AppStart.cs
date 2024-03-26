@@ -16,7 +16,7 @@ namespace HMFW.SampleURP
 
 
             FW.API.GameFsmMgr.ChangeState<GameStateSampleInit>();
-            
+
             /*
              * 注意:首个场景中的其他脚本尽量不要在Awake中调用框架的逻辑和接口,
              * 因为不能保证这个脚本的awake是第一个被调用,

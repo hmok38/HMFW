@@ -11,7 +11,7 @@ namespace HMFW.SampleURP.UI
 
         private void Awake()
         {
-            btn.onClick.AddListener(() => { HMFW.FW.API.GameFsmMgr.ChangeState<GameStateSampleLoading>(); });
+            btn.onClick.AddListener(() => { FW.API.GameFsmMgr.ChangeState<GameStateSampleLoading>(); });
         }
 
         public override async UniTask OnUIClose(params object[] args)
