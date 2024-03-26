@@ -52,4 +52,9 @@ public class FW
     /// 全局事件管理器
     /// </summary>
     public GEventMgrBase GEventMgr { get; set; } = new GEventMgr();
+    
+    /// <summary>
+    /// 全局数据管理器
+    /// </summary>
+    public GDataMgrBase GDataMgr { get; set; } = new GDataMgr();
 }
