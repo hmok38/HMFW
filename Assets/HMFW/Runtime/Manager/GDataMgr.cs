@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 
@@ -19,11 +20,8 @@ namespace HMFW
         public override bool HasData(Enum typeEnum, int subId = 0)
         {
             if (!_mainIdMap.ContainsKey(typeEnum)) return false;
-            var a = _mainIdMap[typeEnum];
-            var containMethod = a.GetType().GetMethod("ContainsKey");
-            var bo = containMethod.Invoke(a, new System.Object[] {subId});
 
-            return (bool) bo;
+            return ContainsKey(_mainIdMap[typeEnum], subId);
         }
 
         public override T GetData<T>(Enum typeEnum, int subId = 0)
@@ -31,13 +29,13 @@ namespace HMFW
             if (_mainIdMap.ContainsKey(typeEnum))
             {
                 var map = _mainIdMap[typeEnum];
-                if (map.GetType() != typeof(Dictionary<Enum, Dictionary<int, T>>))
+                if (map.GetType() != typeof(Dictionary<int, T>))
                 {
                     Debug.LogError($"dataType:{typeEnum} 类型错误:{typeof(T)} != {map.GetType()}");
                     return default;
                 }
 
-                var subMap = ((Dictionary<Enum, Dictionary<int, T>>) map)[typeEnum];
+                var subMap = (Dictionary<int, T>) map;
                 if (subMap.ContainsKey(subId))
                 {
                     return subMap[subId];
@@ -57,13 +55,13 @@ namespace HMFW
             {
                 var map = _mainIdMap[typeEnum];
 
-                if (map.GetType() != typeof(Dictionary<Enum, Dictionary<int, T>>))
+                if (map.GetType() != typeof(Dictionary<int, T>))
                 {
                     Debug.LogError($"dataType:{typeEnum} 类型错误:{typeof(T)} != {map.GetType()}");
                     return;
                 }
 
-                var subMap = ((Dictionary<Enum, Dictionary<int, T>>) map)[typeEnum];
+                var subMap = ((Dictionary<int, T>) map);
                 if (subMap.ContainsKey(subId))
                 {
                     var old = subMap[subId];
@@ -83,12 +81,12 @@ namespace HMFW
             {
                 if (_typeMap.ContainsKey(typeof(T)))
                 {
-                    var map = ((Dictionary<Enum, Dictionary<int, T>>) _typeMap[typeof(T)]);
-                    var subMap = map[typeEnum];
-                    if (subMap.ContainsKey(subId))
+                    var map = ((Dictionary<int, T>) _typeMap[typeof(T)]);
+
+                    if (map.ContainsKey(subId))
                     {
-                        var old = subMap[subId];
-                        subMap[subId] = v;
+                        var old = map[subId];
+                        map[subId] = v;
                         if (!old.Equals(v))
                         {
                             DispatchChangeEvent(typeEnum, subId);
@@ -96,7 +94,7 @@ namespace HMFW
                     }
                     else
                     {
-                        subMap.Add(subId, v);
+                        map.Add(subId, v);
                         DispatchChangeEvent(typeEnum, subId);
                     }
 
@@ -104,30 +102,33 @@ namespace HMFW
                 }
                 else
                 {
-                    var newMap = new Dictionary<Enum, Dictionary<int, T>>(1);
+                    var newMap = new Dictionary<int, T>();
                     _typeMap.Add(typeof(T), newMap);
-                    var subMap = new Dictionary<int, T>();
-                    newMap.Add(typeEnum, subMap);
+
                     _mainIdMap.Add(typeEnum, newMap);
-                    subMap.Add(subId, v);
+                    newMap.Add(subId, v);
                     DispatchChangeEvent(typeEnum, subId);
                 }
             }
         }
 
-        public override void RemoveData(Enum typeEnum, int subId)
+        public override void RemoveData(Enum typeEnum, int subId = 0)
         {
-            throw new NotImplementedException();
+            if (!_mainIdMap.ContainsKey(typeEnum)) return;
+            if (!ContainsKey(_mainIdMap[typeEnum], subId)) return;
+            RemoveKey(_mainIdMap[typeEnum], subId);
         }
 
         public override void RemoveAllTypeData(Enum typeEnum)
         {
-            throw new NotImplementedException();
+            if (!_mainIdMap.ContainsKey(typeEnum)) return;
+            ClearMap(_mainIdMap[typeEnum]);
         }
 
         public override void RemoveAllDataOnMgr()
         {
-            throw new NotImplementedException();
+            _mainIdMap.Clear();
+            _typeMap.Clear();
         }
 
         public override void AddListener(Enum typeEnum, Action action, int subId = 0)
@@ -193,6 +194,31 @@ namespace HMFW
                 }
             }
         }
+
+        private bool ContainsKey(ICollection map, int subId)
+        {
+            var containMethod = map.GetType().GetMethod("ContainsKey", BindingFlags.Public | BindingFlags.Instance);
+            var bo = containMethod.Invoke(map, new System.Object[] {subId});
+            return (bool) bo;
+        }
+
+        private bool RemoveKey(ICollection map, int subId)
+        {
+            // Dictionary<int, int> ma = new Dictionary<int, int>();
+            // ma.Remove()
+            var containMethod = map.GetType().GetMethod("Remove", BindingFlags.Public | BindingFlags.Instance, null,
+                CallingConventions.Any,
+                new Type[] {typeof(int)},
+                null);
+            var bo = containMethod.Invoke(map, new System.Object[] {subId});
+            return (bool) bo;
+        }
+
+        private void ClearMap(ICollection map)
+        {
+            var containMethod = map.GetType().GetMethod("Clear", BindingFlags.Public | BindingFlags.Instance);
+            containMethod.Invoke(map, null);
+        }
     }
 
     /** 全局数据管理器*/
@@ -228,7 +254,7 @@ namespace HMFW
         /// </summary>
         /// <param name="typeEnum"></param>
         /// <param name="subId"></param>
-        public abstract void RemoveData(Enum typeEnum, int subId);
+        public abstract void RemoveData(Enum typeEnum, int subId = 0);
 
         /// <summary>
         /// 移除一个大类的全部数据

@@ -1,4 +1,6 @@
-﻿using HMFW.SampleURP.GameState;
+﻿using System;
+using System.Collections.Generic;
+using HMFW.SampleURP.GameState;
 using UnityEngine;
 
 namespace HMFW.SampleURP
@@ -24,20 +26,97 @@ namespace HMFW.SampleURP
              */
 
 
-            // FW.API.GDataMgr.SetData(0, new Vector3(1, 1, 1));
-            // FW.API.GDataMgr.SetData(0, new Vector3(2, 2, 2), 1); //相同数据的不同副本
-            // FW.API.GDataMgr.SetData(1, new Vector2(1, 1));
-            // FW.API.GDataMgr.SetData(2, 3);
-            // FW.API.GDataMgr.SetData(3, this);
-            // FW.API.GDataMgr.SetData(4, "你好");
-            //
-            //
-            // var v0 = FW.API.GDataMgr.GetData<Vector3>(0);
-            // var v01 = FW.API.GDataMgr.GetData<Vector3>(0, 1);
-            // var v1 = FW.API.GDataMgr.GetData<Vector2>(1);
-            // var v2 = FW.API.GDataMgr.GetData<int>(2);
-            // var v3 = FW.API.GDataMgr.GetData<AppStart>(3);
-            // var v4 = FW.API.GDataMgr.GetData<string>(4);
+            //---GData模块使用演示
+            //GDataDemo();
         }
+
+
+        /// <summary>
+        /// GData模块
+        /// </summary>
+        private void GDataDemo()
+        {
+            FW.API.GDataMgr.AddListener(EnumA.A, () =>
+            {
+                Debug.Log(EnumA.A);
+                Debug.Log(FW.API.GDataMgr.GetData<Vector3>(EnumA.A));
+            });
+            FW.API.GDataMgr.SetData(EnumA.A, new Vector3(1, 1, 1));
+
+            FW.API.GDataMgr.HasData(EnumA.A);
+            FW.API.GDataMgr.AddListener(EnumA.A, () =>
+            {
+                Debug.Log(EnumA.A + " 1");
+                Debug.Log(FW.API.GDataMgr.GetData<Vector3>(EnumA.A, 1));
+            }, 1);
+
+
+            FW.API.GDataMgr.SetData(EnumA.A, new Vector3(2, 2, 2), 1); //相同数据的不同副本
+
+
+            FW.API.GDataMgr.AddListener(EnumA.B, () =>
+            {
+                Debug.Log(EnumA.B);
+                Debug.Log(FW.API.GDataMgr.GetData<Vector2>(EnumA.B));
+            });
+            FW.API.GDataMgr.SetData(EnumA.B, new Vector2(1, 1));
+
+            FW.API.GDataMgr.AddListener(EnumA.C, () =>
+            {
+                Debug.Log(EnumA.C);
+                Debug.Log(FW.API.GDataMgr.GetData<int>(EnumA.C));
+            });
+            FW.API.GDataMgr.SetData(EnumA.C, 3);
+
+            FW.API.GDataMgr.AddListener(EnumB.A, () =>
+            {
+                Debug.Log(EnumB.A);
+                Debug.Log(FW.API.GDataMgr.GetData<AppStart>(EnumB.A));
+            });
+            FW.API.GDataMgr.SetData(EnumB.A, this);
+
+            FW.API.GDataMgr.AddListener(EnumB.B, () =>
+            {
+                Debug.Log(EnumB.B);
+                Debug.Log(FW.API.GDataMgr.GetData<string>(EnumB.B));
+            });
+            FW.API.GDataMgr.SetData(EnumB.B, "你好");
+            FW.API.GDataMgr.SetData(EnumB.C, 1.34f);
+
+
+            var v0 = FW.API.GDataMgr.GetData<Vector3>(EnumA.A);
+            var v01 = FW.API.GDataMgr.GetData<Vector3>(EnumA.A, 1);
+            var v1 = FW.API.GDataMgr.GetData<Vector2>(EnumA.B);
+            var v2 = FW.API.GDataMgr.GetData<int>(EnumA.C);
+            var v3 = FW.API.GDataMgr.GetData<AppStart>(EnumB.A);
+            var v4 = FW.API.GDataMgr.GetData<string>(EnumB.B);
+            var v5 = FW.API.GDataMgr.GetData<float>(EnumB.C);
+
+            FW.API.GDataMgr.SetData(EnumB.B, "你好!");
+
+            FW.API.GDataMgr.RemoveData(EnumB.B, 0);
+            v4 = FW.API.GDataMgr.GetData<string>(EnumB.B);
+
+            FW.API.GDataMgr.RemoveAllTypeData(EnumA.A);
+            v0 = FW.API.GDataMgr.GetData<Vector3>(EnumA.A);
+            v01 = FW.API.GDataMgr.GetData<Vector3>(EnumB.A, 1);
+
+            FW.API.GDataMgr.RemoveAllDataOnMgr();
+            v3 = FW.API.GDataMgr.GetData<AppStart>(EnumB.A);
+        }
+    }
+
+    public enum EnumA
+    {
+        A = 0,
+        B,
+        C
+    }
+
+    public enum EnumB
+    {
+        A = 0,
+        B,
+        C
     }
 }
