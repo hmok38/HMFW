@@ -99,7 +99,7 @@ namespace HMFW.SampleURP
 
             FW.API.GDataMgr.RemoveAllTypeData(EnumA.A);
             v0 = FW.API.GDataMgr.GetData<Vector3>(EnumA.A);
-            v01 = FW.API.GDataMgr.GetData<Vector3>(EnumB.A, 1);
+            v01 = FW.API.GDataMgr.GetData<Vector3>(EnumA.A, 1);
 
             FW.API.GDataMgr.RemoveAllDataOnMgr();
             v3 = FW.API.GDataMgr.GetData<AppStart>(EnumB.A);
