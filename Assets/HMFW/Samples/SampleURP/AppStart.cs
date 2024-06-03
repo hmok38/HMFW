@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HMFW.SampleURP.GameState;
+﻿using HMFW.SampleURP.GameState;
 using UnityEngine;
 
 namespace HMFW.SampleURP
@@ -16,8 +14,10 @@ namespace HMFW.SampleURP
             //FW.GameFsmMgr = new GameObject("GM").AddComponent<GameFsmMgr>();
 
 
-            FW.GameFsmMgr.ChangeState<GameStateSampleInit>();
-
+            FW.GameFsmMgr.ChangeState<GameStateSampleInit>();//这是访问框架自带模块的方式
+            FW.CustomAPI.FWTestMgr();//这是访问自定义扩展模块的方式
+            
+            
             /*
              * 注意:首个场景中的其他脚本尽量不要在Awake中调用框架的逻辑和接口,
              * 因为不能保证这个脚本的awake是第一个被调用,

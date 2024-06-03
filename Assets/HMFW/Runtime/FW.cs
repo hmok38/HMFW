@@ -6,7 +6,10 @@ public class FW
     private FW() //禁止外部创建
     {
     }
-
+    
+    /// <summary>
+    /// 自定义模块访问接口
+    /// </summary>
     public static FW CustomAPI { get; } = new FW();
 
     private static GameFsmMgrBase _gameFsmMgr;
@@ -41,7 +44,7 @@ public class FW
     /// <summary>
     /// 资源管理器
     /// </summary>
-    public static AssetsMgr AssetsMgr { get; set; } = new AssetsMgr();
+    public static AssetsMgrBase AssetsMgr { get; set; } = new AssetsMgr();
 
     /// <summary>
     /// UI管理器
