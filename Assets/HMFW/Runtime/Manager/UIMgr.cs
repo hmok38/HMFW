@@ -250,7 +250,7 @@ namespace HMFW
             sortList.Add(uiType.FullName);
             string url = UGUILoadResUrl(uiType);
             if (url == null) return null;
-            var uiPrefab = await FW.API.AssetsMgr.LoadAsync<GameObject>(url);
+            var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(url);
 
 
             if (map.ContainsKey(uiType.FullName))
@@ -331,7 +331,7 @@ namespace HMFW
 
         private string ReplaceLanguage(string str)
         {
-            return str.Replace("[L]", FW.API.FwData.CurrentLanguageStr);
+            return str.Replace("[L]", FW.FwData.CurrentLanguageStr);
         }
     }
 
