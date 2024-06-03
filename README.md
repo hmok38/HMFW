@@ -9,24 +9,21 @@
 >* 各功能模块接口统一,但又可方便的自行扩展接口
 
 ***
-###框架前置依赖
-请按顺序添加
-* 异步编程插件:  
-   >  https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.3.3
-* 基于UnityAddressables的资源管理系统插件:  
-   >  https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable
-* 自动化配置表插件:  
-   > https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig  
-* 安装路径:  
-   > https://github.com/hmok38/HMFW.git?path=Assets/HMFW
 
 ###框架的使用
 
->* 命名空间HMFW,模块统一访问接口 FW.API
+>* 命名空间HMFW,模块统一访问接口 "`FW.`" 和自定义模块 "`FW.CustomAPI.`"
 >* 按照规范增加新模块或者扩展旧模块可以非常方便的让业务层访问并统一接口,当需要更换插件或者修改逻辑时,业务层逻辑基本不用修改,本框架也无需更新和修改
->* 功能模块的扩展和增加新模块的方式请参考示例中的FWExtend类
+>* 模块的扩展和增加新模块的方式请参考示例中的 **`FWExtend`** 类
 
 ***
 
 ###功能模块
->1. 游戏逻辑控制器(GameFsmManager),访问接口 FW.API.GameFsmManager,它是一个单例
+>1. 游戏逻辑控制器(GameFsmMgr),访问接口 `FW.GameFsmMgr`
+>2. 全局框架数据类（FWData）,访问接口 `FW.FWData`
+>3. 资源管理器(AssetsMgr),访问接口 `FW.AssetsMgr`
+>4. UI管理器(UIMgr),访问接口 `FW.UIMgr`
+>5. 全局事件管理器(GEventMgr),访问接口 `FW.GEventMgr`
+>6. 全局数据管理器(GDataMgr),访问接口 `FW.GDataMgr`
+>7. 框架模块:示例的模块(SampleMgrBase),访问接口 `FW.SampleMgrBase`
+>8. 测试用的自定义新增示例模块（FWTestMgr），访问接口 `FW.CustomAPI.FWTestMgr()`
