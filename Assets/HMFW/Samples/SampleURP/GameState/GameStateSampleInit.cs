@@ -9,7 +9,7 @@ namespace HMFW.SampleURP.GameState
         public override async UniTask EnterState(params object[] args)
         {
             Debug.Log($"进入{this.GetType()}");
-            await FW.API.UIMgr.OpenUI("UISampleLoading");
+            await FW.UIMgr.OpenUI("UISampleLoading");
             
         }
 
@@ -26,7 +26,7 @@ namespace HMFW.SampleURP.GameState
              *  update可以保证在EnterState/LeaveState没有完成之前不调用
              */
             //Debug.Log($"{this.GetType()} OnUpdate");
-           // FW.API.GameFsmMgr.ChangeState<GameStateSampleLoading>();
+           // FW.GameFsmMgr.ChangeState<GameStateSampleLoading>();
         }
     }
 }
