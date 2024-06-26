@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using HMFW.Core;
 using UnityEngine;
@@ -9,14 +10,14 @@ namespace HMFW
 {
     public class UIMgr : UIMgrBase
     {
-        private readonly Dictionary<string, UGUIBase> _uguiMap = new Dictionary<string, UGUIBase>();
-        private readonly Dictionary<string, UGUIBase> _uguiTopMap = new Dictionary<string, UGUIBase>();
-        private readonly List<string> _uguiSortList = new List<string>();
-        private readonly List<string> _uguiTopSortList = new List<string>();
-        private readonly Dictionary<string, Type> _allUIBaseTypes = new Dictionary<string, Type>();
-        private readonly Dictionary<string, Type> _allUIAliasTypes = new Dictionary<string, Type>();
-        private bool _inited;
-        private Transform _uguiRoot;
+        protected readonly Dictionary<string, UIBase> _uiMap = new Dictionary<string, UIBase>();
+        protected readonly Dictionary<string, UIBase> _uiTopMap = new Dictionary<string, UIBase>();
+        protected readonly List<string> _uguiSortList = new List<string>();
+        protected readonly List<string> _uguiTopSortList = new List<string>();
+        protected readonly Dictionary<string, Type> _allUIBaseTypes = new Dictionary<string, Type>();
+        protected readonly Dictionary<string, Type> _allUIAliasTypes = new Dictionary<string, Type>();
+        protected bool _inited;
+        protected Transform _uguiRoot;
 
         public override Transform UguiRoot
         {
@@ -31,7 +32,7 @@ namespace HMFW
             }
         }
 
-        private Transform _uguiTopRoot;
+        protected Transform _uguiTopRoot;
 
         public override Transform UguiTopRoot
         {
@@ -102,21 +103,21 @@ namespace HMFW
         /// <summary> 打开UI </summary>
         public override async UniTask<bool> OpenUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
-            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uguiMap, UguiRoot,
+            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uiMap, UguiRoot,
                 _uguiSortList, args);
             return ui != null;
         }
 
         /// <summary> 打开UI </summary>
-        public async UniTask<T> OpenUI<T>(params System.Object[] args) where T : UGUIBase
+        public virtual async UniTask<T> OpenUI<T>(params System.Object[] args) where T : UIBase
         {
-            return await OpenUIHandle(typeof(T), _uguiMap, UguiRoot, _uguiSortList, args) as T;
+            return await OpenUIHandle(typeof(T), _uiMap, UguiRoot, _uguiSortList, args) as T;
         }
 
         /// <summary> 打开TopUI 保证在普通UI上部 </summary>
         public override async UniTask<bool> OpenTopUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
-            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uguiTopMap, UguiTopRoot,
+            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uiTopMap, UguiTopRoot,
                 _uguiTopSortList,
                 args);
 
@@ -124,10 +125,10 @@ namespace HMFW
         }
 
         /// <summary> 打开TopUI 保证在普通UI上部 </summary>
-        public async UniTask<T> OpenTopUI<T>(params System.Object[] args) where T : UGUIBase
+        public virtual async UniTask<T> OpenTopUI<T>(params System.Object[] args) where T : UIBase
         {
             var uiFullName = typeof(T).FullName;
-            return await OpenUIHandle(typeof(T), _uguiTopMap, UguiTopRoot, _uguiTopSortList,
+            return await OpenUIHandle(typeof(T), _uiTopMap, UguiTopRoot, _uguiTopSortList,
                 args) as T;
         }
 
@@ -140,87 +141,86 @@ namespace HMFW
         public override async UniTask CloseUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
             Type uiType = GetUIDataType(uiFullNameOrAliasName);
-            UGUIBase uguiBase = null;
-            if (_uguiMap.ContainsKey(uiType.FullName))
+            UIBase uiBase = null;
+            if (uiType.FullName != null && _uiMap.ContainsKey(uiType.FullName))
             {
-                uguiBase = _uguiMap[uiType.FullName];
-                _uguiMap.Remove(uiType.FullName);
+                uiBase = _uiMap[uiType.FullName];
+                _uiMap.Remove(uiType.FullName);
             }
 
-            if (uguiBase == null && _uguiTopMap.ContainsKey(uiType.FullName))
+            if (uiType.FullName != null && uiBase == null && _uiTopMap.ContainsKey(uiType.FullName))
             {
-                uguiBase = _uguiTopMap[uiType.FullName];
-                _uguiTopMap.Remove(uiType.FullName);
+                uiBase = _uiTopMap[uiType.FullName];
+                _uiTopMap.Remove(uiType.FullName);
             }
 
-            if (uguiBase == null) return;
-            await uguiBase.OnUIClose(args);
-            if (uguiBase != null)
-                UnityEngine.Object.Destroy(uguiBase.gameObject); //销毁
+            if (uiBase == null) return;
+            await uiBase.OnUIClose(args);
+            if (uiBase != null)
+                UnityEngine.Object.Destroy(uiBase.gameObject); //销毁
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        public string UGUILoadResUrl<T>() where T : UGUIBase
+        public virtual bool UGUILoadResUrl<T>(out UISystem uiSystem, out string resUrl, out string[] preLoadUrlStrings)
+            where T : UIBase
         {
-            return UGUILoadResUrl(typeof(T));
+            return UGUILoadResUrl(typeof(T), out uiSystem, out resUrl, out preLoadUrlStrings);
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        private string UGUILoadResUrl(Type uiType)
+        protected virtual bool UGUILoadResUrl(Type uiType, out UISystem uiSystem, out string resUrl,
+            out string[] preLoadUrlStrings)
         {
             var attribute =
-                (UGUIResUrlAttribute) Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
+                (UGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
             if (attribute == null)
             {
                 Debug.LogErrorFormat("{0}类型未定义UGUIResUrl特性,请定义后再试", uiType.FullName);
-                return null;
+                uiSystem = UISystem.Error;
+                resUrl = null;
+                preLoadUrlStrings = null;
+                return false;
             }
 
+            uiSystem = UISystem.UGUI;
 
-            var str = ReplaceLanguage(attribute.UILoadUrl);
-            return str;
+            resUrl = ReplaceResUrl(attribute.UILoadUrl);
+
+            preLoadUrlStrings = attribute.PreloadResUrl;
+
+            return true;
         }
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        public override string UGUILoadResUrl(string uiFullNameOrAliasName)
+        public override bool UGUILoadResUrl(string uiFullNameOrAliasName, out UISystem uiSystem, out string resUrl,
+            out string[] preLoadUrlStrings)
         {
-            return UGUILoadResUrl(this.GetUIDataType(uiFullNameOrAliasName));
+            return UGUILoadResUrl(this.GetUIDataType(uiFullNameOrAliasName), out uiSystem, out resUrl,
+                out preLoadUrlStrings);
         }
 
-        /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
-        public string[] UGUIPreLoadResUrl<T>() where T : UGUIBase
-        {
-            return UGUIPreLoadResUrl(typeof(T));
-        }
 
         /// <summary>获得某个UI预制体及其依赖的资源加载地址 返回的是新的字符串数组</summary>
-        private string[] UGUIPreLoadResUrl(Type uiType)
+        protected virtual string[] UGUIPreLoadResUrl(Type uiType)
         {
             var attribute =
-                (UGUIResUrlAttribute) Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
+                (UGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
             if (attribute == null)
             {
                 Debug.LogErrorFormat("{0}类型未定义UGUIResUrl特性,请定义后再试", uiType);
                 return null;
             }
 
-            var strs = new String[attribute.PreloadResUrl.Length];
+            var stirs = new String[attribute.PreloadResUrl.Length];
             for (int i = 0; i < attribute.PreloadResUrl.Length; i++)
             {
-                strs[i] = ReplaceLanguage(attribute.PreloadResUrl[i]);
+                stirs[i] = ReplaceResUrl(attribute.PreloadResUrl[i]);
             }
 
-            return strs;
+            return stirs;
         }
 
-        /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
-        public override string[] UGUIPreLoadResUrl(string uiFullNameOrAliasName)
-        {
-            var type = this.GetUIDataType(uiFullNameOrAliasName);
-            return UGUIPreLoadResUrl(type);
-        }
-
-        private void ResetRectTransform(RectTransform rectTransform)
+        protected virtual void ResetRectTransform(RectTransform rectTransform)
         {
             rectTransform.anchorMax = new Vector2(1, 1);
             rectTransform.anchorMin = new Vector2(0, 0);
@@ -231,15 +231,16 @@ namespace HMFW
             rectTransform.offsetMax = Vector2.zero;
         }
 
-        private async UniTask<UGUIBase> OpenUIHandle(Type uiType, Dictionary<string, UGUIBase> map, Transform root,
+        protected virtual async UniTask<UIBase> OpenUIHandle(Type uiType, Dictionary<string, UIBase> map,
+            Transform root,
             List<string> sortList,
             params System.Object[] args)
         {
-            if (map.ContainsKey(uiType.FullName))
+            if (uiType == null) return default;
+            if (uiType.FullName != null && map.TryGetValue(uiType.FullName, out var uiComTemp))
             {
                 sortList.Remove(uiType.FullName);
                 sortList.Add(uiType.FullName);
-                var uiComTemp = map[uiType.FullName];
                 SortUI(map, sortList);
                 uiComTemp.gameObject.SetActive(false);
                 uiComTemp.gameObject.SetActive(true);
@@ -248,34 +249,52 @@ namespace HMFW
             }
 
             sortList.Add(uiType.FullName);
-            string url = UGUILoadResUrl(uiType);
-            if (url == null) return null;
+            if (!UGUILoadResUrl(uiType, out var uiSystem, out var url, out var preLoadUrlStrings))
+            {
+                return null;
+            }
+
+            return uiSystem switch
+            {
+                UISystem.UGUI => await OpenHandleUGUI(url, preLoadUrlStrings, uiType, map, root, sortList, args),
+                _ => default
+            };
+        }
+
+        protected virtual async UniTask<UIBase> OpenHandleUGUI(string url, string[] preLoadUrlStrings, Type uiType,
+            Dictionary<string, UIBase> map,
+            Transform root,
+            List<string> sortList,
+            params System.Object[] args)
+        {
+            if (preLoadUrlStrings != null && preLoadUrlStrings.Length > 0)
+                await FW.AssetsMgr.LoadAssetsAsync<UnityEngine.Object>(preLoadUrlStrings.ToList());
+
             var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(url);
 
 
-            if (map.ContainsKey(uiType.FullName))
+            if (uiType.FullName != null && map.TryGetValue(uiType.FullName, out var uiComTemp1))
             {
-                var uiComTemp = map[uiType.FullName];
                 SortUI(map, sortList);
-                uiComTemp.gameObject.SetActive(false);
-                uiComTemp.gameObject.SetActive(true);
-                await uiComTemp.OnUIOpen(args);
-                return uiComTemp;
+                uiComTemp1.gameObject.SetActive(false);
+                uiComTemp1.gameObject.SetActive(true);
+                await uiComTemp1.OnUIOpen(args);
+                return uiComTemp1;
             }
 
             var ui = UnityEngine.Object.Instantiate(uiPrefab, root, true) as GameObject;
             var rectTransform = ui.transform as RectTransform;
             ResetRectTransform(rectTransform);
-            var uiCom = ui.GetComponent(uiType) as UGUIBase;
+            var uiCom = ui.GetComponent(uiType) as UIBase;
 
-            if (uiCom == null) uiCom = ui.AddComponent(uiType) as UGUIBase;
+            if (uiCom == null) uiCom = ui.AddComponent(uiType) as UIBase;
             map.Add(uiType.FullName, uiCom);
             SortUI(map, sortList);
             if (uiCom != null) await uiCom.OnUIOpen(args);
             return map[uiType.FullName];
         }
 
-        private void SortUI(Dictionary<string, UGUIBase> map, List<string> uguiSortListTmp)
+        protected virtual void SortUI(Dictionary<string, UIBase> map, List<string> uguiSortListTmp)
         {
             var indexSubV = 0;
             for (int i = 0; i < uguiSortListTmp.Count; i++)
@@ -293,34 +312,34 @@ namespace HMFW
             }
         }
 
-        private Type GetUIDataType(string typeName)
+        protected virtual Type GetUIDataType(string typeName)
         {
             if (_allUIBaseTypes.Count <= 0)
             {
                 this.UITypeDataInit();
             }
 
-            if (_allUIAliasTypes.ContainsKey(typeName)) return _allUIAliasTypes[typeName];
-            if (_allUIBaseTypes.ContainsKey(typeName)) return _allUIBaseTypes[typeName];
+            if (_allUIAliasTypes.TryGetValue(typeName, out var type)) return type;
+            if (_allUIBaseTypes.TryGetValue(typeName, out var dataType)) return dataType;
             Debug.LogError($"未找到名为{typeName} 的UI类");
             return null;
         }
 
-        private void UITypeDataInit()
+        protected virtual void UITypeDataInit()
         {
             if (!_inited) Init();
             _allUIBaseTypes.Clear();
             _allUIAliasTypes.Clear();
-            var subTypes = Tools.Util.GetAllSubClass(typeof(UGUIBase));
-            for (int i = 0; i < subTypes.Count; i++)
+            var subTypes = Tools.Util.GetAllSubClass(typeof(UIBase));
+            for (var i = 0; i < subTypes.Count; i++)
             {
                 var tempType = subTypes[i];
-
+                if (tempType == null) continue;
                 var attribute =
-                    (UGUIResUrlAttribute) Attribute.GetCustomAttribute(tempType, typeof(UGUIResUrlAttribute));
+                    (UGUIResUrlAttribute)Attribute.GetCustomAttribute(tempType, typeof(UGUIResUrlAttribute));
                 if (attribute == null)
                 {
-                    Debug.LogError($"{tempType.FullName} 无指定特性,UI必须添加UGUIResUrlAttribute 特性");
+                    Debug.LogError($"{tempType.FullName} 无指定特性,UI必须添加UGUIResUrlAttribute或者FGUIResUrlAttribute 特性");
                     continue;
                 }
 
@@ -329,7 +348,7 @@ namespace HMFW
             }
         }
 
-        private string ReplaceLanguage(string str)
+        protected virtual string ReplaceResUrl(string str)
         {
             return str.Replace("[L]", FW.FwData.CurrentLanguageStr);
         }
@@ -362,9 +381,7 @@ namespace HMFW
         public abstract UniTask CloseUI(string uiFullNameOrAliasName, params System.Object[] args);
 
         /// <summary>获得某个UI预制体的资源加载地址</summary>
-        public abstract string UGUILoadResUrl(string uiFullNameOrAliasName);
-
-        /// <summary>获得某个UI预制体及其依赖的资源加载地址</summary>
-        public abstract string[] UGUIPreLoadResUrl(string uiFullNameOrAliasName);
+        public abstract bool UGUILoadResUrl(string uiFullNameOrAliasName, out UISystem uiSystem, out string resUrl,
+            out string[] preLoadUrlStrings);
     }
 }

@@ -2,6 +2,9 @@
 
 namespace HMFW.Core
 {
+    /// <summary>
+    /// UGUI需要的特性
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class UGUIResUrlAttribute : Attribute
     {
@@ -32,7 +35,7 @@ namespace HMFW.Core
             }
             else
             {
-                this.PreloadResUrl = new[] {this.UILoadUrl};
+                this.PreloadResUrl = new[] { this.UILoadUrl };
             }
         }
     }

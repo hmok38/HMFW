@@ -1,12 +1,14 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using HMFW.Core;
 using HMFW.SampleURP.GameState;
 
 namespace HMFW.SampleURP.UI
 {
     [HMFW.Core.UGUIResUrl("Assets/HMFW/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading")]
-    public class UISampleLoading : HMFW.Core.UGUIBase
+    public class UISampleLoading : HMFW.Core.UIBase
     {
+        public override UISystem MyUISystem => UISystem.UGUI;
         public UnityEngine.UI.Button btn;
 
         private void Awake()

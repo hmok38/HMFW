@@ -6,8 +6,10 @@ namespace HMFW.Core
     /// <summary>
     /// UGUI的基类,子类需要添加UGUIResUrl特性
     /// </summary>
-    public abstract class UGUIBase : MonoBehaviour
+    public abstract class UIBase : MonoBehaviour
     {
+        public abstract UISystem MyUISystem { get; }
+
         /// <summary>
         /// UI开启的回调,UIManager.Open的时候会运行完成此函数后再返回
         /// </summary>
@@ -25,5 +27,15 @@ namespace HMFW.Core
         {
             return default;
         }
+    }
+
+    /// <summary>
+    /// UI系统
+    /// </summary>
+    public enum UISystem
+    {
+        Error,
+        UGUI,
+        FairyGui
     }
 }
