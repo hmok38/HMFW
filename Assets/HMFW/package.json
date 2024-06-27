@@ -29,6 +29,11 @@
   },
   "samples": [
     {
+      "displayName": "FairyGUIExtention",
+      "description": "支持FairyGUI的扩展n和示例,需要先安装FairyGUI的SDK",
+      "path": "Samples/FairyGUIExtension"
+    },
+    {
       "displayName": "sample",
       "description": "示例项目",
       "path": "Samples/SampleURP"
