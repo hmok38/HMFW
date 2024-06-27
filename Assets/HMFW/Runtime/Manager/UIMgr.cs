@@ -160,6 +160,55 @@ namespace HMFW
                 UnityEngine.Object.Destroy(uiBase.gameObject); //销毁
         }
 
+        public override async UniTask<bool> CloseAllUI(string[] excludedUIs = null)
+        {
+            List<string> needCloseMapKey = new List<string>();
+            string[] excludedUIType = null;
+            if (excludedUIs != null && excludedUIs.Length > 0)
+            {
+                excludedUIType = new string[excludedUIs.Length];
+                for (var i = 0; i < excludedUIs.Length; i++)
+                {
+                    var t = GetUIDataType(excludedUIs[i]);
+                    if (t != null)
+                    {
+                        excludedUIType[i] = t.FullName;
+                    }
+                    else
+                    {
+                        excludedUIType[i] = null;
+                    }
+                }
+            }
+
+
+            foreach (var kv in _uiMap)
+            {
+                if (excludedUIType == null || !excludedUIType.Contains(kv.Key))
+                {
+                    needCloseMapKey.Add(kv.Key);
+                }
+            }
+
+            foreach (var kv in _uiTopMap)
+            {
+                if (excludedUIType == null || !excludedUIType.Contains(kv.Key))
+                {
+                    needCloseMapKey.Add(kv.Key);
+                }
+            }
+
+            UniTask[] allUniTask = new UniTask[needCloseMapKey.Count];
+            for (var i = 0; i < needCloseMapKey.Count; i++)
+            {
+                var u = CloseUI(needCloseMapKey[i]);
+                allUniTask[i] = u;
+            }
+
+            await UniTask.WhenAll(allUniTask);
+            return true;
+        }
+
         /// <summary>获得某个UI预制体的资源加载地址</summary>
         public virtual bool UGUILoadResUrl<T>(out UISystem uiSystem, out string resUrl, out string[] preLoadUrlStrings)
             where T : UIBase
@@ -383,5 +432,12 @@ namespace HMFW
         /// <summary>获得某个UI预制体的资源加载地址</summary>
         public abstract bool UGUILoadResUrl(string uiFullNameOrAliasName, out UISystem uiSystem, out string resUrl,
             out string[] preLoadUrlStrings);
+
+        /// <summary>
+        /// 关闭所有ui,除了被排除的Ui以外
+        /// </summary>
+        /// <param name="excludedUIs"></param>
+        /// <returns></returns>
+        public abstract UniTask<bool> CloseAllUI(string[] excludedUIs = null);
     }
 }

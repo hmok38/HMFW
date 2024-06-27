@@ -8,7 +8,7 @@ namespace HMFW.Core
     /// </summary>
     public abstract class UIBase : MonoBehaviour
     {
-        public abstract UISystem MyUISystem { get; }
+        public virtual UISystem MyUISystem => UISystem.UGUI;
 
         /// <summary>
         /// UI开启的回调,UIManager.Open的时候会运行完成此函数后再返回
