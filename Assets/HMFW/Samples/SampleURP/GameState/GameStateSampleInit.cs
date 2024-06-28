@@ -9,8 +9,15 @@ namespace HMFW.SampleURP.GameState
         public override async UniTask EnterState(params object[] args)
         {
             Debug.Log($"进入{this.GetType()}");
-            await FW.UIMgr.OpenUI("UISampleLoading");
-            
+            FW.UIMgr.Init();
+            var setting = FW.UIMgr.GetGroupSetting(200);
+            setting.BusyLimit = 1;
+            //   await FW.UIMgr.OpenUI("UISampleLoading",1000);
+            await FW.UIMgr.OpenUI("UISampleLoading", 200);
+
+            await FW.UIMgr.OpenUI("PlayerCoin", 200);
+            await UniTask.Delay(3000);
+            await FW.UIMgr.CloseUI("UISampleLoading");
         }
 
         public override async UniTask LeaveState(params object[] args)
@@ -26,7 +33,7 @@ namespace HMFW.SampleURP.GameState
              *  update可以保证在EnterState/LeaveState没有完成之前不调用
              */
             //Debug.Log($"{this.GetType()} OnUpdate");
-           // FW.GameFsmMgr.ChangeState<GameStateSampleLoading>();
+            // FW.GameFsmMgr.ChangeState<GameStateSampleLoading>();
         }
     }
 }

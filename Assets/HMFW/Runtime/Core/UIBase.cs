@@ -8,6 +8,11 @@ namespace HMFW.Core
     /// </summary>
     public abstract class UIBase : MonoBehaviour
     {
+        public UIInfo UiInfo { get; set; }
+
+        /// <summary>
+        /// 是属于哪个ui系统下的
+        /// </summary>
         public virtual UISystem MyUISystem => UISystem.UGUI;
 
         /// <summary>
@@ -36,6 +41,8 @@ namespace HMFW.Core
     {
         Error,
         UGUI,
-        FairyGui
+        FairyGui,
+        Other0,
+        Other1,
     }
 }

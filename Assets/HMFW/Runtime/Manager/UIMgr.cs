@@ -19,7 +19,7 @@ namespace HMFW
         protected bool _inited;
         protected Transform _uguiRoot;
 
-        public override Transform UguiRoot
+        public override Transform UGUIRoot
         {
             get
             {
@@ -34,7 +34,7 @@ namespace HMFW
 
         protected Transform _uguiTopRoot;
 
-        public override Transform UguiTopRoot
+        public Transform UguiTopRoot
         {
             get
             {
@@ -54,7 +54,7 @@ namespace HMFW
         /// <param name="uguiRoot"></param>
         /// <param name="uguiTopRoot"></param>
         /// <returns></returns>
-        public override void Init(Transform uguiRoot = null, Transform uguiTopRoot = null)
+        public override void Init(Transform uguiRoot = null)
         {
             GameObject rootTeam = null;
             if (_uguiRoot == null && uguiRoot == null)
@@ -75,7 +75,7 @@ namespace HMFW
                 _uguiRoot = uguiRoot;
             }
 
-            if (_uguiTopRoot == null && uguiTopRoot == null)
+            if (_uguiTopRoot == null) //&& uguiTopRoot == null
             {
                 if (rootTeam == null)
                 {
@@ -94,7 +94,7 @@ namespace HMFW
             }
             else
             {
-                _uguiTopRoot = uguiTopRoot;
+                //_uguiTopRoot = uguiTopRoot;
             }
 
             _inited = true;
@@ -103,7 +103,7 @@ namespace HMFW
         /// <summary> 打开UI </summary>
         public override async UniTask<bool> OpenUI(string uiFullNameOrAliasName, params System.Object[] args)
         {
-            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uiMap, UguiRoot,
+            var ui = await OpenUIHandle(this.GetUIDataType(uiFullNameOrAliasName), _uiMap, UGUIRoot,
                 _uguiSortList, args);
             return ui != null;
         }
@@ -111,7 +111,7 @@ namespace HMFW
         /// <summary> 打开UI </summary>
         public virtual async UniTask<T> OpenUI<T>(params System.Object[] args) where T : UIBase
         {
-            return await OpenUIHandle(typeof(T), _uiMap, UguiRoot, _uguiSortList, args) as T;
+            return await OpenUIHandle(typeof(T), _uiMap, UGUIRoot, _uguiSortList, args) as T;
         }
 
         /// <summary> 打开TopUI 保证在普通UI上部 </summary>
@@ -221,7 +221,7 @@ namespace HMFW
             out string[] preLoadUrlStrings)
         {
             var attribute =
-                (UGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
+                (UGUIAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIAttribute));
             if (attribute == null)
             {
                 Debug.LogErrorFormat("{0}类型未定义UGUIResUrl特性,请定义后再试", uiType.FullName);
@@ -253,7 +253,7 @@ namespace HMFW
         protected virtual string[] UGUIPreLoadResUrl(Type uiType)
         {
             var attribute =
-                (UGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
+                (UGUIAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIAttribute));
             if (attribute == null)
             {
                 Debug.LogErrorFormat("{0}类型未定义UGUIResUrl特性,请定义后再试", uiType);
@@ -385,7 +385,7 @@ namespace HMFW
                 var tempType = subTypes[i];
                 if (tempType == null) continue;
                 var attribute =
-                    (UGUIResUrlAttribute)Attribute.GetCustomAttribute(tempType, typeof(UGUIResUrlAttribute));
+                    (UGUIAttribute)Attribute.GetCustomAttribute(tempType, typeof(UGUIAttribute));
                 if (attribute == null)
                 {
                     Debug.LogError($"{tempType.FullName} 无指定特性,UI必须添加UGUIResUrlAttribute或者FGUIResUrlAttribute 特性");
@@ -408,8 +408,7 @@ namespace HMFW
     /// </summary>
     public abstract class UIMgrBase
     {
-        public abstract Transform UguiRoot { get; }
-        public abstract Transform UguiTopRoot { get; }
+        public abstract Transform UGUIRoot { get; }
 
         /// <summary>
         /// 初始化UI,主要是自定义UIRoot对象用的,否则可以不单独调用,
@@ -418,7 +417,7 @@ namespace HMFW
         /// <param name="uguiRoot"></param>
         /// <param name="uguiTopRoot"></param>
         /// <returns></returns>
-        public abstract void Init(Transform uguiRoot = null, Transform uguiTopRoot = null);
+        public abstract void Init(Transform uguiRoot = null);
 
         /// <summary> 打开UI </summary>
         public abstract UniTask<bool> OpenUI(string uiFullNameOrAliasName, params System.Object[] args);
@@ -439,5 +438,42 @@ namespace HMFW
         /// <param name="excludedUIs"></param>
         /// <returns></returns>
         public abstract UniTask<bool> CloseAllUI(string[] excludedUIs = null);
+
+
+        // /// <summary>
+        // /// 获取UI组信息,如果没有则创建,默认为无限制,
+        // /// </summary>
+        // /// <param name="priorityBase">传入优先级数值,按照每100一组的方式进行分组,传入102获取100-199group的设置</param>
+        // /// <returns></returns>
+        // public abstract UIGroupSetting GetGroupSetting(int priorityBase);
+        //
+        // /// <summary>
+        // /// 打开UI
+        // /// </summary>
+        // /// <param name="uiNameOrAlias">UI的类全名或者别名</param>
+        // /// <param name="priority">权限,每100为一组,相同的值按顺序排列</param>
+        // /// <param name="openType"></param>
+        // /// <param name="args"></param>
+        // /// <returns></returns>
+        // public abstract UniTask<bool> OpenUI(string uiNameOrAlias, int priority = 100,
+        //     OpenType openType = OpenType.Normal, params System.Object[] args);
+        //
+        // /// <summary>
+        // /// 关闭某个UI组
+        // /// </summary>
+        // /// <param name="priorityBase">Ui组,会自动进行组转换,即÷100</param>
+        // /// <param name="closeType">关闭全部/显示的/排队的</param>
+        // /// <returns></returns>
+        // public abstract UniTask CloseUIGroup(int priorityBase, CloseType closeType = CloseType.All);
+        //
+        // /// <summary>
+        // /// 关闭所有的ui,可选全部/显示了的/排队中的.还可以排除某些ui不要关闭
+        // /// </summary>
+        // /// <param name="closeType">关闭全部/显示的/排队的</param>
+        // /// <param name="excludedUIs">不用被关闭的ui</param>
+        // /// <returns></returns>
+        // public abstract UniTask CloseAllUI(CloseType closeType = CloseType.All, string[] excludedUIs = null);
     }
+
+   
 }

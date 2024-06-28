@@ -24,7 +24,7 @@ namespace HMFW
                 var tempType = subTypes[i];
                 if (tempType == null) continue;
                 var attribute =
-                    (UGUIResUrlAttribute)Attribute.GetCustomAttribute(tempType, typeof(UGUIResUrlAttribute));
+                    (UGUIAttribute)Attribute.GetCustomAttribute(tempType, typeof(UGUIAttribute));
                 if (attribute == null)
                 {
                     var fguiAttribute =
@@ -200,7 +200,7 @@ namespace HMFW
             out string[] preLoadUrlStrings)
         {
             var attribute =
-                (UGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIResUrlAttribute));
+                (UGUIAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIAttribute));
             if (attribute == null)
             {
                 var fguiAttr = (FGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(FGUIResUrlAttribute));

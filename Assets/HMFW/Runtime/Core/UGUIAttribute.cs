@@ -6,11 +6,29 @@ namespace HMFW.Core
     /// UGUI需要的特性
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class UGUIResUrlAttribute : Attribute
+    public abstract class UIAttribute : Attribute
+    {
+        public readonly bool BeMultiple;
+        public readonly string UIAlias;
+        public readonly UISystem UISystem;
+
+        public UIAttribute(string uiAlias, UISystem uiSystem, bool beMultiple = false)
+        {
+            BeMultiple = beMultiple;
+            UIAlias = uiAlias;
+            UISystem = uiSystem;
+        }
+    }
+
+    /// <summary>
+    /// UGUI需要的特性
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class UGUIAttribute : UIAttribute
     {
         public readonly string UILoadUrl;
         public readonly string[] PreloadResUrl;
-        public readonly string UIAlias;
+
 
         /// <summary>
         /// 设置UI的加载路径和需要预加载资源列表,如果需要接入多国语言的话,请使用[L]标识代替语言路径.
@@ -19,11 +37,12 @@ namespace HMFW.Core
         /// </summary>
         /// <param name="uiLoadUrl">加载预制体的路径</param>
         /// <param name="uiAlias">为开启ui的别名</param>
+        /// <param name="beMultiple">是否允许多个实例同时存在</param>
         /// <param name="preloadResUrl">开启UI前需要预加载的资源</param>
-        public UGUIResUrlAttribute(string uiLoadUrl, string uiAlias = null, string[] preloadResUrl = null)
+        public UGUIAttribute(string uiLoadUrl, string uiAlias, bool beMultiple = false,
+            string[] preloadResUrl = null) : base(uiAlias, UISystem.UGUI, beMultiple)
         {
             this.UILoadUrl = uiLoadUrl;
-            this.UIAlias = uiAlias;
             if (preloadResUrl != null)
             {
                 this.PreloadResUrl = new string[preloadResUrl.Length + 1];

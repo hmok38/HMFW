@@ -5,7 +5,7 @@ using HMFW.SampleURP.GameState;
 
 namespace HMFW.SampleURP.UI
 {
-    [HMFW.Core.UGUIResUrl("Assets/HMFW/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading")]
+    [HMFW.Core.UGUI("Assets/HMFW/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading", true)]
     public class UISampleLoading : HMFW.Core.UIBase
     {
         public override UISystem MyUISystem => UISystem.UGUI;
