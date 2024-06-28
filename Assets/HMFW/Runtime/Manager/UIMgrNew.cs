@@ -76,13 +76,13 @@ namespace HMFW
             {
                 MyUGUIRoot = uguiRoot;
             }
-            
+
             UIGroupSettings = new Dictionary<uint, UIGroupSetting>
             {
                 { 0, new UIGroupSetting() { GroupId = 0, GroupRoot = MyUGUIRoot.Find($"{UIGroupRootName}0") } },
                 { 100, new UIGroupSetting() { GroupId = 100, GroupRoot = MyUGUIRoot.Find($"{UIGroupRootName}100") } }
             };
-            
+
             Inited = true;
         }
 
@@ -100,7 +100,7 @@ namespace HMFW
         }
 
         public async UniTask<UIInfo> OpenUI(string uiNameOrAlias, uint priority = 100,
-            UIOpenType uiOpenType = UIOpenType.Normal, params object[] args)
+            UIOpenType uiOpenType = UIOpenType.Wait, params object[] args)
         {
             var uiType = this.GetUIDataType(uiNameOrAlias);
             if (uiType == null) return default;
@@ -164,6 +164,12 @@ namespace HMFW
                 }
                 else
                 {
+                    if (uiInfo.UIOpenType == UIOpenType.Normal)
+                    {
+                        uiInfo.UIState = UIState.Error;
+                        return uiInfo;
+                    }
+
                     //需要等待就添加进来,然后等待有页面被关闭后再次打开
                     if (uiInfo.UIOpenType is UIOpenType.WaitFirst or UIOpenType.CoveredOrWait)
                     {
@@ -173,6 +179,13 @@ namespace HMFW
                     {
                         waitingList.Add(uiInfo);
                     }
+
+                    if (!NameToUIMap.ContainsKey(uiInfo.UIName))
+                    {
+                        NameToUIMap.Add(uiInfo.UIName, new List<UIInfo>());
+                    }
+
+                    NameToUIMap[uiInfo.UIName].Add(uiInfo);
                 }
 
 
@@ -243,7 +256,17 @@ namespace HMFW
                 }
                 else
                 {
-                    return await CloseUIHandle(uiInfos[0], args);
+                    //没有指定uiid的话,优先关闭正在显示的,
+                    var uib = uiInfos.Find(x =>
+                        x.UIState == UIState.Loading || x.UIState == UIState.Show || x.UIState == UIState.Hide);
+
+                    if (uib == null)
+                    {
+                        uib = uiInfos[0];
+                    }
+
+                    uiInfos.Remove(uib);
+                    return await CloseUIHandle(uib, args);
                 }
             }
 
@@ -287,7 +310,7 @@ namespace HMFW
             if (uiInfo == null) return default;
             if (uiInfo.UIState == UIState.Destroy) return uiInfo;
 
-            uiInfo.UIState = UIState.Destroy;
+          
             var groupId = GetGroupId(uiInfo.Priority);
             if (uiInfo.UIState == UIState.Wait)
             {
@@ -303,13 +326,13 @@ namespace HMFW
                     groupUI.Remove(uiInfo);
                 }
             }
-
+            
             if (NameToUIMap.TryGetValue(uiInfo.UIName, out var list))
             {
                 list.Remove(uiInfo);
             }
 
-
+            uiInfo.UIState = UIState.Destroy;
             if (uiInfo.UIBase != null)
             {
                 await uiInfo.UIBase.OnUIClose(args);
@@ -355,7 +378,7 @@ namespace HMFW
 
             return tr;
         }
-        
+
         protected virtual async UniTask<UIInfo> OpenHandleUGUI(UIAttribute attribute, Type uiType, UIInfo uiInfo,
             List<UIInfo> showedList, UIGroupSetting groupSetting)
         {

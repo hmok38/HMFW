@@ -14,10 +14,12 @@ namespace HMFW.SampleURP.GameState
             setting.BusyLimit = 1;
             //   await FW.UIMgr.OpenUI("UISampleLoading",1000);
             await FW.UIMgr.OpenUI("UISampleLoading", 200);
-
-            await FW.UIMgr.OpenUI("PlayerCoin", 200);
+            await FW.UIMgr.OpenUI("UISampleLoading", 200);
+            await FW.UIMgr.OpenUI("PlayerCoin", 200, UIOpenType.Now);
             await UniTask.Delay(3000);
+            await FW.UIMgr.CloseUI("UISampleLoading").ToCoroutine();
             await FW.UIMgr.CloseUI("UISampleLoading");
+            await FW.UIMgr.CloseUI("PlayerCoin");
         }
 
         public override async UniTask LeaveState(params object[] args)

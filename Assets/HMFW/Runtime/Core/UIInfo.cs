@@ -110,7 +110,7 @@ namespace HMFW
         Destroy,
 
         /// <summary>
-        /// UI错误,例如open打开的时候,队列太满,
+        /// UI错误,例如openNormal打开的时候,队列太满,
         /// </summary>
         Error,
 
