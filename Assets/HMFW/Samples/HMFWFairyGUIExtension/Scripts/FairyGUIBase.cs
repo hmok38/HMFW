@@ -14,6 +14,6 @@ namespace HMFW
         /// 此UI的根节点
         /// </summary>
         [System.NonSerialized, Header("此UI的根节点")]
-        protected FairyGUI.GObject MyGObject;
+        public FairyGUI.GObject MyGObject;
     }
 }

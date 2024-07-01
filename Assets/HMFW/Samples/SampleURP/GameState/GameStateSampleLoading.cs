@@ -20,7 +20,16 @@ namespace HMFW.SampleURP.GameState
 
             await UniTask.NextFrame(); //等待一帧
             await UniTask.NextFrame(); //等待一帧
-            
+
+            // var gc = new GComponent();
+            // gc.gameObjectName = "测试组1";
+            // gc.name = "测试组1";
+            // GRoot.inst.AddChild(gc);
+            // var gc2 = new GComponent();
+            // gc2.gameObjectName = "测试组2";
+            // gc2.name = "测试组2";
+            // GRoot.inst.AddChild(gc2);
+            //
             // //加载包
             // await LoadPackage("Assets/Bundles/Fgui/Common/UICommon");
             // await LoadPackage("Assets/Bundles/Fgui/MainScene/UIHome");
@@ -29,8 +38,15 @@ namespace HMFW.SampleURP.GameState
             // UIPackage.CreateObjectAsync("UIHome", "Home", homeUI =>
             // {
             //     beHomeUI = true;
-            //     GRoot.inst.AddChild(homeUI);
+            //     gc2.AddChild(homeUI);
             // });
+            //
+            // UIPackage.CreateObjectAsync("UIHome", "FguiSample", homeUI =>
+            // {
+            //     beHomeUI = true;
+            //     gc.AddChild(homeUI);
+            // });
+            //
             // await UniTask.WaitUntil(() => beHomeUI);
 
             // UIPackage.branch = "en";
@@ -39,10 +55,13 @@ namespace HMFW.SampleURP.GameState
             // FairyGUI.Utils.XML xml = new FairyGUI.Utils.XML(fileContent);
             // UIPackage.SetStringsSource(xml);
 
-
-            //await FW.UIMgr.OpenUI("FguiSampleUI", "哈哈");
-
-            // await FW.UIMgr.CloseUI("UISampleLoading"); //慢慢关闭ui
+            await FW.UIMgr.OpenUI("FguiSample", 300,UIOpenType.Wait);
+            
+            await UniTask.Delay(2000);
+            await FW.UIMgr.OpenUI("FguiSample", 200,UIOpenType.Wait);
+            await FW.UIMgr.OpenUI("Home", 200,UIOpenType.Wait);
+            await UniTask.Delay(4000);
+            await FW.UIMgr.CloseUI("UISampleLoading"); //慢慢关闭ui
 
             //await FW.UIMgr.CloseAllUI(new[] { "FguiSampleUI" });
 
@@ -55,29 +74,29 @@ namespace HMFW.SampleURP.GameState
             Debug.Log($"进入完成{this.GetType()}");
         }
 
-        // public static async UniTask LoadPackage(string packagePath)
-        // {
-        //     Debug.Log($"{packagePath}");
-        //     var descDataAssetUIHome =
-        //         await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
-        //     var descData = descDataAssetUIHome.bytes;
-        //
-        //     UIPackage.AddPackage(descData, packagePath, OnLoadResourceAsync);
-        // }
-        //
-        // public static async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
-        // {
-        //     Debug.Log(name);
-        //     Debug.Log(extension);
-        //     Debug.Log(type.FullName);
-        //     Debug.Log(item.file);
-        //
-        //     // string paths = LocalFGUIPath + name + extension;
-        //     // instance.otherRes.Add(paths);
-        //     var obj = await FW.AssetsMgr.LoadAsync<Object>(item.file);
-        //     item.owner.SetItemAsset(item, obj, DestroyMethod.None);
-        //     // instance.fGuiLoadedOtherRes.Add(name);
-        // }
+        public static async UniTask LoadPackage(string packagePath)
+        {
+            Debug.Log($"{packagePath}");
+            var descDataAssetUIHome =
+                await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
+            var descData = descDataAssetUIHome.bytes;
+
+            UIPackage.AddPackage(descData, packagePath, OnLoadResourceAsync);
+        }
+
+        public static async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
+        {
+            Debug.Log(name);
+            Debug.Log(extension);
+            Debug.Log(type.FullName);
+            Debug.Log(item.file);
+
+            // string paths = LocalFGUIPath + name + extension;
+            // instance.otherRes.Add(paths);
+            var obj = await FW.AssetsMgr.LoadAsync<Object>(item.file);
+            item.owner.SetItemAsset(item, obj, DestroyMethod.None);
+            // instance.fGuiLoadedOtherRes.Add(name);
+        }
 
         public override async UniTask LeaveState(params object[] args)
         {
