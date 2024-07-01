@@ -16,7 +16,6 @@ namespace HMFW
         protected readonly Dictionary<string, Type> AllUIBaseTypes = new Dictionary<string, Type>();
         protected readonly Dictionary<string, Type> AllUIAliasTypes = new Dictionary<string, Type>();
 
-
         /// <summary>
         /// 所有排队中,显示的,隐藏的UI,加载中的UI字典
         /// </summary>
@@ -543,14 +542,14 @@ namespace HMFW
         {
             UGUIAttribute uguiAttribute = attribute as UGUIAttribute;
 
-            var preLoadUrlStrings = uguiAttribute.PreloadResUrl;
+            var preLoadUrlStrings = ReplaceUrl(uguiAttribute.PreloadResUrl);
             uiInfo.UIState = UIState.Loading;
             showedList.Add(uiInfo);
             //开始加载就添加到显示列表中了
             if (preLoadUrlStrings != null && preLoadUrlStrings.Length > 0)
                 await FW.AssetsMgr.LoadAssetsAsync<UnityEngine.Object>(preLoadUrlStrings.ToList());
 
-            var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(uguiAttribute.UILoadUrl);
+            var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(ReplaceUrl(uguiAttribute.UILoadUrl));
 
             //await结束后,检查一下uiInfo是否还存在,如果在这个过程总被关闭了,就不要实例化了.
             if (!showedList.Contains(uiInfo))
@@ -764,6 +763,8 @@ namespace HMFW
     /// </summary>
     public abstract class UIMgrBase
     {
+        protected readonly Dictionary<string, string> UrlReplaceMap = new Dictionary<string, string>();
+
         /// <summary>
         /// 设置是否需要输出ui系统的信息
         /// </summary>
@@ -832,5 +833,46 @@ namespace HMFW
         /// <param name="excludedUIs">不关闭的ui,也可以传null</param>
         /// <returns></returns>
         public abstract UniTask CloseAllUI(UICloseType uiCloseType = UICloseType.All, string[] excludedUIs = null);
+
+        /// <summary>
+        /// 设置在加载预制体体或者资源时,需要自动替换的标签和标签内容(如:UGUIAttribute的UILoadUrl),如[L]代表语言目录
+        /// 可以根据设定自动加载相应语言目录下的预制体,
+        /// </summary>
+        /// <param name="stringFlag">需要替换的标签,即ui脚本上设置的UIAttribute中的资源加载目录,尽量使用不会使用的标志如[L]</param>
+        /// <param name="replaceStr">需要替换的内容</param>
+        public virtual void SetUrlReplace(string stringFlag, string replaceStr)
+        {
+            if (!UrlReplaceMap.ContainsKey(stringFlag))
+            {
+                UrlReplaceMap.Add(stringFlag, replaceStr);
+            }
+            else
+            {
+                UrlReplaceMap[stringFlag] = replaceStr;
+            }
+        }
+
+        protected virtual string ReplaceUrl(string inStr)
+        {
+            var rv = inStr;
+            foreach (var kv in UrlReplaceMap)
+            {
+                rv = rv.Replace(kv.Key, kv.Value);
+            }
+
+            return rv;
+        }
+
+        protected virtual string[] ReplaceUrl(string[] inStr)
+        {
+            if (inStr == null || inStr.Length <= 0) return inStr;
+            var rv = new string[inStr.Length];
+            for (var i = 0; i < rv.Length; i++)
+            {
+                rv[i] = ReplaceUrl(inStr[i]);
+            }
+
+            return rv;
+        }
     }
 }
