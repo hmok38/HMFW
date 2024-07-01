@@ -49,7 +49,7 @@ public class FW
     /// <summary>
     /// UI管理器
     /// </summary>
-    public static UIMgrNew UIMgr { get; set; } = new UIMgrNew();
+    public static UIMgrBase UIMgr { get; set; } = new UIMgr();
 
     /// <summary>
     /// 全局事件管理器

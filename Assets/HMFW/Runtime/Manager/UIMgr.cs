@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace HMFW
 {
-    public class UIMgrNew : UIMgrBase
+    public class UIMgr : UIMgrBase
     {
         protected const string UIGroupRootName = "UIGroup";
         protected bool Inited;
