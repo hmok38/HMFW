@@ -648,11 +648,7 @@ namespace HMFW
             }
         }
 
-        protected virtual string ReplaceResUrl(string str)
-        {
-            return str.Replace("[L]", FW.FwData.CurrentLanguageStr);
-        }
-
+        
         protected virtual void ResetRectTransform(RectTransform rectTransform)
         {
             rectTransform.anchorMax = new Vector2(1, 1);
