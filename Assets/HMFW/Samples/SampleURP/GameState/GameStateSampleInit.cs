@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using HMFW.SampleURP.UI;
 using UnityEngine;
 
 namespace HMFW.SampleURP.GameState
@@ -9,8 +8,11 @@ namespace HMFW.SampleURP.GameState
         public override async UniTask EnterState(params object[] args)
         {
             Debug.Log($"进入{this.GetType()}");
-            await FW.UIMgr.OpenUI("UISampleLoading");
-            
+
+            var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
+            setting.BusyLimit = 0; //设置这一组是否限制最大显示的ui数,多余的会等待,
+            await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);
+            Debug.Log("完成关闭");
         }
 
         public override async UniTask LeaveState(params object[] args)
@@ -26,7 +28,7 @@ namespace HMFW.SampleURP.GameState
              *  update可以保证在EnterState/LeaveState没有完成之前不调用
              */
             //Debug.Log($"{this.GetType()} OnUpdate");
-           // FW.GameFsmMgr.ChangeState<GameStateSampleLoading>();
+            // FW.GameFsmMgr.ChangeState<GameStateSampleLoading>();
         }
     }
 }

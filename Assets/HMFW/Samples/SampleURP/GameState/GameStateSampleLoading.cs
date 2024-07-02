@@ -15,12 +15,17 @@ namespace HMFW.SampleURP.GameState
 
             await FW.AssetsMgr.LoadSceneAsync("Assets/HMFW/Samples/SampleURP/Scenes/SampleMainScene.unity");
 
-            await UniTask.NextFrame();//等待一帧
-            await UniTask.NextFrame();//等待一帧
+            await UniTask.NextFrame(); //等待一帧
+
+            await FW.UIMgr.OpenUI("PlayerCoin", 201);
+
+            await FW.UIMgr.CloseUI("UISampleLoading"); //慢慢关闭ui
             
-            await FW.UIMgr.CloseUI("UISampleLoading");//慢慢关闭ui
+            //打开一个黑色的,因为他的优先级为200,虽然跟上面的PlayerCoin在同一组,但是低于其201,所以显示到下面
+            await FW.UIMgr.OpenUI("UISampleLoading", 200);
             Debug.Log($"进入完成{this.GetType()}");
         }
+        
 
         public override async UniTask LeaveState(params object[] args)
         {

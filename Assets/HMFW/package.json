@@ -1,6 +1,6 @@
 {
   "name": "com.hm.hmfw",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "displayName": "HMFW",
   "description": "HMFramework",
   "unity": "2022.3",
@@ -29,8 +29,13 @@
   },
   "samples": [
     {
+      "displayName": "FairyGUIExtention",
+      "description": "支持FairyGUI的扩展和示例,需要先安装FairyGUI的SDK",
+      "path": "Samples/FairyGUIExtension"
+    },
+    {
       "displayName": "sample",
-      "description": "示例项目",
+      "description": "HMFW 示例项目",
       "path": "Samples/SampleURP"
     }
   ]

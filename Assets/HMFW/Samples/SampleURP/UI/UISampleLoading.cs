@@ -1,17 +1,30 @@
-﻿using System;
+﻿
 using Cysharp.Threading.Tasks;
+using HMFW.Core;
 using HMFW.SampleURP.GameState;
+using UnityEngine;
 
 namespace HMFW.SampleURP.UI
 {
-    [HMFW.Core.UGUIResUrl("Assets/HMFW/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading")]
-    public class UISampleLoading : HMFW.Core.UGUIBase
+    [HMFW.Core.UGUIRes("Assets/HMFW/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading", true)]
+    public class UISampleLoading : HMFW.Core.UIBase
     {
+        public override UISystem MyUISystem => UISystem.UGUI;
         public UnityEngine.UI.Button btn;
 
         private void Awake()
         {
             btn.onClick.AddListener(() => { FW.GameFsmMgr.ChangeState<GameStateSampleLoading>(); });
+        }
+
+        public override UniTask OnUIOpen(params object[] args)
+        {
+            if (args != null && args.Length >= 1)
+            {
+                this.transform.Find("Image").GetComponent<UnityEngine.UI.Image>().color = (Color)args[0];
+            }
+
+            return default;
         }
 
         public override async UniTask OnUIClose(params object[] args)

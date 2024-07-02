@@ -1,4 +1,4 @@
-﻿using HMFW.SampleURP.GameState;
+﻿﻿using HMFW.SampleURP.GameState;
 using UnityEngine;
 
 namespace HMFW.SampleURP
