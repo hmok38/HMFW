@@ -129,7 +129,7 @@ namespace HMFW.SampleURP
 
     public static class SampleMgrNewExtend
     {
-        //用这样的方式就通过 FW.SampleMgr.SampleMethodB 访问了
+        //用这样的方式就通过 FW.SampleMgr.SampleMethodC 访问了
         public static void SampleMethodC(this SampleMgrBase sampleMgrBase)
         {
             if (sampleMgrBase.GetType() == typeof(SampleMgrNew))
