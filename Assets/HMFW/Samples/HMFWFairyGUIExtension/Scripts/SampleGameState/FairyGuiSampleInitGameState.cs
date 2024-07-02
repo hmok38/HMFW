@@ -7,7 +7,7 @@ public class FairyGuiSampleInitGameState : HMFW.Core.GameStateBase
     {
         FW.UIMgr = new UIMgrFairyGUI();//替换框架的ui管理器为扩展的ui管理器
 
-        FW.UIMgr.OpenUI("FguiSampleLoadingUI");//打开UGui的loadingUI;
+        FW.UIMgr.OpenUI("FguiSampleLoadingUI",200);//打开UGui的loadingUI;
         
         return default;
     }

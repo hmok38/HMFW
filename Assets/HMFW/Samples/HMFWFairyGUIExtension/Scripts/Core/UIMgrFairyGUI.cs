@@ -60,7 +60,7 @@ namespace HMFW
                     }
                 }
             };
-            SortGroup();
+            SortFairyGuiGroup();
             Inited = true;
         }
 
@@ -85,11 +85,11 @@ namespace HMFW
                 FguiGroupRoot = group100Tr
             };
             this.UIGroupSettings.Add(groupId, setting);
-            SortGroup();
+            SortFairyGuiGroup();
             return setting;
         }
 
-        protected Transform CreatFairyGuiGroupRoot(uint groupId, out GComponent gComponent)
+        protected virtual Transform CreatFairyGuiGroupRoot(uint groupId, out GComponent gComponent)
         {
             gComponent = new GComponent();
             gComponent.name = $"{UIGroupRootName}{groupId}";
@@ -98,7 +98,7 @@ namespace HMFW
             return gComponent.displayObject.gameObject.transform;
         }
 
-        protected void SortGroup()
+        protected virtual void SortFairyGuiGroup()
         {
             var uints = this.UIGroupSettings.Keys.ToList();
             uints.Sort();
@@ -262,7 +262,7 @@ namespace HMFW
             }
         }
 
-        protected virtual async UniTask<UIInfo> CloseUIByUISystem(UIInfo uiInfo, object[] args)
+        protected override async UniTask<UIInfo> CloseUIByUISystem(UIInfo uiInfo, object[] args)
         {
             if (uiInfo == null)
             {
@@ -352,100 +352,6 @@ namespace HMFW
             return uiInfo;
         }
 
-
-        //
-        // /// <summary>
-        // /// 关闭ui,会等待OnUIClose函数执行完毕后再销毁ui对象,如果有关闭动画等可以重写ui的OnUIClose函数.
-        // /// </summary>
-        // /// <param name="uiFullNameOrAliasName"></param>
-        // /// <param name="args"></param>
-        // public override async UniTask CloseUI(string uiFullNameOrAliasName, params System.Object[] args)
-        // {
-        //     Type uiType = GetUIDataType(uiFullNameOrAliasName);
-        //     UIBase uiBase = null;
-        //     if (uiType.FullName != null && _uiMap.ContainsKey(uiType.FullName))
-        //     {
-        //         uiBase = _uiMap[uiType.FullName];
-        //         _uiMap.Remove(uiType.FullName);
-        //     }
-        //
-        //     if (uiType.FullName != null && uiBase == null && _uiTopMap.ContainsKey(uiType.FullName))
-        //     {
-        //         uiBase = _uiTopMap[uiType.FullName];
-        //         _uiTopMap.Remove(uiType.FullName);
-        //     }
-        //
-        //     if (uiBase == null) return;
-        //     await uiBase.OnUIClose(args);
-        //     if (uiBase != null)
-        //     {
-        //         switch (uiBase.MyUISystem)
-        //         {
-        //             case UISystem.UGUI:
-        //                 UnityEngine.Object.Destroy(uiBase.gameObject); //销毁
-        //                 break;
-        //             case UISystem.FairyGui:
-        //
-        //
-        //                 var info = uiBase.GetComponent<DisplayObjectInfo>();
-        //                 GObject obj = GRoot.inst.DisplayObjectToGObject(info.displayObject);
-        //                 obj.Dispose();
-        //                 break;
-        //         }
-        //     }
-        // }
-        //
-        // protected virtual async UniTask<UIBase> OpenHandleFairyGUI(string uiName, string packageName,
-        //     string packageFileURL,
-        //     string[] dependencyPackagesFileUrl,
-        //     bool beFairyGUIBatching,
-        //     Type uiType,
-        //     Dictionary<string, UIBase> map,
-        //     params System.Object[] args)
-        // {
-        //     if (dependencyPackagesFileUrl != null && dependencyPackagesFileUrl.Length > 0)
-        //     {
-        //         UniTask[] all = new UniTask[dependencyPackagesFileUrl.Length];
-        //         for (int i = 0; i < dependencyPackagesFileUrl.Length; i++)
-        //         {
-        //             var u = LoadPackage(dependencyPackagesFileUrl[i]);
-        //             all[i] = (u);
-        //         }
-        //
-        //         await UniTask.WhenAll(all);
-        //     }
-        //
-        //     await LoadPackage(packageFileURL);
-        //     bool beLoad = false;
-        //     GComponent ui = null;
-        //     UIPackage.CreateObjectAsync(packageName, uiName, homeUI =>
-        //     {
-        //         GRoot.inst.AddChild(homeUI);
-        //         ui = homeUI.asCom;
-        //         ui.fairyBatching = beFairyGUIBatching;
-        //         beLoad = true;
-        //     });
-        //     await UniTask.WaitUntil(() => beLoad);
-        //
-        //     if (uiType.FullName != null && map.TryGetValue(uiType.FullName, out var uiComTemp1))
-        //     {
-        //         uiComTemp1.gameObject.SetActive(false);
-        //         uiComTemp1.gameObject.SetActive(true);
-        //         await uiComTemp1.OnUIOpen(args);
-        //         return uiComTemp1;
-        //     }
-        //
-        //
-        //     var transform = ui.displayObject.gameObject.transform;
-        //
-        //     var uiCom = transform.GetComponent(uiType) as UIBase;
-        //
-        //     if (uiCom == null) uiCom = transform.gameObject.AddComponent(uiType) as UIBase;
-        //     map.Add(uiType.FullName, uiCom);
-        //     if (uiCom != null) await uiCom.OnUIOpen(args);
-        //     return map[uiType.FullName];
-        // }
-        //
         protected virtual async UniTask LoadPackage(string packagePath)
         {
             var descDataAssetUIHome =
@@ -457,42 +363,13 @@ namespace HMFW
 
         protected virtual async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
         {
-            Debug.Log($"Fgui异步加载资源 {name},扩展名 {extension},类型 {type.FullName},文件url {item.file}");
+            if (item == null || item.owner == null)
+            {
+                return;
+            }
+
             var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(item.file);
             item.owner.SetItemAsset(item, obj, DestroyMethod.None);
         }
-        //
-        // /// <summary>获得某个UI预制体的资源加载地址</summary>
-        // protected override bool UGUILoadResUrl(Type uiType, out UISystem uiSystem, out string resUrl,
-        //     out string[] preLoadUrlStrings)
-        // {
-        //     var attribute =
-        //         (UGUIAttribute)Attribute.GetCustomAttribute(uiType, typeof(UGUIAttribute));
-        //     if (attribute == null)
-        //     {
-        //         var fguiAttr = (FGUIResUrlAttribute)Attribute.GetCustomAttribute(uiType, typeof(FGUIResUrlAttribute));
-        //         if (fguiAttr == null)
-        //         {
-        //             Debug.LogErrorFormat("{0}类型未定义UGUIResUrl特性,请定义后再试", uiType.FullName);
-        //             uiSystem = UISystem.Error;
-        //             resUrl = null;
-        //             preLoadUrlStrings = null;
-        //             return false;
-        //         }
-        //
-        //         uiSystem = UISystem.FairyGui;
-        //         resUrl = ReplaceResUrl(fguiAttr.PackageFileUrl);
-        //         preLoadUrlStrings = fguiAttr.DependencyPackagesFileUrl;
-        //         return true;
-        //     }
-        //
-        //     uiSystem = UISystem.UGUI;
-        //
-        //     resUrl = ReplaceResUrl(attribute.UILoadUrl);
-        //
-        //     preLoadUrlStrings = attribute.PreloadResUrl;
-        //
-        //     return true;
-        // }
     }
 }
