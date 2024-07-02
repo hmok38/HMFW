@@ -6,8 +6,9 @@ using UnityEngine;
 
 namespace HMFW
 {
-    [FGUIResUrl("Home", "UIHome", "Assets/Bundles/Fgui/MainScene/UIHome", "Home",
-        new[] { "Assets/Bundles/Fgui/Common/UICommon" }, true)]
+    
+    [FGUIResUrl("Home", "UIHome", "Assets/HMFW/Samples/HMFWFairyGUIExtension/Bundle/Fgui/MainScene/UIHome_fui.bytes", "Home",
+        new[] { "Assets/HMFW/Samples/HMFWFairyGUIExtension/Bundle/Fgui/Common/UICommon_fui.bytes" }, true)]
     public class Home : FairyGUIBase
     {
         public override UISystem MyUISystem => UISystem.FairyGui;

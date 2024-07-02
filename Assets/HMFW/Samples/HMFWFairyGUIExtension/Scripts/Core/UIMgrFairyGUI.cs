@@ -66,6 +66,10 @@ namespace HMFW
 
         public override UIGroupSetting GetGroupSetting(uint priorityBase)
         {
+            if (!Inited)
+            {
+                this.UITypeDataInit();
+            }
             var groupId = GetGroupId(priorityBase);
             if (this.UIGroupSettings.TryGetValue(groupId, out var groupSetting))
             {
@@ -219,6 +223,97 @@ namespace HMFW
         }
 
 
+        protected virtual async UniTask<UIInfo> CloseUIByUISystem(UIInfo uiInfo, object[] args)
+        {
+            if (uiInfo == null)
+            {
+                Debug.LogError($"CloseUIHandle 中 uiInfo不能为空");
+                return default;
+            }
+
+            UIAttribute uiAttribute = Attribute.GetCustomAttribute(uiInfo.UIType, typeof(UIAttribute)) as UIAttribute;
+
+            if (uiAttribute == null)
+            {
+                Debug.LogError($"CloseUIHandle 中 uiInfo类型: {uiInfo.UIType} 无UIAttribute特性");
+                return default;
+            }
+
+            switch (uiAttribute.UISystem)
+            {
+                case UISystem.UGUI: return await CloseUIHandleUGUI(uiInfo, args);
+                case UISystem.FairyGui: return await CloseUIHandleFairyUGUI(uiInfo, args);
+            }
+
+            return default;
+        }
+
+        protected virtual async UniTask<UIInfo> CloseUIHandleFairyUGUI(UIInfo uiInfo, object[] args)
+        {
+            if (uiInfo == null) return default;
+            if (uiInfo.UIState == UIState.Destroy) return uiInfo;
+            var groupId = GetGroupId(uiInfo.Priority);
+            if (uiInfo.UIState == UIState.Wait)
+            {
+                if (WaitingUIMap.TryGetValue(groupId, out var waitingUI))
+                {
+                    waitingUI.Remove(uiInfo);
+                }
+            }
+            else
+            {
+                if (UIInGroupMap.TryGetValue(groupId, out var groupUI))
+                {
+                    groupUI.Remove(uiInfo);
+                }
+            }
+
+            if (NameToUIMap.TryGetValue(uiInfo.UIName, out var list))
+            {
+                list.Remove(uiInfo);
+            }
+
+            uiInfo.UIState = UIState.Destroy;
+            if (uiInfo.UIBase != null)
+            {
+                await uiInfo.UIBase.OnUIClose(args);
+                var fgui = uiInfo.UIBase as FairyGUIBase;
+                if (fgui != null)
+                {
+                    fgui.MyGObject?.Dispose();
+                }
+                else
+                {
+                    Object.Destroy(uiInfo.UIBase.gameObject);
+                }
+                
+                
+                uiInfo.UIBase = null;
+            }
+
+            if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
+            {
+                //打开同组的其他ui显示
+                if (UIInGroupMap.TryGetValue(groupId, out var groupUI))
+                {
+                    for (int i = 0; i < groupUI.Count; i++)
+                    {
+                        var uiTemp = groupUI[i];
+                        if (uiTemp.UIState == UIState.Hide && uiTemp.UIBase != null)
+                        {
+                            uiTemp.UIState = UIState.Show;
+                            uiTemp.UIBase.gameObject.SetActive(true);
+                        }
+                    }
+                }
+            }
+
+            var setting = GetGroupSetting(uiInfo.Priority);
+            await CheckWaitUI(setting);
+            return uiInfo;
+        }
+
+
         //
         // /// <summary>
         // /// 关闭ui,会等待OnUIClose函数执行完毕后再销毁ui对象,如果有关闭动画等可以重写ui的OnUIClose函数.
@@ -312,7 +407,7 @@ namespace HMFW
         //     return map[uiType.FullName];
         // }
         //
-        public async UniTask LoadPackage(string packagePath)
+        protected virtual async UniTask LoadPackage(string packagePath)
         {
             var descDataAssetUIHome =
                 await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
@@ -321,7 +416,7 @@ namespace HMFW
             UIPackage.AddPackage(descData, packagePath, OnLoadResourceAsync);
         }
 
-        public async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
+        protected virtual async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
         {
             Debug.Log($"Fgui异步加载资源 {name},扩展名 {extension},类型 {type.FullName},文件url {item.file}");
             var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(item.file);
