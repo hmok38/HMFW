@@ -10,7 +10,7 @@ namespace HMFW.SampleURP.GameState
             Debug.Log($"进入{this.GetType()}");
 
             var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
-            setting.BusyLimit = 1; //设置这一组是否限制最大显示的ui数,多余的会等待,
+            setting.BusyLimit = 0; //设置这一组是否限制最大显示的ui数,多余的会等待,
             await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);
             Debug.Log("完成关闭");
         }

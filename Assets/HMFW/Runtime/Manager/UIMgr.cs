@@ -679,12 +679,12 @@ namespace HMFW
             Array.Sort(showUIInfosCopy, (x, y) =>
             {
                 if (x.Priority - y.Priority == 0) return 0;
-                return x.Priority - y.Priority > 0 ? -1 : 1;
+                return x.Priority - y.Priority > 0 ? 1 : -1;
             });
 
             for (var i = 0; i < showUIInfosCopy.Length; i++)
             {
-                var uiInfo = showUIInfos[i];
+                var uiInfo = showUIInfosCopy[i];
                 if (uiInfo.UIBase != null)
                 {
                     uiInfo.UIBase.transform.SetSiblingIndex(i);
