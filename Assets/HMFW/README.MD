@@ -12,6 +12,10 @@
 
 ### 框架的使用
 
+>* 本包依赖`https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask`
+>* 本包依赖`https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable`
+>* 请先到UnityPackageManager中安装以上2个依赖
+>* 然后在UnityPackageManager中安装本包:`https://github.com/hmok38/HMFW.git?path=Assets/HMFW`
 >* 命名空间HMFW,模块统一访问接口 "`FW.`" 和自定义模块 "`FW.CustomAPI.`"
 >* 按照规范增加新模块或者扩展旧模块可以非常方便的让业务层访问并统一接口,当需要更换插件或者修改逻辑时,业务层逻辑基本不用修改,本框架也无需更新和修改
 >* 模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类
@@ -22,7 +26,7 @@
 >1. 游戏逻辑控制器(GameFsmMgr),访问接口 `FW.GameFsmMgr`
 >2. 全局框架数据类（FWData）,访问接口 `FW.FWData`
 >3. 资源管理器(AssetsMgr),访问接口 `FW.AssetsMgr`
->4. UI管理器(UIMgr),访问接口 `FW.UIMgr` _**支持对FairyGUI的扩展,请安装示例:`FairyGUIExtention`**_ 
+>4. UI管理器(UIMgr),访问接口 `FW.UIMgr` _**支持对FairyGUI的扩展,请安装示例:`FairyGUIExtention`**_
 >5. 全局事件管理器(GEventMgr),访问接口 `FW.GEventMgr`
 >6. 全局数据管理器(GDataMgr),访问接口 `FW.GDataMgr`
 
@@ -65,7 +69,7 @@ public static class FWExtend
  ***
 ### UI管理器(UIMgr)模块使用说明
 UI管理器(UIMgr),访问接口 `FW.UIMgr`  
-_**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_ 
+_**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_
 >* 优先级(priority)的定义
 >1. 框架对所有管理的ui进行了优先级(priority)的设定,且按照priority每100进行分组,如(0-99)为一个ui组,(100-199)又是一个ui组
 >2. 在打开ui时可传入priority(默认100),即可对ui的展示层级进行排序.
@@ -88,7 +92,7 @@ _**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后�
 >4. 例如 `FW.UIMgr.SetUrlReplace("[L]","English");`即可将`UGUIResAttribute`特性中资源地址中带有`[L]`的地方替换为`English`
 
 >* 关于对FairyGUI的支持
->1. 针对项目需求,我们添加了对FairyGUI的管理支持,请先在项目中添加`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_ 
+>1. 针对项目需求,我们添加了对FairyGUI的管理支持,请先在项目中添加`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_
 >2. Fgui的所有启用/关闭/等待/覆盖功能都已如ugui使用.
 >3. FGUI的脚本需要继承`FairyGUIBase`,其也继承`UIBase`,只是扩展了一个`MyGObject`字段,用来访问脚本所在的`GObject`(FairyGUI)对象
 >4. Fgui的脚本需要实现`FGUIResUrlAttribute` 特性,其跟`UGUIResAttribute`一样,也是继承于`UIAttribute`,但需要填写的内容有所不同

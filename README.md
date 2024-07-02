@@ -12,6 +12,10 @@
 
 ### 框架的使用
 
+>* 本包依赖`https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask`
+>* 本包依赖`https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable`
+>* 请先到UnityPackageManager中安装以上2个依赖
+>* 然后在UnityPackageManager中安装本包:`https://github.com/hmok38/HMFW.git?path=Assets/HMFW`
 >* 命名空间HMFW,模块统一访问接口 "`FW.`" 和自定义模块 "`FW.CustomAPI.`"
 >* 按照规范增加新模块或者扩展旧模块可以非常方便的让业务层访问并统一接口,当需要更换插件或者修改逻辑时,业务层逻辑基本不用修改,本框架也无需更新和修改
 >* 模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类
