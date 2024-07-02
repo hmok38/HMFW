@@ -24,7 +24,7 @@ namespace HMFW.Core
     /// UGUI需要的特性
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class UGUIAttribute : UIAttribute
+    public class UGUIResAttribute : UIAttribute
     {
         public readonly string UILoadUrl;
         public readonly string[] PreloadResUrl;
@@ -39,7 +39,7 @@ namespace HMFW.Core
         /// <param name="uiAlias">为开启ui的别名</param>
         /// <param name="beMultiple">是否允许多个实例同时存在</param>
         /// <param name="preloadResUrl">开启UI前需要预加载的资源</param>
-        public UGUIAttribute(string uiLoadUrl, string uiAlias, bool beMultiple = false,
+        public UGUIResAttribute(string uiLoadUrl, string uiAlias, bool beMultiple = false,
             string[] preloadResUrl = null) : base(uiAlias, UISystem.UGUI, beMultiple)
         {
             this.UILoadUrl = uiLoadUrl;

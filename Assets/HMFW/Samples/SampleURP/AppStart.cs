@@ -1,4 +1,4 @@
-﻿using HMFW.SampleURP.GameState;
+﻿﻿using HMFW.SampleURP.GameState;
 using UnityEngine;
 
 namespace HMFW.SampleURP
@@ -13,12 +13,10 @@ namespace HMFW.SampleURP
              */
             //FW.GameFsmMgr = new GameObject("GM").AddComponent<GameFsmMgr>();
 
-            
-            //----------------使用扩展的fairyGUI的管理器,它基于UGUI的UIMgr扩展了FairyGUI的使用
-            //FW.UIMgr = new UIMgrFairyGUI();
 
             FW.GameFsmMgr.ChangeState<GameStateSampleInit>();//这是访问框架自带模块的方式
             FW.CustomAPI.FWTestMgr();//这是访问自定义扩展模块的方式
+            
             
             /*
              * 注意:首个场景中的其他脚本尽量不要在Awake中调用框架的逻辑和接口,

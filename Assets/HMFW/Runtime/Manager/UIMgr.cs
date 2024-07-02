@@ -83,6 +83,10 @@ namespace HMFW
 
         public override UIGroupSetting GetGroupSetting(uint priorityBase)
         {
+            if (!Inited)
+            {
+                this.UITypeDataInit();
+            }
             var groupId = GetGroupId(priorityBase);
             if (this.UIGroupSettings.TryGetValue(groupId, out var groupSetting))
             {
@@ -132,15 +136,17 @@ namespace HMFW
             ShowUIMapDebugInfo();
             return rv;
         }
-
-
+        
         public override async UniTask<UIInfo> CloseUI(UIBase uiBase, params object[] args)
         {
             if (NeedDebugInfo)
             {
                 Debug.Log($"CloseUI {uiBase.GetType().FullName} ");
             }
-
+            if (!Inited)
+            {
+                this.UITypeDataInit();
+            }
 
             var uiType = uiBase.GetType();
 
@@ -186,7 +192,7 @@ namespace HMFW
 
                     if (uiB != null)
                     {
-                        var rv = await CloseUIHandle(uiB, args);
+                        var rv = await CloseUIByUISystem(uiB, args);
                         ShowUIMapDebugInfo();
                         return rv;
                     }
@@ -203,7 +209,7 @@ namespace HMFW
                     }
 
                     uiInfos.Remove(uib);
-                    var rv = await CloseUIHandle(uib, args);
+                    var rv = await CloseUIByUISystem(uib, args);
                     ShowUIMapDebugInfo();
                     return rv;
                 }
@@ -218,7 +224,10 @@ namespace HMFW
             {
                 Debug.Log($"CloseUIGroup group:{priorityBase} with {uiCloseType}");
             }
-
+            if (!Inited)
+            {
+                this.UITypeDataInit();
+            }
             List<UIInfo> needDelUIInfos = new List<UIInfo>();
             var groupIn = GetGroupId(priorityBase);
             if (UIInGroupMap.TryGetValue(groupIn, out var showedUI))
@@ -240,7 +249,7 @@ namespace HMFW
             var list = new List<UniTask>(needDelUIInfos.Count);
             for (int i = 0; i < needDelUIInfos.Count; i++)
             {
-                var task = CloseUIHandle(needDelUIInfos[i], null);
+                var task = CloseUIByUISystem(needDelUIInfos[i], null);
                 list.Add(task);
             }
 
@@ -254,7 +263,10 @@ namespace HMFW
             {
                 Debug.Log($"CloseAllUI excludedUIs:{excludedUIs.Length} with {uiCloseType}");
             }
-
+            if (!Inited)
+            {
+                this.UITypeDataInit();
+            }
             List<UIInfo> needDelUIInfos = new List<UIInfo>();
             string[] excludedUIType = new String[excludedUIs != null ? excludedUIs.Length : 0];
             if (excludedUIs != null && excludedUIs.Length > 0)
@@ -306,7 +318,7 @@ namespace HMFW
             var list = new List<UniTask>(needDelUIInfos.Count);
             for (int i = 0; i < needDelUIInfos.Count; i++)
             {
-                var task = CloseUIHandle(needDelUIInfos[i], null);
+                var task = CloseUIByUISystem(needDelUIInfos[i], null);
                 list.Add(task);
             }
 
@@ -424,7 +436,7 @@ namespace HMFW
             return default;
         }
 
-        protected virtual async UniTask<UIInfo> CloseUIHandle(UIInfo uiInfo, object[] args)
+        protected virtual async UniTask<UIInfo> CloseUIByUISystem(UIInfo uiInfo, object[] args)
         {
             if (uiInfo == null)
             {
@@ -540,16 +552,16 @@ namespace HMFW
         protected virtual async UniTask<UIInfo> OpenHandleUGUI(UIAttribute attribute, UIInfo uiInfo,
             List<UIInfo> showedList, UIGroupSetting groupSetting)
         {
-            UGUIAttribute uguiAttribute = attribute as UGUIAttribute;
+            UGUIResAttribute uguiResAttribute = attribute as UGUIResAttribute;
 
-            var preLoadUrlStrings = ReplaceUrl(uguiAttribute.PreloadResUrl);
+            var preLoadUrlStrings = ReplaceUrl(uguiResAttribute.PreloadResUrl);
             uiInfo.UIState = UIState.Loading;
             showedList.Add(uiInfo);
             //开始加载就添加到显示列表中了
             if (preLoadUrlStrings != null && preLoadUrlStrings.Length > 0)
                 await FW.AssetsMgr.LoadAssetsAsync<UnityEngine.Object>(preLoadUrlStrings.ToList());
 
-            var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(ReplaceUrl(uguiAttribute.UILoadUrl));
+            var uiPrefab = await FW.AssetsMgr.LoadAsync<GameObject>(ReplaceUrl(uguiResAttribute.UILoadUrl));
 
             //await结束后,检查一下uiInfo是否还存在,如果在这个过程总被关闭了,就不要实例化了.
             if (!showedList.Contains(uiInfo))

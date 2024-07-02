@@ -8,32 +8,10 @@ namespace HMFW.SampleURP.GameState
         public override async UniTask EnterState(params object[] args)
         {
             Debug.Log($"进入{this.GetType()}");
-            FW.UIMgr = new UIMgrFairyGUI();
-            FW.UIMgr.Init();
-            var setting = FW.UIMgr.GetGroupSetting(200);
-            
-            setting.BusyLimit = 0;
-            //   await FW.UIMgr.OpenUI("UISampleLoading",1000);
-            await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.red);
-          
-            // await UniTask.Delay(300);
-            // await FW.UIMgr.OpenUI("PlayerCoin", 200);
-            //
-            // await UniTask.Delay(300);
-            // await FW.UIMgr.OpenUI("UISampleLoading", 200);
-            // await UniTask.Delay(3000);
-            //
-            // // await FW.UIMgr.CloseUI("PlayerCoin");
-            // //await UniTask.Delay(2000);
-            // //await FW.UIMgr.CloseUI("UISampleLoading");
-            // Debug.Log("开始关闭");
-            // await FW.UIMgr.CloseAllUI(UICloseType.Waiting, new []{"PlayerCoin"});
-            //
-            // // await UniTask.Delay(1000);
-            // // await FW.UIMgr.CloseUI("PlayerCoin");
-            //  await UniTask.Delay(1000);
-            //  await FW.UIMgr.CloseUI("UISampleLoading");
-            //  await UniTask.Delay(1000);
+
+            var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
+            setting.BusyLimit = 1; //设置这一组是否限制最大显示的ui数,多余的会等待,
+            await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);
             Debug.Log("完成关闭");
         }
 
