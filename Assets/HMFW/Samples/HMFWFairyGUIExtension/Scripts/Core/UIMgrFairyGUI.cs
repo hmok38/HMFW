@@ -70,6 +70,7 @@ namespace HMFW
             {
                 this.UITypeDataInit();
             }
+
             var groupId = GetGroupId(priorityBase);
             if (this.UIGroupSettings.TryGetValue(groupId, out var groupSetting))
             {
@@ -184,7 +185,9 @@ namespace HMFW
             var uiCom = transform.GetComponent(uiInfo.UIType) as FairyGUIBase;
             if (uiCom == null) uiCom = transform.gameObject.AddComponent(uiInfo.UIType) as FairyGUIBase;
             uiCom.MyGObject = ui as GObject;
-
+            uiInfo.UIBase = uiCom;
+            uiCom.UiInfo = uiInfo;
+            SortUI(showedList);
             if (uiInfo.UIState == UIState.Loading)
             {
                 uiInfo.UIState = UIState.Show;
@@ -222,6 +225,42 @@ namespace HMFW
             return uiInfo;
         }
 
+        protected override void SortUI(List<UIInfo> showUIInfos)
+        {
+            var showUIInfosCopy = showUIInfos.ToArray();
+
+            Array.Sort(showUIInfosCopy, (x, y) =>
+            {
+                if (x.Priority - y.Priority == 0) return 0;
+                return x.Priority - y.Priority > 0 ? 1 : -1;
+            });
+            int uGuiIndex = 0;
+            int fguiIndex = 0;
+            for (var i = 0; i < showUIInfosCopy.Length; i++)
+            {
+                var uiInfo = showUIInfosCopy[i];
+                var attrbute = Attribute.GetCustomAttribute(uiInfo.UIType, typeof(UIAttribute)) as UIAttribute;
+                if (attrbute.UISystem == UISystem.UGUI)
+                {
+                    if (uiInfo.UIBase != null)
+                    {
+                        uiInfo.UIBase.transform.SetSiblingIndex(uGuiIndex);
+                        uGuiIndex++;
+                    }
+                }
+                else if (attrbute.UISystem == UISystem.FairyGui)
+                {
+                    if (uiInfo.UIBase != null)
+                    {
+                        var fairyGUIBase = uiInfo.UIBase as FairyGUIBase;
+
+                        fairyGUIBase.MyGObject.parent.SetChildIndex(fairyGUIBase.MyGObject, fguiIndex);
+                        fairyGUIBase.transform.SetSiblingIndex(fguiIndex);
+                        fguiIndex++;
+                    }
+                }
+            }
+        }
 
         protected virtual async UniTask<UIInfo> CloseUIByUISystem(UIInfo uiInfo, object[] args)
         {
@@ -286,8 +325,8 @@ namespace HMFW
                 {
                     Object.Destroy(uiInfo.UIBase.gameObject);
                 }
-                
-                
+
+
                 uiInfo.UIBase = null;
             }
 
