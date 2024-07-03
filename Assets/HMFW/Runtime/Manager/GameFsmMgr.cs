@@ -12,7 +12,7 @@ namespace HMFW
     public class GameFsmMgr : GameFsmMgrBase
     {
         /**状态字典 */
-        private readonly Dictionary<string, GameStateBase> _stateMap = new Dictionary<string, GameStateBase>();
+        protected readonly Dictionary<string, GameStateBase> StateMap = new Dictionary<string, GameStateBase>();
 
         public override bool BeStateChanging { get; protected set; }
         public override GameStateBase CurrentState { get; protected set; }
@@ -38,7 +38,7 @@ namespace HMFW
             }
 
 
-            if (this._stateMap.ContainsKey(type.Name)) return this._stateMap[type.Name];
+            if (this.StateMap.TryGetValue(type.Name, out var state)) return state;
 
             var obj = Activator.CreateInstance(type) as GameStateBase;
             if (obj == null)
@@ -48,7 +48,7 @@ namespace HMFW
             }
 
 
-            this._stateMap.Add(type.Name, obj);
+            this.StateMap.Add(type.Name, obj);
             return obj;
         }
 
@@ -117,11 +117,11 @@ namespace HMFW
 
         public override GameStateBase GetStateInstance(Type tp)
         {
-            if (this._stateMap.ContainsKey(tp.Name)) return this._stateMap[tp.Name];
+            if (this.StateMap.TryGetValue(tp.Name, out var instance)) return instance;
             var clasT = Activator.CreateInstance(tp);
-            this._stateMap.Add(tp.Name, clasT as GameStateBase);
+            this.StateMap.Add(tp.Name, clasT as GameStateBase);
 
-            return this._stateMap[tp.Name];
+            return this.StateMap[tp.Name];
         }
 
         public override bool CheckCurrentState(string type)
@@ -136,26 +136,26 @@ namespace HMFW
 
         private readonly Dictionary<string, Type> _allGameStateTypes = new Dictionary<string, Type>();
 
-        private Type GetStateType(string typeName)
+        protected virtual Type GetStateType(string typeName)
         {
             if (_allGameStateTypes.Count <= 0)
             {
                 this.UITypeDataInit();
             }
 
-            if (_allGameStateTypes.ContainsKey(typeName)) return _allGameStateTypes[typeName];
+            if (_allGameStateTypes.TryGetValue(typeName, out var type)) return type;
             Debug.LogError($"未找到名为{typeName} 的GameState类");
             return null;
         }
 
-        private void UITypeDataInit()
+        protected virtual void UITypeDataInit()
         {
             _allGameStateTypes.Clear();
             var subTypes = Tools.Util.GetAllSubClass(typeof(GameStateBase));
             for (var i = 0; i < subTypes.Count; i++)
             {
                 var tempType = subTypes[i];
-                _allGameStateTypes.Add(tempType.FullName, tempType);
+                if (tempType.FullName != null) _allGameStateTypes.Add(tempType.FullName, tempType);
             }
         }
 

@@ -32,7 +32,7 @@ namespace HMFW
             Add(key, func.Target, func.Method, 4);
         }
 
-        private void Add(string key, object target, MethodInfo metod, int paramNum)
+        protected virtual void Add(string key, object target, MethodInfo metod, int paramNum)
         {
             List<EventInfo> list = null;
             if (!FuncMap.TryGetValue(key, out list))
@@ -74,7 +74,7 @@ namespace HMFW
             Remove(key, func.Target, func.Method, 4);
         }
 
-        private void Remove(string key, object target, MethodInfo method, int paramNum)
+        protected virtual void Remove(string key, object target, MethodInfo method, int paramNum)
         {
             List<EventInfo> list = null;
             List<EventInfo> RemoveList = new List<EventInfo>();
@@ -125,7 +125,7 @@ namespace HMFW
             TriggerFinal(key, t1, t2, t3, t4);
         }
 
-        private void TriggerFinal(string key, params object[] objList)
+        protected virtual void TriggerFinal(string key, params object[] objList)
         {
             if (FuncMap.TryGetValue(key, out var list))
             {

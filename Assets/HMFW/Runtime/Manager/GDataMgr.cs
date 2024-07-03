@@ -9,36 +9,35 @@ namespace HMFW
 {
     public class GDataMgr : GDataMgrBase
     {
-        private readonly Dictionary<Enum, ICollection> _mainIdMap = new Dictionary<Enum, ICollection>();
-        private readonly Dictionary<Type, ICollection> _typeMap = new Dictionary<Type, ICollection>();
+        protected readonly Dictionary<Enum, ICollection> MainIdMap = new Dictionary<Enum, ICollection>();
+        protected readonly Dictionary<Type, ICollection> TypeMap = new Dictionary<Type, ICollection>();
 
-        private readonly Dictionary<Enum, Dictionary<int, List<Action>>> _changeActionMap =
+        protected readonly Dictionary<Enum, Dictionary<int, List<Action>>> ChangeActionMap =
             new Dictionary<Enum, Dictionary<int, List<Action>>>();
 
-        private readonly Dictionary<Enum, List<int>> _changeMap = new Dictionary<Enum, List<int>>();
+        protected readonly Dictionary<Enum, List<int>> ChangeMap = new Dictionary<Enum, List<int>>();
 
         public override bool HasData(Enum typeEnum, int subId = 0)
         {
-            if (!_mainIdMap.ContainsKey(typeEnum)) return false;
+            if (!MainIdMap.ContainsKey(typeEnum)) return false;
 
-            return ContainsKey(_mainIdMap[typeEnum], subId);
+            return ContainsKey(MainIdMap[typeEnum], subId);
         }
 
         public override T GetData<T>(Enum typeEnum, int subId = 0)
         {
-            if (_mainIdMap.ContainsKey(typeEnum))
+            if (MainIdMap.TryGetValue(typeEnum, out var map))
             {
-                var map = _mainIdMap[typeEnum];
                 if (map.GetType() != typeof(Dictionary<int, T>))
                 {
                     Debug.LogError($"dataType:{typeEnum} 类型错误:{typeof(T)} != {map.GetType()}");
                     return default;
                 }
 
-                var subMap = (Dictionary<int, T>) map;
-                if (subMap.ContainsKey(subId))
+                var subMap = (Dictionary<int, T>)map;
+                if (subMap.TryGetValue(subId, out var data))
                 {
-                    return subMap[subId];
+                    return data;
                 }
 
                 return default;
@@ -51,17 +50,15 @@ namespace HMFW
 
         public override void SetData<T>(Enum typeEnum, T v, int subId = 0)
         {
-            if (_mainIdMap.ContainsKey(typeEnum))
+            if (MainIdMap.TryGetValue(typeEnum, out var map1))
             {
-                var map = _mainIdMap[typeEnum];
-
-                if (map.GetType() != typeof(Dictionary<int, T>))
+                if (map1.GetType() != typeof(Dictionary<int, T>))
                 {
-                    Debug.LogError($"dataType:{typeEnum} 类型错误:{typeof(T)} != {map.GetType()}");
+                    Debug.LogError($"dataType:{typeEnum} 类型错误:{typeof(T)} != {map1.GetType()}");
                     return;
                 }
 
-                var subMap = ((Dictionary<int, T>) map);
+                var subMap = ((Dictionary<int, T>)map1);
                 if (subMap.ContainsKey(subId))
                 {
                     var old = subMap[subId];
@@ -79,9 +76,9 @@ namespace HMFW
             }
             else
             {
-                if (_typeMap.ContainsKey(typeof(T)))
+                if (TypeMap.ContainsKey(typeof(T)))
                 {
-                    var map = ((Dictionary<int, T>) _typeMap[typeof(T)]);
+                    var map = ((Dictionary<int, T>)TypeMap[typeof(T)]);
 
                     if (map.ContainsKey(subId))
                     {
@@ -98,14 +95,14 @@ namespace HMFW
                         DispatchChangeEvent(typeEnum, subId);
                     }
 
-                    _mainIdMap.Add(typeEnum, map);
+                    MainIdMap.Add(typeEnum, map);
                 }
                 else
                 {
                     var newMap = new Dictionary<int, T>();
-                    _typeMap.Add(typeof(T), newMap);
+                    TypeMap.Add(typeof(T), newMap);
 
-                    _mainIdMap.Add(typeEnum, newMap);
+                    MainIdMap.Add(typeEnum, newMap);
                     newMap.Add(subId, v);
                     DispatchChangeEvent(typeEnum, subId);
                 }
@@ -114,37 +111,37 @@ namespace HMFW
 
         public override void RemoveData(Enum typeEnum, int subId = 0)
         {
-            if (!_mainIdMap.ContainsKey(typeEnum)) return;
-            if (!ContainsKey(_mainIdMap[typeEnum], subId)) return;
-            RemoveKey(_mainIdMap[typeEnum], subId);
+            if (!MainIdMap.ContainsKey(typeEnum)) return;
+            if (!ContainsKey(MainIdMap[typeEnum], subId)) return;
+            RemoveKey(MainIdMap[typeEnum], subId);
         }
 
         public override void RemoveAllTypeData(Enum typeEnum)
         {
-            if (!_mainIdMap.ContainsKey(typeEnum)) return;
-            ClearMap(_mainIdMap[typeEnum]);
+            if (!MainIdMap.ContainsKey(typeEnum)) return;
+            ClearMap(MainIdMap[typeEnum]);
         }
 
         public override void RemoveAllDataOnMgr()
         {
-            _mainIdMap.Clear();
-            _typeMap.Clear();
+            MainIdMap.Clear();
+            TypeMap.Clear();
         }
 
         public override void AddListener(Enum typeEnum, Action action, int subId = 0)
         {
-            if (!_changeActionMap.ContainsKey(typeEnum))
+            if (!ChangeActionMap.ContainsKey(typeEnum))
             {
                 var map = new Dictionary<int, List<Action>>();
-                map.Add(subId, new List<Action>() {action});
-                _changeActionMap.Add(typeEnum, map);
+                map.Add(subId, new List<Action>() { action });
+                ChangeActionMap.Add(typeEnum, map);
             }
             else
             {
-                var map = _changeActionMap[typeEnum];
+                var map = ChangeActionMap[typeEnum];
                 if (!map.ContainsKey(subId))
                 {
-                    map.Add(subId, new List<Action>() {action});
+                    map.Add(subId, new List<Action>() { action });
                 }
                 else
                 {
@@ -155,37 +152,37 @@ namespace HMFW
 
         public override void RemoveListener(Enum typeEnum, Action action, int subId = 0)
         {
-            if (!_changeActionMap.ContainsKey(typeEnum)) return;
-            if (!_changeActionMap[typeEnum].ContainsKey(subId)) return;
-            var list = _changeActionMap[typeEnum][subId];
+            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
+            if (!ChangeActionMap[typeEnum].ContainsKey(subId)) return;
+            var list = ChangeActionMap[typeEnum][subId];
             list.RemoveAll(x => x.Target == null || (action.Target.Equals(x.Target) && action.Method.Equals(x.Method)));
         }
 
         public override void RemoveAllListener(Enum typeEnum, int subId = 0)
         {
-            if (!_changeActionMap.ContainsKey(typeEnum)) return;
-            if (!_changeActionMap[typeEnum].ContainsKey(subId)) return;
-            var list = _changeActionMap[typeEnum][subId];
+            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
+            if (!ChangeActionMap[typeEnum].ContainsKey(subId)) return;
+            var list = ChangeActionMap[typeEnum][subId];
             list.Clear();
         }
 
         public override void RemoveAllTypeListener(Enum typeEnum)
         {
-            if (!_changeActionMap.ContainsKey(typeEnum)) return;
-            _changeActionMap[typeEnum].Clear();
+            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
+            ChangeActionMap[typeEnum].Clear();
         }
 
         public override void RemoveAllListenerOnMgr()
         {
-            throw new NotImplementedException();
+            ChangeActionMap.Clear();
         }
 
         public override void DispatchChangeEvent(Enum typeEnum, int subId)
         {
-            if (!_changeActionMap.ContainsKey(typeEnum)) return;
-            if (!_changeActionMap[typeEnum].ContainsKey(subId)) return;
+            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
+            if (!ChangeActionMap[typeEnum].ContainsKey(subId)) return;
 
-            var list = _changeActionMap[typeEnum][subId];
+            var list = ChangeActionMap[typeEnum][subId];
             for (var i = list.Count - 1; i >= 0; i--)
             {
                 if (list[i].Target != null)
@@ -195,29 +192,39 @@ namespace HMFW
             }
         }
 
-        private bool ContainsKey(ICollection map, int subId)
+        protected virtual bool ContainsKey(ICollection map, int subId)
         {
             var containMethod = map.GetType().GetMethod("ContainsKey", BindingFlags.Public | BindingFlags.Instance);
-            var bo = containMethod.Invoke(map, new System.Object[] {subId});
-            return (bool) bo;
+            if (containMethod != null)
+            {
+                var bo = containMethod.Invoke(map, new System.Object[] { subId });
+                return (bool)bo;
+            }
+
+            return false;
         }
 
-        private bool RemoveKey(ICollection map, int subId)
+        protected virtual bool RemoveKey(ICollection map, int subId)
         {
             // Dictionary<int, int> ma = new Dictionary<int, int>();
             // ma.Remove()
             var containMethod = map.GetType().GetMethod("Remove", BindingFlags.Public | BindingFlags.Instance, null,
                 CallingConventions.Any,
-                new Type[] {typeof(int)},
+                new Type[] { typeof(int) },
                 null);
-            var bo = containMethod.Invoke(map, new System.Object[] {subId});
-            return (bool) bo;
+            if (containMethod != null)
+            {
+                var bo = containMethod.Invoke(map, new System.Object[] { subId });
+                return (bool)bo;
+            }
+
+            return false;
         }
 
-        private void ClearMap(ICollection map)
+        protected virtual void ClearMap(ICollection map)
         {
             var containMethod = map.GetType().GetMethod("Clear", BindingFlags.Public | BindingFlags.Instance);
-            containMethod.Invoke(map, null);
+            if (containMethod != null) containMethod.Invoke(map, null);
         }
     }
 
