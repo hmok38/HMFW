@@ -4,7 +4,9 @@
     "references": [
         "GUID:ba931fa3b3abcc8418071e741dabe89c"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

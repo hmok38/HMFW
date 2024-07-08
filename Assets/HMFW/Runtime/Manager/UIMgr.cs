@@ -51,12 +51,12 @@ namespace HMFW
 
         #region ----------Public Method----------------------------------
 
-        public override void Init(Transform uguiRoot = null)
+        public override void Init()
         {
             GameObject rootTeam = null;
-            if (MyUGUIRoot == null && uguiRoot == null)
+            if (MyUGUIRoot == null)
             {
-                var prefab = UnityEngine.Resources.Load<GameObject>("FWPrefabs/UGUIRoot");
+                var prefab = UnityEngine.Resources.Load<GameObject>(UGUIRootResourcesPath);
                 rootTeam = UnityEngine.Object.Instantiate(prefab);
                 UnityEngine.Object.DontDestroyOnLoad(rootTeam);
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
@@ -66,10 +66,6 @@ namespace HMFW
                 }
 
                 MyUGUIRoot = rootTeam.transform;
-            }
-            else
-            {
-                MyUGUIRoot = uguiRoot;
             }
 
             UIGroupSettings = new Dictionary<uint, UIGroupSetting>
@@ -87,6 +83,7 @@ namespace HMFW
             {
                 this.UITypeDataInit();
             }
+
             var groupId = GetGroupId(priorityBase);
             if (this.UIGroupSettings.TryGetValue(groupId, out var groupSetting))
             {
@@ -136,13 +133,14 @@ namespace HMFW
             ShowUIMapDebugInfo();
             return rv;
         }
-        
+
         public override async UniTask<UIInfo> CloseUI(UIBase uiBase, params object[] args)
         {
             if (NeedDebugInfo)
             {
                 Debug.Log($"CloseUI {uiBase.GetType().FullName} ");
             }
+
             if (!Inited)
             {
                 this.UITypeDataInit();
@@ -224,10 +222,12 @@ namespace HMFW
             {
                 Debug.Log($"CloseUIGroup group:{priorityBase} with {uiCloseType}");
             }
+
             if (!Inited)
             {
                 this.UITypeDataInit();
             }
+
             List<UIInfo> needDelUIInfos = new List<UIInfo>();
             var groupIn = GetGroupId(priorityBase);
             if (UIInGroupMap.TryGetValue(groupIn, out var showedUI))
@@ -263,10 +263,12 @@ namespace HMFW
             {
                 Debug.Log($"CloseAllUI excludedUIs:{excludedUIs.Length} with {uiCloseType}");
             }
+
             if (!Inited)
             {
                 this.UITypeDataInit();
             }
+
             List<UIInfo> needDelUIInfos = new List<UIInfo>();
             string[] excludedUIType = new String[excludedUIs != null ? excludedUIs.Length : 0];
             if (excludedUIs != null && excludedUIs.Length > 0)
@@ -660,7 +662,7 @@ namespace HMFW
             }
         }
 
-        
+
         protected virtual void ResetRectTransform(RectTransform rectTransform)
         {
             rectTransform.anchorMax = new Vector2(1, 1);
@@ -771,6 +773,11 @@ namespace HMFW
     /// </summary>
     public abstract class UIMgrBase
     {
+        /// <summary>
+        /// UGUIRoot的资源路径，必须是Resources目录下的资源，请参考框架Resources/FWPrefabs/UGUIRoot预制体
+        /// </summary>
+        public string UGUIRootResourcesPath = "FWPrefabs/UGUIRoot";
+
         protected readonly Dictionary<string, string> UrlReplaceMap = new Dictionary<string, string>();
 
         /// <summary>
@@ -787,9 +794,8 @@ namespace HMFW
         /// 初始化UI,主要是自定义UIRoot对象用的,否则可以不单独调用,
         /// 如果要自定义UIRoot,那么请在开启任何UI之前调用此Init
         /// </summary>
-        /// <param name="uguiRoot"></param>
         /// <returns></returns>
-        public abstract void Init(Transform uguiRoot = null);
+        public abstract void Init();
 
 
         /// <summary>
