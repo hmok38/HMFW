@@ -1,9 +1,12 @@
 using UnityEngine;
 
-public class FairyGuiSampleStart : MonoBehaviour
+namespace Samples.HMFWFairyGUIExtension.Scripts
 {
-    private void Awake()
+    public class FairyGuiSampleStart : MonoBehaviour
     {
-        FW.GameFsmMgr.ChangeState<FairyGuiSampleInitGameState>(); //这是访问框架自带模块的方式
+        private void Awake()
+        {
+            FW.GameFsmMgr.ChangeState<FairyGuiSampleInitGameState>(); //这是访问框架自带模块的方式
+        }
     }
 }

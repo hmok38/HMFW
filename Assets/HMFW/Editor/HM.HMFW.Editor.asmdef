@@ -2,7 +2,8 @@
     "name": "HM.HMFW.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:06fd7cd6753992542807da39c929808f"
+        "GUID:06fd7cd6753992542807da39c929808f",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [
         "Editor"

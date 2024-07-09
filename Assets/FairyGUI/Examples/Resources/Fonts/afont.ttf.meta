@@ -1,15 +1,13 @@
 fileFormatVersion: 2
 guid: a9d380ac100490b48a7e8fc9b5da7cc7
-timeCreated: 1446193155
-licenseType: Store
 TrueTypeFontImporter:
-  serializedVersion: 2
+  externalObjects: {}
+  serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
-  characterSpacing: 1
-  characterPadding: 0
+  characterSpacing: 0
+  characterPadding: 1
   includeFontData: 0
-  use2xBehaviour: 0
   fontNames:
   - Droid Sans
   - Droid Sans Fallback
@@ -17,6 +15,9 @@ TrueTypeFontImporter:
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 
