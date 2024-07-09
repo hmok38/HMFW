@@ -8,7 +8,7 @@ namespace HMFW
         public override async UniTask EnterState(params object[] args)
         {
             await FW.AssetsMgr.LoadSceneAsync(
-                "Assets/HMFW/Samples/HMFWFairyGUIExtension/Scenes/FairyGuiSampleMain.unity");
+                "Assets/HMFWSampleBundle/Scenes/FairyGuiSampleMain.unity");
             FW.UIMgr.GetGroupSetting(200).BusyLimit = 0; //设置这个组最多显示的数量
 
             //打开别名为Home的FgUI,其脚本为 Assets/HMFW/Samples/HMFWFairyGUIExtension/Scripts/UI/Home.cs

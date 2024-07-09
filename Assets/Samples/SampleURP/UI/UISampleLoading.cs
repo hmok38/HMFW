@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace HMFW.SampleURP.UI
 {
-    [HMFW.Core.UGUIRes("Assets/Samples/SampleURP/Bundle/UI/UISampleLoading.prefab", "UISampleLoading", true)]
+    [HMFW.Core.UGUIRes("Assets/HMFWSampleBundle/UI/UISampleLoading.prefab", "UISampleLoading", true)]
     public class UISampleLoading : HMFW.Core.UIBase
     {
         public override UISystem MyUISystem => UISystem.UGUI;

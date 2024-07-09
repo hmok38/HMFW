@@ -13,7 +13,7 @@ namespace HMFW.SampleURP.GameState
              * 游戏的整体逻辑不会受到影响,等完成后再关掉之前开启的遮蔽用的UI
              */
 
-            await FW.AssetsMgr.LoadSceneAsync("Assets/Samples/SampleURP/Scenes/SampleMainScene.unity");
+            await FW.AssetsMgr.LoadSceneAsync("Assets/HMFWSampleBundle/Scenes/SampleMainScene.unity");
 
             await UniTask.NextFrame(); //等待一帧
 

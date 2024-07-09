@@ -1,7 +1,7 @@
 using HMFW;
 using UnityEngine.UI;
 
-[HMFW.Core.UGUIRes("Assets/HMFW/Samples/HMFWFairyGUIExtension/Bundle/UI/FguiSampleLoadingUI.prefab",
+[HMFW.Core.UGUIRes("Assets/HMFWSampleBundle/UI/FguiSampleLoadingUI.prefab",
     "FguiSampleLoadingUI", false)]
 public class FguiSampleLoadingUI : HMFW.Core.UIBase
 {

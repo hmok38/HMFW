@@ -15,12 +15,12 @@ namespace HMFW
     /// </summary>
     public class UIMgrFairyGUI : HMFW.UIMgr
     {
-        public override void Init(Transform uguiRoot = null)
+        public override void Init()
         {
             GameObject rootTeam = null;
-            if (MyUGUIRoot == null && uguiRoot == null)
+            if (MyUGUIRoot == null)
             {
-                var prefab = UnityEngine.Resources.Load<GameObject>("FWPrefabs/UGUIRoot");
+                var prefab = UnityEngine.Resources.Load<GameObject>(UGUIRootResourcesPath);
                 rootTeam = UnityEngine.Object.Instantiate(prefab);
                 UnityEngine.Object.DontDestroyOnLoad(rootTeam);
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
@@ -30,10 +30,6 @@ namespace HMFW
                 }
 
                 MyUGUIRoot = rootTeam.transform;
-            }
-            else
-            {
-                MyUGUIRoot = uguiRoot;
             }
 
             //创建groupRoot

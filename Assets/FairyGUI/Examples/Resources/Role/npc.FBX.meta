@@ -1,196 +1,572 @@
 fileFormatVersion: 2
 guid: 87d06d04f2d65d9428debc0b3b5bf4e2
 ModelImporter:
-  serializedVersion: 22
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: BipU1NPC0040
-    100004: BipU1NPC0040 Footsteps
-    100006: BipU1NPC0040 Head
-    100008: BipU1NPC0040 HeadNub
-    100010: BipU1NPC0040 L Calf
-    100012: BipU1NPC0040 L Clavicle
-    100014: BipU1NPC0040 L Finger0
-    100016: BipU1NPC0040 L Finger01
-    100018: BipU1NPC0040 L Finger02
-    100020: BipU1NPC0040 L Finger0Nub
-    100022: BipU1NPC0040 L Finger1
-    100024: BipU1NPC0040 L Finger11
-    100026: BipU1NPC0040 L Finger12
-    100028: BipU1NPC0040 L Finger1Nub
-    100030: BipU1NPC0040 L Finger2
-    100032: BipU1NPC0040 L Finger21
-    100034: BipU1NPC0040 L Finger22
-    100036: BipU1NPC0040 L Finger2Nub
-    100038: BipU1NPC0040 L Finger3
-    100040: BipU1NPC0040 L Finger31
-    100042: BipU1NPC0040 L Finger32
-    100044: BipU1NPC0040 L Finger3Nub
-    100046: BipU1NPC0040 L Finger4
-    100048: BipU1NPC0040 L Finger41
-    100050: BipU1NPC0040 L Finger42
-    100052: BipU1NPC0040 L Finger4Nub
-    100054: BipU1NPC0040 L Foot
-    100056: BipU1NPC0040 L Forearm
-    100058: BipU1NPC0040 L Hand
-    100060: BipU1NPC0040 L Thigh
-    100062: BipU1NPC0040 L Toe0
-    100064: BipU1NPC0040 L Toe0Nub
-    100066: BipU1NPC0040 L UpperArm
-    100068: BipU1NPC0040 Neck
-    100070: BipU1NPC0040 Pelvis
-    100072: BipU1NPC0040 Prop1
-    100074: BipU1NPC0040 R Calf
-    100076: BipU1NPC0040 R Clavicle
-    100078: BipU1NPC0040 R Finger0
-    100080: BipU1NPC0040 R Finger01
-    100082: BipU1NPC0040 R Finger02
-    100084: BipU1NPC0040 R Finger0Nub
-    100086: BipU1NPC0040 R Finger1
-    100088: BipU1NPC0040 R Finger11
-    100090: BipU1NPC0040 R Finger12
-    100092: BipU1NPC0040 R Finger1Nub
-    100094: BipU1NPC0040 R Finger2
-    100096: BipU1NPC0040 R Finger21
-    100098: BipU1NPC0040 R Finger22
-    100100: BipU1NPC0040 R Finger2Nub
-    100102: BipU1NPC0040 R Finger3
-    100104: BipU1NPC0040 R Finger31
-    100106: BipU1NPC0040 R Finger32
-    100108: BipU1NPC0040 R Finger3Nub
-    100110: BipU1NPC0040 R Finger4
-    100112: BipU1NPC0040 R Finger41
-    100114: BipU1NPC0040 R Finger42
-    100116: BipU1NPC0040 R Finger4Nub
-    100118: BipU1NPC0040 R Foot
-    100120: BipU1NPC0040 R Forearm
-    100122: BipU1NPC0040 R Hand
-    100124: BipU1NPC0040 R Thigh
-    100126: BipU1NPC0040 R Toe0
-    100128: BipU1NPC0040 R Toe0Nub
-    100130: BipU1NPC0040 R UpperArm
-    100132: BipU1NPC0040 Spine
-    100134: BipU1NPC0040 Spine1
-    100136: BoneU1NPC0040_00
-    100138: BoneU1NPC0040_01
-    100140: BoneU1NPC0040_02
-    100142: BoneU1NPC0040_03
-    100144: BoneU1NPC0040_04
-    100146: BoneU1NPC0040_05
-    100148: BoneU1NPC0040_06
-    100150: BoneU1NPC0040_07
-    100152: BoneU1NPC0040_08
-    100154: BoneU1NPC0040_09
-    100156: BoneU1NPC0040_10
-    100158: BoneU1NPC0040_11
-    100160: BoneU1NPC0040_12
-    100162: BoneU1NPC0040_13
-    100164: BoneU1NPC0040_14
-    100166: BoneU1NPC0040_15
-    100168: BoneU1NPC0040_16
-    100170: BoneU1NPC0040_17
-    100172: BoneU1NPC0040_18
-    100174: BoneU1NPC0040_19
-    100176: Particle View 01 1
-    100178: Particle View 01
-    100180: U1NPC0040
-    400000: //RootNode
-    400002: BipU1NPC0040
-    400004: BipU1NPC0040 Footsteps
-    400006: BipU1NPC0040 Head
-    400008: BipU1NPC0040 HeadNub
-    400010: BipU1NPC0040 L Calf
-    400012: BipU1NPC0040 L Clavicle
-    400014: BipU1NPC0040 L Finger0
-    400016: BipU1NPC0040 L Finger01
-    400018: BipU1NPC0040 L Finger02
-    400020: BipU1NPC0040 L Finger0Nub
-    400022: BipU1NPC0040 L Finger1
-    400024: BipU1NPC0040 L Finger11
-    400026: BipU1NPC0040 L Finger12
-    400028: BipU1NPC0040 L Finger1Nub
-    400030: BipU1NPC0040 L Finger2
-    400032: BipU1NPC0040 L Finger21
-    400034: BipU1NPC0040 L Finger22
-    400036: BipU1NPC0040 L Finger2Nub
-    400038: BipU1NPC0040 L Finger3
-    400040: BipU1NPC0040 L Finger31
-    400042: BipU1NPC0040 L Finger32
-    400044: BipU1NPC0040 L Finger3Nub
-    400046: BipU1NPC0040 L Finger4
-    400048: BipU1NPC0040 L Finger41
-    400050: BipU1NPC0040 L Finger42
-    400052: BipU1NPC0040 L Finger4Nub
-    400054: BipU1NPC0040 L Foot
-    400056: BipU1NPC0040 L Forearm
-    400058: BipU1NPC0040 L Hand
-    400060: BipU1NPC0040 L Thigh
-    400062: BipU1NPC0040 L Toe0
-    400064: BipU1NPC0040 L Toe0Nub
-    400066: BipU1NPC0040 L UpperArm
-    400068: BipU1NPC0040 Neck
-    400070: BipU1NPC0040 Pelvis
-    400072: BipU1NPC0040 Prop1
-    400074: BipU1NPC0040 R Calf
-    400076: BipU1NPC0040 R Clavicle
-    400078: BipU1NPC0040 R Finger0
-    400080: BipU1NPC0040 R Finger01
-    400082: BipU1NPC0040 R Finger02
-    400084: BipU1NPC0040 R Finger0Nub
-    400086: BipU1NPC0040 R Finger1
-    400088: BipU1NPC0040 R Finger11
-    400090: BipU1NPC0040 R Finger12
-    400092: BipU1NPC0040 R Finger1Nub
-    400094: BipU1NPC0040 R Finger2
-    400096: BipU1NPC0040 R Finger21
-    400098: BipU1NPC0040 R Finger22
-    400100: BipU1NPC0040 R Finger2Nub
-    400102: BipU1NPC0040 R Finger3
-    400104: BipU1NPC0040 R Finger31
-    400106: BipU1NPC0040 R Finger32
-    400108: BipU1NPC0040 R Finger3Nub
-    400110: BipU1NPC0040 R Finger4
-    400112: BipU1NPC0040 R Finger41
-    400114: BipU1NPC0040 R Finger42
-    400116: BipU1NPC0040 R Finger4Nub
-    400118: BipU1NPC0040 R Foot
-    400120: BipU1NPC0040 R Forearm
-    400122: BipU1NPC0040 R Hand
-    400124: BipU1NPC0040 R Thigh
-    400126: BipU1NPC0040 R Toe0
-    400128: BipU1NPC0040 R Toe0Nub
-    400130: BipU1NPC0040 R UpperArm
-    400132: BipU1NPC0040 Spine
-    400134: BipU1NPC0040 Spine1
-    400136: BoneU1NPC0040_00
-    400138: BoneU1NPC0040_01
-    400140: BoneU1NPC0040_02
-    400142: BoneU1NPC0040_03
-    400144: BoneU1NPC0040_04
-    400146: BoneU1NPC0040_05
-    400148: BoneU1NPC0040_06
-    400150: BoneU1NPC0040_07
-    400152: BoneU1NPC0040_08
-    400154: BoneU1NPC0040_09
-    400156: BoneU1NPC0040_10
-    400158: BoneU1NPC0040_11
-    400160: BoneU1NPC0040_12
-    400162: BoneU1NPC0040_13
-    400164: BoneU1NPC0040_14
-    400166: BoneU1NPC0040_15
-    400168: BoneU1NPC0040_16
-    400170: BoneU1NPC0040_17
-    400172: BoneU1NPC0040_18
-    400174: BoneU1NPC0040_19
-    400176: Particle View 01 1
-    400178: Particle View 01
-    400180: U1NPC0040
-    4300000: U1NPC0040
-    7400000: base@idle_z1
-    7400002: base@idle_z2
-    11100000: //RootNode
-    13700000: //RootNode
-    13700002: U1NPC0040
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: BipU1NPC0040
+  - first:
+      1: 100004
+    second: BipU1NPC0040 Footsteps
+  - first:
+      1: 100006
+    second: BipU1NPC0040 Head
+  - first:
+      1: 100008
+    second: BipU1NPC0040 HeadNub
+  - first:
+      1: 100010
+    second: BipU1NPC0040 L Calf
+  - first:
+      1: 100012
+    second: BipU1NPC0040 L Clavicle
+  - first:
+      1: 100014
+    second: BipU1NPC0040 L Finger0
+  - first:
+      1: 100016
+    second: BipU1NPC0040 L Finger01
+  - first:
+      1: 100018
+    second: BipU1NPC0040 L Finger02
+  - first:
+      1: 100020
+    second: BipU1NPC0040 L Finger0Nub
+  - first:
+      1: 100022
+    second: BipU1NPC0040 L Finger1
+  - first:
+      1: 100024
+    second: BipU1NPC0040 L Finger11
+  - first:
+      1: 100026
+    second: BipU1NPC0040 L Finger12
+  - first:
+      1: 100028
+    second: BipU1NPC0040 L Finger1Nub
+  - first:
+      1: 100030
+    second: BipU1NPC0040 L Finger2
+  - first:
+      1: 100032
+    second: BipU1NPC0040 L Finger21
+  - first:
+      1: 100034
+    second: BipU1NPC0040 L Finger22
+  - first:
+      1: 100036
+    second: BipU1NPC0040 L Finger2Nub
+  - first:
+      1: 100038
+    second: BipU1NPC0040 L Finger3
+  - first:
+      1: 100040
+    second: BipU1NPC0040 L Finger31
+  - first:
+      1: 100042
+    second: BipU1NPC0040 L Finger32
+  - first:
+      1: 100044
+    second: BipU1NPC0040 L Finger3Nub
+  - first:
+      1: 100046
+    second: BipU1NPC0040 L Finger4
+  - first:
+      1: 100048
+    second: BipU1NPC0040 L Finger41
+  - first:
+      1: 100050
+    second: BipU1NPC0040 L Finger42
+  - first:
+      1: 100052
+    second: BipU1NPC0040 L Finger4Nub
+  - first:
+      1: 100054
+    second: BipU1NPC0040 L Foot
+  - first:
+      1: 100056
+    second: BipU1NPC0040 L Forearm
+  - first:
+      1: 100058
+    second: BipU1NPC0040 L Hand
+  - first:
+      1: 100060
+    second: BipU1NPC0040 L Thigh
+  - first:
+      1: 100062
+    second: BipU1NPC0040 L Toe0
+  - first:
+      1: 100064
+    second: BipU1NPC0040 L Toe0Nub
+  - first:
+      1: 100066
+    second: BipU1NPC0040 L UpperArm
+  - first:
+      1: 100068
+    second: BipU1NPC0040 Neck
+  - first:
+      1: 100070
+    second: BipU1NPC0040 Pelvis
+  - first:
+      1: 100072
+    second: BipU1NPC0040 Prop1
+  - first:
+      1: 100074
+    second: BipU1NPC0040 R Calf
+  - first:
+      1: 100076
+    second: BipU1NPC0040 R Clavicle
+  - first:
+      1: 100078
+    second: BipU1NPC0040 R Finger0
+  - first:
+      1: 100080
+    second: BipU1NPC0040 R Finger01
+  - first:
+      1: 100082
+    second: BipU1NPC0040 R Finger02
+  - first:
+      1: 100084
+    second: BipU1NPC0040 R Finger0Nub
+  - first:
+      1: 100086
+    second: BipU1NPC0040 R Finger1
+  - first:
+      1: 100088
+    second: BipU1NPC0040 R Finger11
+  - first:
+      1: 100090
+    second: BipU1NPC0040 R Finger12
+  - first:
+      1: 100092
+    second: BipU1NPC0040 R Finger1Nub
+  - first:
+      1: 100094
+    second: BipU1NPC0040 R Finger2
+  - first:
+      1: 100096
+    second: BipU1NPC0040 R Finger21
+  - first:
+      1: 100098
+    second: BipU1NPC0040 R Finger22
+  - first:
+      1: 100100
+    second: BipU1NPC0040 R Finger2Nub
+  - first:
+      1: 100102
+    second: BipU1NPC0040 R Finger3
+  - first:
+      1: 100104
+    second: BipU1NPC0040 R Finger31
+  - first:
+      1: 100106
+    second: BipU1NPC0040 R Finger32
+  - first:
+      1: 100108
+    second: BipU1NPC0040 R Finger3Nub
+  - first:
+      1: 100110
+    second: BipU1NPC0040 R Finger4
+  - first:
+      1: 100112
+    second: BipU1NPC0040 R Finger41
+  - first:
+      1: 100114
+    second: BipU1NPC0040 R Finger42
+  - first:
+      1: 100116
+    second: BipU1NPC0040 R Finger4Nub
+  - first:
+      1: 100118
+    second: BipU1NPC0040 R Foot
+  - first:
+      1: 100120
+    second: BipU1NPC0040 R Forearm
+  - first:
+      1: 100122
+    second: BipU1NPC0040 R Hand
+  - first:
+      1: 100124
+    second: BipU1NPC0040 R Thigh
+  - first:
+      1: 100126
+    second: BipU1NPC0040 R Toe0
+  - first:
+      1: 100128
+    second: BipU1NPC0040 R Toe0Nub
+  - first:
+      1: 100130
+    second: BipU1NPC0040 R UpperArm
+  - first:
+      1: 100132
+    second: BipU1NPC0040 Spine
+  - first:
+      1: 100134
+    second: BipU1NPC0040 Spine1
+  - first:
+      1: 100136
+    second: BoneU1NPC0040_00
+  - first:
+      1: 100138
+    second: BoneU1NPC0040_01
+  - first:
+      1: 100140
+    second: BoneU1NPC0040_02
+  - first:
+      1: 100142
+    second: BoneU1NPC0040_03
+  - first:
+      1: 100144
+    second: BoneU1NPC0040_04
+  - first:
+      1: 100146
+    second: BoneU1NPC0040_05
+  - first:
+      1: 100148
+    second: BoneU1NPC0040_06
+  - first:
+      1: 100150
+    second: BoneU1NPC0040_07
+  - first:
+      1: 100152
+    second: BoneU1NPC0040_08
+  - first:
+      1: 100154
+    second: BoneU1NPC0040_09
+  - first:
+      1: 100156
+    second: BoneU1NPC0040_10
+  - first:
+      1: 100158
+    second: BoneU1NPC0040_11
+  - first:
+      1: 100160
+    second: BoneU1NPC0040_12
+  - first:
+      1: 100162
+    second: BoneU1NPC0040_13
+  - first:
+      1: 100164
+    second: BoneU1NPC0040_14
+  - first:
+      1: 100166
+    second: BoneU1NPC0040_15
+  - first:
+      1: 100168
+    second: BoneU1NPC0040_16
+  - first:
+      1: 100170
+    second: BoneU1NPC0040_17
+  - first:
+      1: 100172
+    second: BoneU1NPC0040_18
+  - first:
+      1: 100174
+    second: BoneU1NPC0040_19
+  - first:
+      1: 100176
+    second: Particle View 01 1
+  - first:
+      1: 100178
+    second: Particle View 01
+  - first:
+      1: 100180
+    second: U1NPC0040
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: BipU1NPC0040
+  - first:
+      4: 400004
+    second: BipU1NPC0040 Footsteps
+  - first:
+      4: 400006
+    second: BipU1NPC0040 Head
+  - first:
+      4: 400008
+    second: BipU1NPC0040 HeadNub
+  - first:
+      4: 400010
+    second: BipU1NPC0040 L Calf
+  - first:
+      4: 400012
+    second: BipU1NPC0040 L Clavicle
+  - first:
+      4: 400014
+    second: BipU1NPC0040 L Finger0
+  - first:
+      4: 400016
+    second: BipU1NPC0040 L Finger01
+  - first:
+      4: 400018
+    second: BipU1NPC0040 L Finger02
+  - first:
+      4: 400020
+    second: BipU1NPC0040 L Finger0Nub
+  - first:
+      4: 400022
+    second: BipU1NPC0040 L Finger1
+  - first:
+      4: 400024
+    second: BipU1NPC0040 L Finger11
+  - first:
+      4: 400026
+    second: BipU1NPC0040 L Finger12
+  - first:
+      4: 400028
+    second: BipU1NPC0040 L Finger1Nub
+  - first:
+      4: 400030
+    second: BipU1NPC0040 L Finger2
+  - first:
+      4: 400032
+    second: BipU1NPC0040 L Finger21
+  - first:
+      4: 400034
+    second: BipU1NPC0040 L Finger22
+  - first:
+      4: 400036
+    second: BipU1NPC0040 L Finger2Nub
+  - first:
+      4: 400038
+    second: BipU1NPC0040 L Finger3
+  - first:
+      4: 400040
+    second: BipU1NPC0040 L Finger31
+  - first:
+      4: 400042
+    second: BipU1NPC0040 L Finger32
+  - first:
+      4: 400044
+    second: BipU1NPC0040 L Finger3Nub
+  - first:
+      4: 400046
+    second: BipU1NPC0040 L Finger4
+  - first:
+      4: 400048
+    second: BipU1NPC0040 L Finger41
+  - first:
+      4: 400050
+    second: BipU1NPC0040 L Finger42
+  - first:
+      4: 400052
+    second: BipU1NPC0040 L Finger4Nub
+  - first:
+      4: 400054
+    second: BipU1NPC0040 L Foot
+  - first:
+      4: 400056
+    second: BipU1NPC0040 L Forearm
+  - first:
+      4: 400058
+    second: BipU1NPC0040 L Hand
+  - first:
+      4: 400060
+    second: BipU1NPC0040 L Thigh
+  - first:
+      4: 400062
+    second: BipU1NPC0040 L Toe0
+  - first:
+      4: 400064
+    second: BipU1NPC0040 L Toe0Nub
+  - first:
+      4: 400066
+    second: BipU1NPC0040 L UpperArm
+  - first:
+      4: 400068
+    second: BipU1NPC0040 Neck
+  - first:
+      4: 400070
+    second: BipU1NPC0040 Pelvis
+  - first:
+      4: 400072
+    second: BipU1NPC0040 Prop1
+  - first:
+      4: 400074
+    second: BipU1NPC0040 R Calf
+  - first:
+      4: 400076
+    second: BipU1NPC0040 R Clavicle
+  - first:
+      4: 400078
+    second: BipU1NPC0040 R Finger0
+  - first:
+      4: 400080
+    second: BipU1NPC0040 R Finger01
+  - first:
+      4: 400082
+    second: BipU1NPC0040 R Finger02
+  - first:
+      4: 400084
+    second: BipU1NPC0040 R Finger0Nub
+  - first:
+      4: 400086
+    second: BipU1NPC0040 R Finger1
+  - first:
+      4: 400088
+    second: BipU1NPC0040 R Finger11
+  - first:
+      4: 400090
+    second: BipU1NPC0040 R Finger12
+  - first:
+      4: 400092
+    second: BipU1NPC0040 R Finger1Nub
+  - first:
+      4: 400094
+    second: BipU1NPC0040 R Finger2
+  - first:
+      4: 400096
+    second: BipU1NPC0040 R Finger21
+  - first:
+      4: 400098
+    second: BipU1NPC0040 R Finger22
+  - first:
+      4: 400100
+    second: BipU1NPC0040 R Finger2Nub
+  - first:
+      4: 400102
+    second: BipU1NPC0040 R Finger3
+  - first:
+      4: 400104
+    second: BipU1NPC0040 R Finger31
+  - first:
+      4: 400106
+    second: BipU1NPC0040 R Finger32
+  - first:
+      4: 400108
+    second: BipU1NPC0040 R Finger3Nub
+  - first:
+      4: 400110
+    second: BipU1NPC0040 R Finger4
+  - first:
+      4: 400112
+    second: BipU1NPC0040 R Finger41
+  - first:
+      4: 400114
+    second: BipU1NPC0040 R Finger42
+  - first:
+      4: 400116
+    second: BipU1NPC0040 R Finger4Nub
+  - first:
+      4: 400118
+    second: BipU1NPC0040 R Foot
+  - first:
+      4: 400120
+    second: BipU1NPC0040 R Forearm
+  - first:
+      4: 400122
+    second: BipU1NPC0040 R Hand
+  - first:
+      4: 400124
+    second: BipU1NPC0040 R Thigh
+  - first:
+      4: 400126
+    second: BipU1NPC0040 R Toe0
+  - first:
+      4: 400128
+    second: BipU1NPC0040 R Toe0Nub
+  - first:
+      4: 400130
+    second: BipU1NPC0040 R UpperArm
+  - first:
+      4: 400132
+    second: BipU1NPC0040 Spine
+  - first:
+      4: 400134
+    second: BipU1NPC0040 Spine1
+  - first:
+      4: 400136
+    second: BoneU1NPC0040_00
+  - first:
+      4: 400138
+    second: BoneU1NPC0040_01
+  - first:
+      4: 400140
+    second: BoneU1NPC0040_02
+  - first:
+      4: 400142
+    second: BoneU1NPC0040_03
+  - first:
+      4: 400144
+    second: BoneU1NPC0040_04
+  - first:
+      4: 400146
+    second: BoneU1NPC0040_05
+  - first:
+      4: 400148
+    second: BoneU1NPC0040_06
+  - first:
+      4: 400150
+    second: BoneU1NPC0040_07
+  - first:
+      4: 400152
+    second: BoneU1NPC0040_08
+  - first:
+      4: 400154
+    second: BoneU1NPC0040_09
+  - first:
+      4: 400156
+    second: BoneU1NPC0040_10
+  - first:
+      4: 400158
+    second: BoneU1NPC0040_11
+  - first:
+      4: 400160
+    second: BoneU1NPC0040_12
+  - first:
+      4: 400162
+    second: BoneU1NPC0040_13
+  - first:
+      4: 400164
+    second: BoneU1NPC0040_14
+  - first:
+      4: 400166
+    second: BoneU1NPC0040_15
+  - first:
+      4: 400168
+    second: BoneU1NPC0040_16
+  - first:
+      4: 400170
+    second: BoneU1NPC0040_17
+  - first:
+      4: 400172
+    second: BoneU1NPC0040_18
+  - first:
+      4: 400174
+    second: BoneU1NPC0040_19
+  - first:
+      4: 400176
+    second: Particle View 01 1
+  - first:
+      4: 400178
+    second: Particle View 01
+  - first:
+      4: 400180
+    second: U1NPC0040
+  - first:
+      43: 4300000
+    second: U1NPC0040
+  - first:
+      74: 7400000
+    second: base@idle_z1
+  - first:
+      74: 7400002
+    second: base@idle_z2
+  - first:
+      111: 11100000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: //RootNode
+  - first:
+      137: 13700002
+    second: U1NPC0040
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -198,7 +574,7 @@ ModelImporter:
       name: U1NPC0040
     second: {fileID: 2100000, guid: f610d32095a9f6f48b1ada37f0b76da2, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -207,6 +583,7 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
     rigImportErrors: 
     rigImportWarnings: 
@@ -215,6 +592,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 2
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -226,6 +604,7 @@ ModelImporter:
     - serializedVersion: 16
       name: base@idle_z1
       takeName: 
+      internalID: 0
       firstFrame: 1
       lastFrame: 61
       wrapMode: 2
@@ -254,6 +633,7 @@ ModelImporter:
     - serializedVersion: 16
       name: base@idle_z2
       takeName: 
+      internalID: 0
       firstFrame: 71
       lastFrame: 135
       wrapMode: 0
@@ -285,30 +665,49 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 0
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 4
     normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -318,14 +717,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 1
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 
   assetBundleName: 
