@@ -131,7 +131,7 @@ namespace HMFW
 
         public override bool CheckCurrentState<T>()
         {
-            return CheckCurrentState(typeof(T).FullName);
+            return CheckCurrentState(typeof(T).Name);
         }
 
         private readonly Dictionary<string, Type> _allGameStateTypes = new Dictionary<string, Type>();
@@ -155,7 +155,7 @@ namespace HMFW
             for (var i = 0; i < subTypes.Count; i++)
             {
                 var tempType = subTypes[i];
-                if (tempType.FullName != null) _allGameStateTypes.Add(tempType.FullName, tempType);
+                if (tempType.Name != null) _allGameStateTypes.Add(tempType.Name, tempType);
             }
         }
 
