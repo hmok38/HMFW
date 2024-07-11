@@ -28,7 +28,7 @@ namespace HMFW
                 {
                     new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
                 }
-
+                UnityEngine.Object.DontDestroyOnLoad(eventObj);
                 MyUGUIRoot = rootTeam.transform;
             }
 
