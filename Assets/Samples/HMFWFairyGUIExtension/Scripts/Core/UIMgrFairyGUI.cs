@@ -26,9 +26,10 @@ namespace HMFW
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
                 if (eventObj == null)
                 {
-                    new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                   var input= new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                   eventObj = input.gameObject.GetComponent<UnityEngine.EventSystems.EventSystem>();
                 }
-                UnityEngine.Object.DontDestroyOnLoad(eventObj);
+                UnityEngine.Object.DontDestroyOnLoad(eventObj.gameObject);
                 MyUGUIRoot = rootTeam.transform;
             }
 
