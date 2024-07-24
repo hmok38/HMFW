@@ -17,3 +17,5 @@
     需要实例化某个预制体的时候,请创建一个 `Entity` 并向其添加 `PrefabInstantiateComponent` 组件,设置好坐标,预制体id,即可在结束帧时创建新的预制体实例
 5. `EntityDestroyExtension` **销毁Entity的扩展方法**  
     扩展了两个将子entity一起销毁的方法
+6. `GameStateSceneTestWithSubScene` **测试场景的ecs专用脚本**  
+场景中有subScene的时候,如果定义了 `UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP` 编译符,不自动创建世界的话,会出现subScene不自动加载的情况,可以将场景中`GameStateSceneTest`脚本实例替换为`GameStateSceneTestWithSubScene`

@@ -12,7 +12,7 @@ namespace HMFW.Tools
 
 #if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD || UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
         [Header("__________________________________________")]
-        [Header("是否需要重新加载场景中的子场景,因为子场景中SubScene会在初始化世界之前被加载,所以需要重新加载一次")]
+        [Header("注意:请在具有subScene的场景中使用 GameStateSceneTestWithSubScene脚本,其在HMFW包的HMFWEcsExtension示例中")]
         public bool needLoadReLoadSubScene = true;
 #endif
 #if UNITY_EDITOR
@@ -24,24 +24,6 @@ namespace HMFW.Tools
             if (!FW.GameFsmMgr.CheckCurrentState(gameStateName))
             {
                 FW.GameFsmMgr.ChangeState(gameStateName, "编辑器测试");
-
-                //系统不自动创建默认世界的情况下,就需要重新reload存在场景的subScene
-#if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD || UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
-                if (needLoadReLoadSubScene)
-                {
-                    var subScenes =
-                        UnityEngine.GameObject.FindObjectsOfType(typeof(Unity.Scenes.SubScene)) as Unity.Scenes.SubScene
-                            [];
-                    for (var i = 0; i < subScenes.Length; i++)
-                    {
-                        var subScenesObj = subScenes[i];
-                        Unity.Scenes.SceneSystem.LoadSceneAsync(
-                            Unity.Entities.World.DefaultGameObjectInjectionWorld.Unmanaged,
-                            new Unity.Entities.Serialization.EntitySceneReference(subScenesObj.SceneAsset));
-                    }
-                }
-
-#endif
             }
         }
 #endif
