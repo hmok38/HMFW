@@ -91,8 +91,30 @@ _**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后�
 >3. 对于`UGUIResAttribute`特性中资源地址中某些需要运行时确定的字段,我们可以使用自定义的标签来代替,并在运行时设置其对应的值,ui系统在加载时会自动替代,例如多国语言的预制体在不同的目录下时,非常有用
 >4. 例如 `FW.UIMgr.SetUrlReplace("[L]","English");`即可将`UGUIResAttribute`特性中资源地址中带有`[L]`的地方替换为`English`
 
->* 关于对FairyGUI的支持
+### 对FairyGUI的支持
 >1. 针对项目需求,我们添加了对FairyGUI的管理支持,请先在项目中添加`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_
 >2. Fgui的所有启用/关闭/等待/覆盖功能都已如ugui使用.
 >3. FGUI的脚本需要继承`FairyGUIBase`,其也继承`UIBase`,只是扩展了一个`MyGObject`字段,用来访问脚本所在的`GObject`(FairyGUI)对象
 >4. Fgui的脚本需要实现`FGUIResUrlAttribute` 特性,其跟`UGUIResAttribute`一样,也是继承于`UIAttribute`,但需要填写的内容有所不同
+
+### 对Unity Ecs的扩展支持
+
+>针对项目需求,我们添加了对Unity Ecs的扩展和支持,请先在项目的`UnityPackageManager`中添加`com.unity.entities.graphics`后,再选择`HMFW`包中安装示例:`HMFWEcsExtension`**_
+>1. `AutoDestroySystem` **自动销毁系统**  
+    某些特效预制体需要计时销毁的话可以使用它,向一个`Entity`添加`AutoDestroyComponent`组件即可设定自动销毁`Entity`和其`子Entity`.
+    另外预制体还可以添加`AutoDestroyAuthoring`脚本自动添加销毁组件
+>2. `EcsGlobalEventSystem` **Ecs中的全局事件系统**  
+   某些时候需要从ecs中发出全局事件,那么就可以使用本系统,会在下一帧统一调用HMFW的全局事件系统发送事件.便捷使用方式:EcsGlobalEventComponent实例.SendEvent()或者SentEventInJob(),因为是最终是调用ecb来发送,所以需要传入ecb使用
+>3. `PrefabResSystem` **预制体资源系统**  和 `PrefabResAuthoring` **预制体烘焙组件**  
+   项目或者子场景中预制体资源的管理,请采用预制体管理系统进行:  
+   3.1 请先配置`PrefabsResConfigSO`的配置表,可通过菜单栏`Assets->Create->HMFW->Ecs->PrefabsResConfig`来创建,或者右键点击资源目录后选择`Create/HMFW/Ecs/PrefabsResConfig`创建.  
+   3.2 将预制体拖入配置表,并赋值一个id.  
+   3.3 在Ecs中即可根据这个id从 `SystemAPI.GetSingleton<PrefabResSingleton>().PrefabMap` 组件中的HashMap中拿到这个预制体的Entity  
+   3.4 在游戏场景的某个`SubScene` 添加一个空物体,然后向其添加`PrefabResAuthoring`脚本,并将刚刚配置好的`PrefabsResConfigSO`拖入其中
+   注意:此预制体id是`World`唯一,如果2个不同的游戏场景资源id相同没有问题,否则请自行管理好此id
+>4. `PrefabInstantiateSystem` **预制体实例化系统**  
+   需要实例化某个预制体的时候,请创建一个 `Entity` 并向其添加 `PrefabInstantiateComponent` 组件,设置好坐标,预制体id,即可在结束帧时创建新的预制体实例
+>5. `EntityDestroyExtension` **销毁Entity的扩展方法**  
+   扩展了两个将子entity一起销毁的方法
+>6.  `GameStateSceneTestWithSubScene` **测试场景的ecs专用脚本**  
+       场景中有subScene的时候,如果定义了 `UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP` 编译符,不自动创建世界的话,会出现subScene不自动加载的情况,可以将场景中`GameStateSceneTest`脚本实例替换为`GameStateSceneTestWithSubScene`
