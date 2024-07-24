@@ -1,6 +1,6 @@
 {
   "name": "com.hm.hmfw",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "displayName": "HMFW",
   "description": "HMFramework",
   "unity": "2022.3",
@@ -28,6 +28,11 @@
     "url": "https://github.com/hmok38/HMFW"
   },
   "samples": [
+    {
+      "displayName": "HMFWEcsExtension",
+      "description": "框架对ECS的扩展和示例,需要先安装com.unity.entities.graphics包",
+      "path": "Samples~/HMFWEcsExtension"
+    },
     {
       "displayName": "FairyGUIExtention",
       "description": "支持FairyGUI的扩展和示例,需要先安装FairyGUI的SDK",
