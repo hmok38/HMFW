@@ -73,3 +73,5 @@ crashlytics-build.properties
 .idea
 Assets/Samples/HMFWEcsExtension
 Assets/Samples/HMFWEcsExtension.meta
+Assets/SceneDependencyCache
+Assets/SceneDependencyCache.meta
