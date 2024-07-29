@@ -1,0 +1,19 @@
+{
+    "name": "HM.HMFWEcsExtension.Test",
+    "rootNamespace": "HMFW.Ecs.Test",
+    "references": [
+        "HM.HMFWEcsExtension",
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
