@@ -71,3 +71,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 .idea
+Assets/Samples/HMFWEcsExtension
+Assets/Samples/HMFWEcsExtension.meta
+Assets/SceneDependencyCache
+Assets/SceneDependencyCache.meta

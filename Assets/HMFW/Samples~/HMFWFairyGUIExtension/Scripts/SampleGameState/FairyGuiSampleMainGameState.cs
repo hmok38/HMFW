@@ -23,6 +23,12 @@ namespace HMFW
             await UniTask.Delay(2000);
             await FW.UIMgr.CloseUIGroup(200); //关闭ui
             Debug.Log("关闭");
+            
+            
+            //通过工具从fgui的资源中创建sprite,用来给其他系统使用示例
+            var sprite = FGUITools.CreatSpriteFromFguiAsset("UIHome", "b5_png");
+            GameObject a = new GameObject();
+            a.AddComponent<SpriteRenderer>().sprite = sprite;
         }
 
         public override UniTask LeaveState(params object[] args)

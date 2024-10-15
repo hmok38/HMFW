@@ -84,10 +84,7 @@ namespace HMFW
 
             if (stateTemp != null)
             {
-                if (this.CurrentState != null && this.CurrentState != stateTemp)
-                {
-                    this.LastState = this.CurrentState;
-                }
+                this.LastState = this.CurrentState;
 
                 this.CurrentState = stateTemp;
                 if (this.LastState != null)
