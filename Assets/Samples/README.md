@@ -8,3 +8,6 @@
 
 ### Linux和Mac:
 		在终端使用 "ln -s 名字 目标文件夹" 命令链接
+		
+		mklink/d SampleURP ..\HMFW\Samples~\SampleURP
+		mklink/d HMFWFairyGUIExtension ..\HMFW\Samples~\HMFWFairyGUIExtension

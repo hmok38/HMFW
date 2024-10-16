@@ -60,4 +60,9 @@ public class FW
     /// 全局数据管理器
     /// </summary>
     public static GDataMgrBase GDataMgr { get; set; } = new GDataMgr();
+    
+    /// <summary>
+    /// 音频管理器
+    /// </summary>
+    public static AudioMgrBase AudioMgr { get; set; } = new AudioMgr();
 }

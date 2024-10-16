@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using Cysharp.Threading.Tasks;
 using HMFW.Core;
 using HMFW.SampleURP.GameState;
@@ -40,6 +40,51 @@ namespace HMFW.SampleURP.UI
                 color.a -= 0.003f;
                 img.color = color;
                 await UniTask.Delay(30);
+            }
+        }
+
+        public void OnGUI()
+        {
+            if (GUILayout.Button("播放音乐"))
+            {
+                FW.AudioMgr.PlayMusic(AudioEnum.BgMusic, true, "背景音乐",
+                    (x, y) => { Debug.Log($"MusicPlay Complete {x}  {y}"); });
+            }
+
+            if (GUILayout.Button("播放音乐2"))
+            {
+                FW.AudioMgr.PlayMusic(AudioEnum.BgMusic2, true, "背景音乐2",
+                    (x, y) => { Debug.Log($"MusicPlay Complete {x}  {y}"); });
+            }
+
+            if (GUILayout.Button("播放音效果"))
+            {
+                FW.AudioMgr.PlaySound(AudioEnum.Sound);
+            }
+
+            if (GUILayout.Button("播放音效果2"))
+            {
+                FW.AudioMgr.PlaySound(AudioEnum.Sound2);
+            }
+
+            if (GUILayout.Button("音乐变小"))
+            {
+                FW.AudioMgr.musicVolume -= 0.1f;
+            }
+
+            if (GUILayout.Button("音乐变大"))
+            {
+                FW.AudioMgr.musicVolume += 0.1f;
+            }
+
+            if (GUILayout.Button("音效变小"))
+            {
+                FW.AudioMgr.soundVolume -= 0.1f;
+            }
+
+            if (GUILayout.Button("音效变大"))
+            {
+                FW.AudioMgr.soundVolume += 0.1f;
             }
         }
     }
