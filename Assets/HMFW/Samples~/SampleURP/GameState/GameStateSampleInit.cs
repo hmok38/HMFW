@@ -12,8 +12,12 @@ namespace HMFW.SampleURP.GameState
             var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
             setting.BusyLimit = 0; //设置这一组是否限制最大显示的ui数,多余的会等待,
             await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);
+            
+            
             Debug.Log("完成关闭");
         }
+        
+        
 
         public override async UniTask LeaveState(params object[] args)
         {
