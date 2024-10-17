@@ -26,9 +26,11 @@ namespace HMFW
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
                 if (eventObj == null)
                 {
-                   var input= new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-                   eventObj = input.gameObject.GetComponent<UnityEngine.EventSystems.EventSystem>();
+                    var input = new GameObject("EventSystem")
+                        .AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                    eventObj = input.gameObject.GetComponent<UnityEngine.EventSystems.EventSystem>();
                 }
+
                 UnityEngine.Object.DontDestroyOnLoad(eventObj.gameObject);
                 MyUGUIRoot = rootTeam.transform;
             }
@@ -142,7 +144,7 @@ namespace HMFW
                 UniTask[] all = new UniTask[preLoadUrlStrings.Length];
                 for (int i = 0; i < preLoadUrlStrings.Length; i++)
                 {
-                    var u = LoadPackage(preLoadUrlStrings[i]);
+                    var u = FW.CustomAPI.FguiHelper().LoadPackage(preLoadUrlStrings[i]);
                     all[i] = (u);
                 }
 
@@ -150,7 +152,7 @@ namespace HMFW
             }
 
             var packageFileURL = ReplaceUrl(fguiResUrlAttribute.PackageFileUrl);
-            await LoadPackage(packageFileURL);
+            await FW.CustomAPI.FguiHelper().LoadPackage(packageFileURL);
 
 
             //await结束后,检查一下uiInfo是否还存在,如果在这个过程总被关闭了,就不要实例化了.
@@ -347,26 +349,6 @@ namespace HMFW
             var setting = GetGroupSetting(uiInfo.Priority);
             await CheckWaitUI(setting);
             return uiInfo;
-        }
-
-        protected virtual async UniTask LoadPackage(string packagePath)
-        {
-            var descDataAssetUIHome =
-                await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
-            var descData = descDataAssetUIHome.bytes;
-
-            UIPackage.AddPackage(descData, packagePath, OnLoadResourceAsync);
-        }
-
-        protected virtual async void OnLoadResourceAsync(string name, string extension, Type type, PackageItem item)
-        {
-            if (item == null || item.owner == null)
-            {
-                return;
-            }
-
-            var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(item.file);
-            item.owner.SetItemAsset(item, obj, DestroyMethod.None);
         }
     }
 }
