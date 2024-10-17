@@ -18,17 +18,22 @@ namespace HMFW
             //打开FguiSample.cs的Fgui
             await FW.UIMgr.OpenUI("FguiSample", 200);
 
-             await FW.UIMgr.CloseUI("FguiSampleLoadingUI"); //关闭loadinui
+            await FW.UIMgr.CloseUI("FguiSampleLoadingUI"); //关闭loadinui
 
             await UniTask.Delay(2000);
-            await FW.UIMgr.CloseUIGroup(200); //关闭ui
+           // await FW.UIMgr.CloseUIGroup(200); //关闭ui
             Debug.Log("关闭");
-            
-            
+
+
             //通过工具从fgui的资源中创建sprite,用来给其他系统使用示例
-            var sprite = FGUITools.CreatSpriteFromFguiAsset("UIHome", "b5_png");
+            var sprite = await FW.CustomAPI.FguiHelper()
+                .CreatSpriteFromFguiAsset("UIHome", "b5_png", new Vector2(0.5f, 1f));
             GameObject a = new GameObject();
             a.AddComponent<SpriteRenderer>().sprite = sprite;
+            Debug.Log($"sprite name {sprite.name}");
+            await UniTask.Delay(2000);
+            Debug.Log($"准备释放");
+            FW.CustomAPI.FguiHelper().UnloadPackage("UIHome");
         }
 
         public override UniTask LeaveState(params object[] args)
