@@ -175,10 +175,11 @@ namespace HMFW
                 fairyGuiGroupSetting.FguiGroupRootGComponent.AddChild(homeUI);
                 ui = homeUI.asCom;
                 ui.fairyBatching = fguiResUrlAttribute.BeFairyBatching;
+                ui.displayObject.gameObject.SetActive(false);
                 beLoad = true;
             });
             await UniTask.WaitUntil(() => beLoad);
-
+            ui.displayObject.gameObject.SetActive(true);
             var transform = ui.displayObject.gameObject.transform;
 
             var uiCom = transform.GetComponent(uiInfo.UIType) as FairyGUIBase;
