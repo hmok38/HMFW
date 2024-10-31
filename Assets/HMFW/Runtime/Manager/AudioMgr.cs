@@ -23,6 +23,21 @@ public class AudioMgr : AudioMgrBase
 
     CancellationTokenSource _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
+
+    private Dictionary<Enum, AudioSource> _audioSources = new Dictionary<Enum, AudioSource>();
+
+    //长期音效管理的父节点
+    private GameObject _audioLayer;
+    public GameObject audioLayer
+    {
+        get
+        {
+            if (_audioLayer == null)
+                _audioLayer = new GameObject("AudioLayer");
+            return _audioLayer;
+        }
+    }
+
     /// <summary>
     /// 背景音乐是否在播放
     /// </summary>
@@ -152,7 +167,7 @@ public class AudioMgr : AudioMgrBase
         }
     }
 
-    public override void PlaySound(Enum @enum)
+    private  void PlaySound(Enum @enum)
     {
         if (AudioClips.TryGetValue(@enum, out var music))
         {
@@ -163,6 +178,49 @@ public class AudioMgr : AudioMgrBase
             Debug.LogError($"PlayMusic not exist music : {@enum}");
         }
     }
+
+    /// <summary>
+    /// 可叠加播放的类型不做播放器管理
+    /// 只能存在一个的才做播放器管理
+    /// </summary>
+    /// <param name="enum"></param>
+    /// <param name="isReplay"></param>
+    /// <param name="isAddPlay"></param>
+    public override void PlaySound(Enum @enum,bool isReplay=false,bool isAddPlay=true)
+    {
+        if (AudioClips.TryGetValue(@enum, out var music))
+        {
+            if (isAddPlay)
+            {
+                PlaySound(@enum);
+            }
+            else
+            {
+                //获取当前只能存在唯一的音效看有没有对应的播放器
+                if (!_audioSources.TryGetValue(@enum, out AudioSource audioSource))
+                {
+                    //创建播放器
+                    GameObject gameObject = new GameObject(@enum.ToString());
+                    gameObject.transform.parent = audioLayer.transform;
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                    _audioSources.Add(@enum, audioSource);
+                }
+
+                audioSource.clip = music;
+                
+                if (isReplay || !audioSource.isPlaying)
+                {
+                    audioSource.time = 0;
+                    audioSource.Play();
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError($"PlayMusic not exist music : {@enum}");
+        }
+    }
+
 
 
     /// <summary>
@@ -224,12 +282,15 @@ public abstract class AudioMgrBase
         UnityAction<Enum, string> completeCb = null
     );
 
+
     /// <summary>
     /// 播放音效
     /// </summary>
     /// <param name="enum"></param>
-    public abstract void PlaySound(Enum @enum);
-
+    /// <param name="isReplay">只有为不可叠加播放时这个字段才有用，意味着这个唯一音效是要重置播放还是不管</param>
+    /// <param name="isAddPlay">可否叠加播放</param>
+    public abstract void PlaySound(Enum @enum, bool isReplay=false, bool isAddPlay=true);
+    
     /// <summary>
     /// 增加音频
     /// </summary>
