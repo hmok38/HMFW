@@ -177,6 +177,7 @@ namespace HMFW
                 ui.fairyBatching = fguiResUrlAttribute.BeFairyBatching;
                 ui.displayObject.gameObject.SetActive(false);
                 beLoad = true;
+                ui.SetSize(GRoot.inst.width, GRoot.inst.height);
             });
             await UniTask.WaitUntil(() => beLoad);
             ui.displayObject.gameObject.SetActive(true);
