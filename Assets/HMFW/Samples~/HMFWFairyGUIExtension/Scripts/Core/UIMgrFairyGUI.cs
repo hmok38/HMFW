@@ -172,12 +172,12 @@ namespace HMFW
             FairyGuiGroupSetting fairyGuiGroupSetting = groupSetting as FairyGuiGroupSetting;
             UIPackage.CreateObjectAsync(fguiResUrlAttribute.PackageName, fguiResUrlAttribute.UIName, homeUI =>
             {
-                fairyGuiGroupSetting.FguiGroupRootGComponent.AddChild(homeUI);
                 ui = homeUI.asCom;
+                ui.SetSize(GRoot.inst.width, GRoot.inst.height);
+                fairyGuiGroupSetting.FguiGroupRootGComponent.AddChild(homeUI);
                 ui.fairyBatching = fguiResUrlAttribute.BeFairyBatching;
                 ui.displayObject.gameObject.SetActive(false);
                 beLoad = true;
-                ui.SetSize(GRoot.inst.width, GRoot.inst.height);
             });
             await UniTask.WaitUntil(() => beLoad);
             ui.displayObject.gameObject.SetActive(true);
