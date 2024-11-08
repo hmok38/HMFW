@@ -62,7 +62,7 @@ namespace HMFW
             sprite.name = spriteName;
             return sprite;
         }
-        
+
         /// <summary>
         /// 加载包,路径只需要到包名为止,后面的 _fui.bytes 需要去掉
         /// </summary>
@@ -82,7 +82,7 @@ namespace HMFW
                 return;
             }
 
-            var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(item.file);
+            var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(name + extension);
 
             var method = DestroyMethod.None;
 
