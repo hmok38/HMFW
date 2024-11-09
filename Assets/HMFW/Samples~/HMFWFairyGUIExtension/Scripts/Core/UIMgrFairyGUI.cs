@@ -180,6 +180,21 @@ namespace HMFW
                 beLoad = true;
             });
             await UniTask.WaitUntil(() => beLoad);
+            //await结束后,检查一下uiInfo是否还存在,如果在这个过程总被关闭了,就不要实例化了.
+            if (!showedList.Contains(uiInfo))
+            {
+                //没包含了,代表在加载的过程总被关闭了,那就不显示了吧
+                if (uiInfo.UIState == UIState.Loading)
+                {
+                    uiInfo.UIState = UIState.Destroy;
+                }
+
+                ui.Dispose();
+                //  Object.Destroy(ui.displayObject.gameObject);
+                return uiInfo;
+            }
+
+
             ui.displayObject.gameObject.SetActive(true);
             var transform = ui.displayObject.gameObject.transform;
 
