@@ -142,6 +142,24 @@ namespace HMFW
         {
             return Path.GetFileName(pkgPath);
         }
+
+        /// <summary>
+        /// 发出加载某个包全部资源的指令,因为是异步的,如果需要直接使用资源,请检查是否加载完成
+        /// </summary>
+        /// <param name="pkgNameOrPkgPath"></param>
+        public void PkgLoadAllAssets(string pkgNameOrPkgPath)
+        {
+            var pkn = GetPkgNameByPkgPath(pkgNameOrPkgPath);
+            var pkg = UIPackage.GetByName(pkn);
+            if (pkg == null)
+            {
+                Debug.LogError($"{pkgNameOrPkgPath} 包,不存在,请先加载它,或检查名字");
+            }
+            else
+            {
+                pkg.LoadAllAssets();
+            }
+        }
     }
 
     public static class FguiHelperExtension
