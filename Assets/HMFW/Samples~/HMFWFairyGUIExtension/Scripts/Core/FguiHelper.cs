@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using FairyGUI;
@@ -69,6 +70,12 @@ namespace HMFW
         /// <param name="packagePath"></param>
         public async UniTask LoadPackage(string packagePath)
         {
+            var pkgName = GetPkgNameByPkgPath(packagePath);
+            if (UIPackage.GetPackages().FindIndex(x => x.name.Equals(pkgName)) >= 0)
+            {
+                return;
+            }
+
             var descDataAssetUIHome =
                 await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
             var descData = descDataAssetUIHome.bytes;
@@ -124,6 +131,16 @@ namespace HMFW
         {
             if (audioClip == null) return;
             FW.AssetsMgr.ReleaseRes(audioClip);
+        }
+
+        /// <summary>
+        /// 根据资源路径获得包名
+        /// </summary>
+        /// <param name="pkgPath">加载包,路径只需要到包名为止,后面的 _fui.bytes 需要去掉</param>
+        /// <returns></returns>
+        public string GetPkgNameByPkgPath(string pkgPath)
+        {
+            return Path.GetFileName(pkgPath);
         }
     }
 
