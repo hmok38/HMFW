@@ -59,7 +59,7 @@ namespace HMFW
             Rect realRect = new Rect(rect.x, nTexture.nativeTexture.height - rect.height - rect.y, rect.width,
                 rect.height);
             Sprite sprite = Sprite.Create(nTexture.nativeTexture as Texture2D, realRect,
-                spritePivot);
+                spritePivot, 100, 0, SpriteMeshType.FullRect);
             sprite.name = spriteName;
             return sprite;
         }
