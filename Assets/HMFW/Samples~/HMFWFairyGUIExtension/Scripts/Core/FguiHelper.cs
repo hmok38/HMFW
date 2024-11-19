@@ -5,11 +5,14 @@ using System.Reflection;
 using Cysharp.Threading.Tasks;
 using FairyGUI;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace HMFW
 {
     public class FguiHelper
     {
+        public readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
+
         public FguiHelper()
         {
             //下面两种资源采用自定义卸载方式,主要是fgui只提供了这两种
@@ -38,6 +41,15 @@ namespace HMFW
         public async UniTask<Sprite> CreatSpriteFromFguiAsset(string pkgName, string spriteName,
             Vector2 spritePivot)
         {
+            var spriteNameTmp = $"ui://{pkgName}/{spriteName}:{spritePivot.x}:{spritePivot.y}";
+            if (Sprites.TryGetValue(spriteNameTmp, out var tempSprite))
+            {
+                if (tempSprite != null && tempSprite.texture != null)
+                {
+                    return tempSprite;
+                }
+            }
+
             var nObj = UIPackage.GetItemAsset(pkgName, spriteName);
             if (nObj == null)
             {
@@ -61,6 +73,7 @@ namespace HMFW
             Sprite sprite = Sprite.Create(nTexture.nativeTexture as Texture2D, realRect,
                 spritePivot, 100, 0, SpriteMeshType.FullRect);
             sprite.name = spriteName;
+            Sprites[spriteNameTmp] = sprite;
             return sprite;
         }
 
@@ -158,6 +171,22 @@ namespace HMFW
             else
             {
                 pkg.LoadAllAssets();
+            }
+        }
+
+        ~FguiHelper()
+        {
+            if (Sprites != null)
+            {
+                foreach ((string k, Sprite v) in Sprites)
+                {
+                    if (v != null)
+                    {
+                        Object.DestroyImmediate(v);
+                    }
+                }
+
+                Sprites.Clear();
             }
         }
     }
