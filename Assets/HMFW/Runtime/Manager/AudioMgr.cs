@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 
 public class AudioMgr : AudioMgrBase
 {
@@ -212,7 +213,15 @@ public class AudioMgr : AudioMgrBase
         {
             if (audioInfo.CanMultiplePlay)
             {
-                AudioSource.PlayClipAtPoint(audioInfo.Clip, Vector3.zero, _soundVolume);
+                GameObject gameObject = new GameObject("One shot audio");
+                gameObject.transform.position = Vector3.zero;
+                AudioSource audioSource = (AudioSource)gameObject.AddComponent(typeof(AudioSource));
+                audioSource.clip = audioInfo.Clip;
+                audioSource.spatialBlend = 0f;
+                audioSource.volume = _soundVolume;
+                audioSource.Play();
+                Object.Destroy((Object)gameObject,
+                    audioInfo.Clip.length * ((double)Time.timeScale < 0.009999999776482582 ? 0.01f : Time.timeScale));
             }
             else
             {
