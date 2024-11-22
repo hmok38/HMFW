@@ -186,7 +186,7 @@ public class AudioMgr : AudioMgrBase
 
                 _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
-                if (!_lastMusicEnum.Equals(@enum)) //不同的就恢复正常音调
+                if (_lastMusicEnum == null || !_lastMusicEnum.Equals(@enum)) //不同的就恢复正常音调
                 {
                     musicPitch = 1;
                 }
