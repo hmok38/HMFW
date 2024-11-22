@@ -12,7 +12,7 @@ public class AudioMgr : AudioMgrBase
     private const string MusicPrefsKey = "MusicPrefsKey";
     private float _soundVolume = 1;
     private float _musicVolume = 1;
-
+    private float _musicPitch = 1;
     protected readonly Dictionary<Enum, AudioInfo> AudioClips = new Dictionary<Enum, AudioInfo>();
 
     private readonly AudioSource _musicAudioSource;
@@ -103,6 +103,19 @@ public class AudioMgr : AudioMgrBase
         }
     }
 
+    public override float musicPitch
+    {
+        get => _musicPitch;
+        set
+        {
+            _musicPitch = value;
+            if (_musicAudioSource != null)
+            {
+                _musicAudioSource.pitch = _musicPitch;
+            }
+        }
+    }
+
     public AudioMgr()
     {
         if (PlayerPrefs.HasKey(SoundPrefsKey))
@@ -173,6 +186,10 @@ public class AudioMgr : AudioMgrBase
 
                 _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
+                if (!_lastMusicEnum.Equals(@enum)) //不同的就恢复正常音调
+                {
+                    musicPitch = 1;
+                }
 
                 _musicAudioSource.clip = audioInfo.Clip;
                 _musicAudioSource.Play();
@@ -299,6 +316,12 @@ public abstract class AudioMgrBase
     /// 音乐音量
     /// </summary>
     public abstract float musicVolume { get; set; }
+
+
+    /// <summary>
+    /// 音乐音调和播放速度
+    /// </summary>
+    public abstract float musicPitch { get; set; }
 
     /// <summary>
     /// 播放音乐,仅一个音源,播放另外一个时,会停止之前的
