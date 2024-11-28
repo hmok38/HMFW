@@ -6,7 +6,7 @@ public class FW
     private FW() //禁止外部创建
     {
     }
-    
+
     /// <summary>
     /// 自定义模块访问接口
     /// </summary>
@@ -55,14 +55,19 @@ public class FW
     /// 全局事件管理器
     /// </summary>
     public static GEventMgrBase GEventMgr { get; set; } = new GEventMgr();
-    
+
     /// <summary>
     /// 全局数据管理器
     /// </summary>
     public static GDataMgrBase GDataMgr { get; set; } = new GDataMgr();
-    
+
     /// <summary>
     /// 音频管理器
     /// </summary>
     public static AudioMgrBase AudioMgr { get; set; } = new AudioMgr();
+
+    /// <summary>
+    /// 对象池管理器
+    /// </summary>
+    public static ObjectPoolMgrBase ObjectPoolMgr { get; set; } = new ObjectPoolMgr();
 }

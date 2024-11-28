@@ -29,6 +29,8 @@
 >4. UI管理器(UIMgr),访问接口 `FW.UIMgr` _**支持对FairyGUI的扩展,请安装示例:`FairyGUIExtention`**_
 >5. 全局事件管理器(GEventMgr),访问接口 `FW.GEventMgr`
 >6. 全局数据管理器(GDataMgr),访问接口 `FW.GDataMgr`
+>7. 音频管理器(AudioMgr),访问接口 `FW.AudioMgr`
+>8. 音频管理器(ObjectPoolMgr),访问接口 `FW.ObjectPoolMgr`
 
 ### 框架扩展方法
 _模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类_
