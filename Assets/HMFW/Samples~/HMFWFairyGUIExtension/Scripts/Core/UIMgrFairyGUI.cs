@@ -167,19 +167,16 @@ namespace HMFW
                 return uiInfo;
             }
 
-            bool beLoad = false;
+
             GComponent ui = null;
             FairyGuiGroupSetting fairyGuiGroupSetting = groupSetting as FairyGuiGroupSetting;
-            UIPackage.CreateObjectAsync(fguiResUrlAttribute.PackageName, fguiResUrlAttribute.UIName, homeUI =>
-            {
-                ui = homeUI.asCom;
-                ui.SetSize(GRoot.inst.width, GRoot.inst.height);
-                fairyGuiGroupSetting.FguiGroupRootGComponent.AddChild(homeUI);
-                ui.fairyBatching = fguiResUrlAttribute.BeFairyBatching;
-                ui.displayObject.gameObject.SetActive(false);
-                beLoad = true;
-            });
-            await UniTask.WaitUntil(() => beLoad);
+
+            var homeUI = UIPackage.CreateObject(fguiResUrlAttribute.PackageName, fguiResUrlAttribute.UIName);
+            ui = homeUI.asCom;
+            ui.SetSize(GRoot.inst.width, GRoot.inst.height);
+            fairyGuiGroupSetting.FguiGroupRootGComponent.AddChild(homeUI);
+            ui.fairyBatching = fguiResUrlAttribute.BeFairyBatching;
+            ui.displayObject.gameObject.SetActive(false);
             //await结束后,检查一下uiInfo是否还存在,如果在这个过程总被关闭了,就不要实例化了.
             if (!showedList.Contains(uiInfo))
             {
