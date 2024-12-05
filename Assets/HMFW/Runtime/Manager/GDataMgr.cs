@@ -10,7 +10,6 @@ namespace HMFW
     public class GDataMgr : GDataMgrBase
     {
         protected readonly Dictionary<Enum, ICollection> MainIdMap = new Dictionary<Enum, ICollection>();
-        protected readonly Dictionary<Type, ICollection> TypeMap = new Dictionary<Type, ICollection>();
 
         protected readonly Dictionary<Enum, Dictionary<int, List<Action>>> ChangeActionMap =
             new Dictionary<Enum, Dictionary<int, List<Action>>>();
@@ -76,36 +75,10 @@ namespace HMFW
             }
             else
             {
-                if (TypeMap.ContainsKey(typeof(T)))
-                {
-                    var map = ((Dictionary<int, T>)TypeMap[typeof(T)]);
-
-                    if (map.ContainsKey(subId))
-                    {
-                        var old = map[subId];
-                        map[subId] = v;
-                        if (!old.Equals(v))
-                        {
-                            DispatchChangeEvent(typeEnum, subId);
-                        }
-                    }
-                    else
-                    {
-                        map.Add(subId, v);
-                        DispatchChangeEvent(typeEnum, subId);
-                    }
-
-                    MainIdMap.Add(typeEnum, map);
-                }
-                else
-                {
-                    var newMap = new Dictionary<int, T>();
-                    TypeMap.Add(typeof(T), newMap);
-
-                    MainIdMap.Add(typeEnum, newMap);
-                    newMap.Add(subId, v);
-                    DispatchChangeEvent(typeEnum, subId);
-                }
+                var newMap = new Dictionary<int, T>();
+                MainIdMap.Add(typeEnum, newMap);
+                newMap.Add(subId, v);
+                DispatchChangeEvent(typeEnum, subId);
             }
         }
 
@@ -125,7 +98,6 @@ namespace HMFW
         public override void RemoveAllDataOnMgr()
         {
             MainIdMap.Clear();
-            TypeMap.Clear();
         }
 
         public override void AddListener(Enum typeEnum, Action action, int subId = 0)
