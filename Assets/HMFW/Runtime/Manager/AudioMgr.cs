@@ -24,12 +24,18 @@ public class AudioMgr : AudioMgrBase
 
     CancellationTokenSource _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
-
+    //管理不可叠加的音效(只存在唯一音频)
     private readonly Dictionary<Enum, AudioSource> _audioSources = new Dictionary<Enum, AudioSource>();
 
-    //长期音效管理的父节点
+    //不可叠加音效的管理节点
     private GameObject _audioLayer;
 
+    //可叠加音效的管理节点
+    private GameObject _audioPoolLayer;
+
+    /// <summary>
+    /// 不可复用的音效节点
+    /// </summary>
     private GameObject audioLayer
     {
         get
@@ -37,6 +43,19 @@ public class AudioMgr : AudioMgrBase
             if (_audioLayer == null)
                 _audioLayer = new GameObject("AudioLayer");
             return _audioLayer;
+        }
+    }
+
+    /// <summary>
+    /// 可复用的音效节点
+    /// </summary>
+    private GameObject audioPoolLayer
+    {
+        get
+        {
+            if (_audioPoolLayer == null)
+                _audioPoolLayer = new GameObject("AudioPoolLayer");
+            return _audioPoolLayer;
         }
     }
 
@@ -86,6 +105,8 @@ public class AudioMgr : AudioMgrBase
             var v = Mathf.Clamp(value, 0f, 1f);
             PlayerPrefs.SetFloat(SoundPrefsKey, v);
             _soundVolume = v;
+            RefreshSoundVolume(audioLayer);
+            RefreshSoundVolume(audioPoolLayer);
             _onVolumeChange?.Invoke();
         }
     }
@@ -220,6 +241,19 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
+    /// 更新音效声音
+    /// </summary>
+    /// <param name="parentObject"></param>
+    private void RefreshSoundVolume(GameObject parentObject)
+    {
+        AudioSource[] audioSources = parentObject.GetComponents<AudioSource>();
+        for (int i = 0; i < audioSources.Length; i++)
+        {
+            audioSources[i].volume = _soundVolume;
+        }
+    }
+
+    /// <summary>
     /// 可叠加播放的类型不做播放器管理
     /// 只能存在一个的才做播放器管理
     /// </summary>
@@ -230,15 +264,28 @@ public class AudioMgr : AudioMgrBase
         {
             if (audioInfo.CanMultiplePlay)
             {
-                GameObject gameObject = new GameObject("One shot audio");
-                gameObject.transform.position = Vector3.zero;
-                AudioSource audioSource = (AudioSource)gameObject.AddComponent(typeof(AudioSource));
-                audioSource.clip = audioInfo.Clip;
-                audioSource.spatialBlend = 0f;
-                audioSource.volume = _soundVolume;
-                audioSource.Play();
-                Object.Destroy((Object)gameObject,
-                    audioInfo.Clip.length * ((double)Time.timeScale < 0.009999999776482582 ? 0.01f : Time.timeScale));
+                //遍历找空闲的audioSource
+                AudioSource targetAudioSource = null;
+                AudioSource[] audioSources = audioPoolLayer.GetComponents<AudioSource>();
+                for (int i = 0; i < audioSources.Length; i++)
+                {
+                    if (!audioSources[i].isPlaying)
+                    {
+                        targetAudioSource = audioSources[i];
+                        break;
+                    }
+                }
+                //如果遍历完还没找到空闲的audioSource就创建一个新的audioSource使用
+                if (targetAudioSource == null)
+                {
+                    if (audioSources.Length >= 20)
+                        Debug.LogError($"当前存在的音频数量为:{audioSources.Length}");
+                    targetAudioSource = (AudioSource)audioPoolLayer.AddComponent(typeof(AudioSource));
+                }
+                targetAudioSource.clip = audioInfo.Clip;
+                targetAudioSource.spatialBlend = 0f;
+                targetAudioSource.volume = _soundVolume;
+                targetAudioSource.Play();
             }
             else
             {
@@ -261,7 +308,6 @@ public class AudioMgr : AudioMgrBase
                 }
             }
         }
-
         else
         {
             Debug.LogError($"PlaySound not exist Sound : {@enum}");
@@ -284,6 +330,24 @@ public class AudioMgr : AudioMgrBase
         catch
         {
             // 隐藏取消抛出的错误
+        }
+    }
+
+    /// <summary>
+    /// 停止音效
+    /// </summary>
+    public void StopSound()
+    {
+        StopSound(audioLayer);
+        StopSound(audioPoolLayer);
+    }
+
+    private void StopSound(GameObject parentObject)
+    {
+        AudioSource[] audioSources = parentObject.GetComponents<AudioSource>();
+        for (int i = 0; i < audioSources.Length; i++)
+        {
+            audioSources[i].volume = _soundVolume;
         }
     }
 
