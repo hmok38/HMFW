@@ -59,7 +59,7 @@ public class AudioMgr : AudioMgrBase
             if (_audioPoolLayer == null)
             {
                 _audioPoolLayer = new GameObject("AudioPoolLayer");
-                UnityEngine.Object.DontDestroyOnLoad(_audioLayer);
+                UnityEngine.Object.DontDestroyOnLoad(_audioPoolLayer);
             }
             return _audioPoolLayer;
         }
