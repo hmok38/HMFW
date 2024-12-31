@@ -41,7 +41,10 @@ public class AudioMgr : AudioMgrBase
         get
         {
             if (_audioLayer == null)
+            {
                 _audioLayer = new GameObject("AudioLayer");
+                UnityEngine.Object.DontDestroyOnLoad(_audioLayer);
+            }
             return _audioLayer;
         }
     }
@@ -54,7 +57,10 @@ public class AudioMgr : AudioMgrBase
         get
         {
             if (_audioPoolLayer == null)
+            {
                 _audioPoolLayer = new GameObject("AudioPoolLayer");
+                UnityEngine.Object.DontDestroyOnLoad(_audioLayer);
+            }
             return _audioPoolLayer;
         }
     }
@@ -293,9 +299,7 @@ public class AudioMgr : AudioMgrBase
                 if (!_audioSources.TryGetValue(@enum, out AudioSource audioSource) || audioSource == null)
                 {
                     //创建播放器
-                    GameObject gameObject = new GameObject(@enum.ToString());
-                    gameObject.transform.parent = audioLayer.transform;
-                    audioSource = gameObject.AddComponent<AudioSource>();
+                    audioSource = audioLayer.AddComponent<AudioSource>();
                     _audioSources[@enum] = audioSource;
                 }
 
