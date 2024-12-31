@@ -351,7 +351,7 @@ public class AudioMgr : AudioMgrBase
         AudioSource[] audioSources = parentObject.GetComponents<AudioSource>();
         for (int i = 0; i < audioSources.Length; i++)
         {
-            audioSources[i].volume = _soundVolume;
+            audioSources[i].Stop();
         }
     }
 
