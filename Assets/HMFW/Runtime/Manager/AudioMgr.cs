@@ -336,7 +336,7 @@ public class AudioMgr : AudioMgrBase
     /// <summary>
     /// 停止音效
     /// </summary>
-    public void StopSound()
+    public override void StopSound()
     {
         StopSound(audioLayer);
         StopSound(audioPoolLayer);
@@ -448,6 +448,11 @@ public abstract class AudioMgrBase
     /// 停止音乐
     /// </summary>
     public abstract void StopMusic();
+
+    /// <summary>
+    /// 停止音效
+    /// </summary>
+    public abstract void StopSound();
 
     /// <summary>
     /// 监听音量调整事件
