@@ -62,9 +62,11 @@ namespace HMFW
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
                 if (eventObj == null)
                 {
-                    var input= new GameObject("EventSystem").AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                    var input = new GameObject("EventSystem")
+                        .AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
                     eventObj = input.gameObject.GetComponent<UnityEngine.EventSystems.EventSystem>();
                 }
+
                 UnityEngine.Object.DontDestroyOnLoad(eventObj.gameObject);
                 MyUGUIRoot = rootTeam.transform;
             }
@@ -329,14 +331,27 @@ namespace HMFW
             ShowUIMapDebugInfo();
         }
 
-        
+        /// <summary>
+        /// 获取UIInfo,如果不存在则代表未打开
+        /// 注意:如果uiInfo存在也请检查其UIState状态
+        /// 严重注意:禁止直接调用uiBase接口,需要调用请传事件
+        /// </summary>
+        /// <param name="uiNameOrAlias">要查找的ui的名字</param>
+        /// <param name="uiId">可多实例的ui的Id,传默认0则代表这个ui不是多实例ui</param>
+        /// <returns></returns>
         public override UIInfo GetUIInfo(string uiNameOrAlias, uint uiId = 0)
         {
             var uiType = this.GetUIDataType(uiNameOrAlias);
             if (uiType == null || string.IsNullOrEmpty(uiType.FullName)) return null;
             if (NameToUIMap.TryGetValue(uiType.FullName, out var uiInfos))
             {
-                if (uiInfos.Count <= 0) return default;
+                if (uiInfos.Count <= 0) return default; //没找到
+                if (uiId == 0) //UIID永远不会是0,如果传0代表不是多实例的ui,那么就返回第一个就行
+                {
+                    return uiInfos[0];
+                }
+
+                //如果传了uiId那么就必须匹配uiId
                 var uiB = uiInfos.Find(x => x.UIId == uiId);
                 return uiB;
             }
@@ -904,14 +919,14 @@ namespace HMFW
 
             return rv;
         }
-        
+
         /// <summary>
         /// 获取UIInfo,如果不存在则代表未打开
         /// 注意:如果uiInfo存在也请检查其UIState状态
         /// 严重注意:禁止直接调用uiBase接口,需要调用请传事件
         /// </summary>
-        /// <param name="uiNameOrAlias"></param>
-        /// <param name="uiId"></param>
+        /// <param name="uiNameOrAlias">要查找的ui的名字</param>
+        /// <param name="uiId">可多实例的ui的Id,传默认0则代表这个ui不是多实例ui</param>
         /// <returns></returns>
         public abstract UIInfo GetUIInfo(string uiNameOrAlias, uint uiId = 0);
     }
