@@ -329,6 +329,21 @@ namespace HMFW
             ShowUIMapDebugInfo();
         }
 
+        
+        public override UIInfo GetUIInfo(string uiNameOrAlias, uint uiId = 0)
+        {
+            var uiType = this.GetUIDataType(uiNameOrAlias);
+            if (uiType == null || string.IsNullOrEmpty(uiType.FullName)) return null;
+            if (NameToUIMap.TryGetValue(uiType.FullName, out var uiInfos))
+            {
+                if (uiInfos.Count <= 0) return default;
+                var uiB = uiInfos.Find(x => x.UIId == uiId);
+                return uiB;
+            }
+
+            return null;
+        }
+
         #endregion
 
         protected virtual async UniTask<UIInfo> OpenUIByUIInfo(UIInfo uiInfo, bool beCheckWait = false)
@@ -889,5 +904,15 @@ namespace HMFW
 
             return rv;
         }
+        
+        /// <summary>
+        /// 获取UIInfo,如果不存在则代表未打开
+        /// 注意:如果uiInfo存在也请检查其UIState状态
+        /// 严重注意:禁止直接调用uiBase接口,需要调用请传事件
+        /// </summary>
+        /// <param name="uiNameOrAlias"></param>
+        /// <param name="uiId"></param>
+        /// <returns></returns>
+        public abstract UIInfo GetUIInfo(string uiNameOrAlias, uint uiId = 0);
     }
 }
