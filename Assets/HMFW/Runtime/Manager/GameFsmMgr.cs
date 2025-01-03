@@ -58,19 +58,23 @@ namespace HMFW
             return this.RegState(typeof(T));
         }
 
-        public override async UniTask ChangeState(string type, params object[] args)
+        public override void ChangeState(string type, params object[] args)
         {
-            await ChangeState(GetStateType(type), args);
+            ChangeStateHandle(GetStateType(type), args).Forget();
         }
 
 
-        public override async UniTask ChangeState<T>(params object[] args)
+        public override void ChangeState<T>(params object[] args)
         {
-            await ChangeState(typeof(T), args);
+            ChangeStateHandle(typeof(T), args).Forget();
         }
 
+        public override void ChangeState(Type type, params object[] args)
+        {
+            ChangeStateHandle(type, args).Forget();
+        }
 
-        public override async UniTask ChangeState(Type type, params object[] args)
+        private async UniTaskVoid ChangeStateHandle(Type type, params object[] args)
         {
             CheckBeChanging:
             if (this.BeStateChanging)
@@ -92,8 +96,8 @@ namespace HMFW
                     await this.LastState.LeaveState();
                 }
 
-                this.BeStateChanging = false;
                 await this.CurrentState.EnterState(args);
+                this.BeStateChanging = false;
             }
             else
             {
@@ -202,14 +206,14 @@ namespace HMFW
         /// <param name="type"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public abstract UniTask ChangeState(string type, params object[] args);
+        public abstract void ChangeState(string type, params object[] args);
 
         /// <summary>
         /// 改变游戏状态 注意:如果再次改变到当前状态会重走一次当前状态的流程
         /// </summary>
         /// <param name="args">要传入的参数</param>
         /// <typeparam name="T"></typeparam>
-        public abstract UniTask ChangeState<T>(params object[] args) where T : GameStateBase, new();
+        public abstract void ChangeState<T>(params object[] args) where T : GameStateBase, new();
 
         /// <summary>
         /// 改变游戏状态 注意:如果再次改变到当前状态会重走一次当前状态的流程
@@ -217,7 +221,7 @@ namespace HMFW
         /// <param name="type"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public abstract UniTask ChangeState(Type type, params object[] args);
+        public abstract void ChangeState(Type type, params object[] args);
 
         /// <summary>
         /// 获取游戏状态实例(没有话会自动创建)
