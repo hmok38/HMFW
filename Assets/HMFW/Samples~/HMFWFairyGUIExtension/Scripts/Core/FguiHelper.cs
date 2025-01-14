@@ -174,21 +174,21 @@ namespace HMFW
             }
         }
 
-        ~FguiHelper()
-        {
-            if (Sprites != null)
-            {
-                foreach ((string k, Sprite v) in Sprites)
-                {
-                    if (v != null)
-                    {
-                        Object.DestroyImmediate(v);
-                    }
-                }
-
-                Sprites.Clear();
-            }
-        }
+        // ~FguiHelper()
+        // {
+        //     if (Sprites != null)
+        //     {
+        //         foreach ((string k, Sprite v) in Sprites)
+        //         {
+        //             if (v != null)
+        //             {
+        //                 Object.DestroyImmediate(v);
+        //             }
+        //         }
+        //
+        //         Sprites.Clear();
+        //     }
+        // }
     }
 
     public static class FguiHelperExtension
