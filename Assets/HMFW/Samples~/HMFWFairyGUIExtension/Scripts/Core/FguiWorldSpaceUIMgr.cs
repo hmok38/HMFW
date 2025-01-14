@@ -94,7 +94,7 @@ namespace HMFW
                     if (!BeStackableUI(uiType))
                     {
                         //非堆叠的ui就检查之前有没有
-                        var index = uiInfos.FindIndex(x => x.UiType == uiType);
+                        var index = uiInfos.FindIndex(x => x.UiType.Equals(uiType));
                         if (index >= 0) //发现这个类型有ui,先销毁掉
                         {
                             var info = uiInfos[index];
@@ -161,7 +161,7 @@ namespace HMFW
             {
                 if (!BeStackableUI(uiType))
                 {
-                    var index = uiInfos.FindIndex(x => x.UiType == uiType);
+                    var index = uiInfos.FindIndex(x => x.UiType.Equals(uiType));
                     if (index >= 0) //发现这个类型有ui,先销毁掉
                     {
                         var info = uiInfos[index];
@@ -183,7 +183,7 @@ namespace HMFW
 
                     string stackId = args[0] as string;
 
-                    var index = uiInfos.FindIndex(x => x.UiType == uiType && x.StackId.Equals(stackId));
+                    var index = uiInfos.FindIndex(x => x.UiType.Equals(uiType) && x.StackId.Equals(stackId));
                     if (index >= 0) //发现这个类型有ui,先销毁掉
                     {
                         var info = uiInfos[index];
@@ -262,7 +262,7 @@ namespace HMFW
                     if (!BeStackableUI(uiType))
                     {
                         //非堆叠的ui直接刷新就好,
-                        index = uiInfos.FindIndex(x => x.UiType == uiType);
+                        index = uiInfos.FindIndex(x => x.UiType.Equals(uiType));
                     }
                     else
                     {
@@ -273,7 +273,7 @@ namespace HMFW
                         }
 
                         string stackId = args[0] as string;
-                        index = uiInfos.FindIndex(x => x.UiType == uiType && x.StackId.Equals(stackId));
+                        index = uiInfos.FindIndex(x => x.UiType.Equals(uiType) && x.StackId.Equals(stackId));
                     }
 
                     if (index >= 0) //发现这个类型有ui,重置参数,然后刷新
@@ -302,7 +302,7 @@ namespace HMFW
                     int index = -1;
                     if (!BeStackableUI(uiType))
                     {
-                        index = uiInfos.FindIndex(x => x.UiType == uiType);
+                        index = uiInfos.FindIndex(x => x.UiType.Equals(uiType));
                         return index >= 0;
                     }
                     else
@@ -315,7 +315,7 @@ namespace HMFW
                         }
 
                         //可堆叠的ui,就必须要传入stackId才能正确的找到
-                        index = uiInfos.FindIndex(x => x.UiType == uiType && x.StackId.Equals(subId));
+                        index = uiInfos.FindIndex(x => x.UiType.Equals(uiType) && x.StackId.Equals(subId));
                         if (index >= 0)
                         {
                             return true;
