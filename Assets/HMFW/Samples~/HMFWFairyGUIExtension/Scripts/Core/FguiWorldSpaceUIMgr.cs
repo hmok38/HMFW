@@ -44,7 +44,7 @@ namespace HMFW
         /// 判断是否可堆叠的ui,可堆叠的ui的参数args第一个必须是字符串类型的id
         /// </summary>
         /// <returns></returns>
-        private bool BeStackableUI(Enum uiItemType)
+        public bool BeStackableUI(Enum uiItemType)
         {
             return _stackableUI.Contains(uiItemType);
         }
@@ -53,7 +53,7 @@ namespace HMFW
         /// 设置这个ui类型为可堆叠的ui
         /// </summary>
         /// <param name="uiItemType"></param>
-        private void SetUIBeStackable(Enum uiItemType)
+        public void SetUIBeStackable(Enum uiItemType)
         {
             _stackableUI.Add(uiItemType);
         }
@@ -63,7 +63,7 @@ namespace HMFW
         /// </summary>
         /// <param name="uiItemType"></param>
         /// <returns></returns>
-        private bool BeNoManagerUI(Enum uiItemType)
+        public bool BeNoManagerUI(Enum uiItemType)
         {
             return _noManagerUI.Contains(uiItemType);
         }
@@ -73,7 +73,7 @@ namespace HMFW
         /// </summary>
         /// <param name="uiItemType"></param>
         /// <returns></returns>
-        private void SetNoManagerUI(Enum uiItemType)
+        public void SetNoManagerUI(Enum uiItemType)
         {
             _noManagerUI.Add(uiItemType);
         }
