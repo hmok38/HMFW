@@ -31,6 +31,7 @@
 >6. 全局数据管理器(GDataMgr),访问接口 `FW.GDataMgr`
 >7. 音频管理器(AudioMgr),访问接口 `FW.AudioMgr`
 >8. 音频管理器(ObjectPoolMgr),访问接口 `FW.ObjectPoolMgr`
+>9. 返回键队列管理器(BackBtnQueueMgr),访问接口 `FW.BackBtnQueueMgr` _**按返回键按队列关闭UI或者调用Func,UI系统自动支持**_
 
 ### 框架扩展方法
 _模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类_
@@ -92,6 +93,9 @@ _**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后�
 >2. 继承UIBase后,还必须实现特性`UGUIResAttribute`(使用UGUI时)其继承于`UIAttribute`,需要输入其预制体的加载地址(aa包)及别名
 >3. 对于`UGUIResAttribute`特性中资源地址中某些需要运行时确定的字段,我们可以使用自定义的标签来代替,并在运行时设置其对应的值,ui系统在加载时会自动替代,例如多国语言的预制体在不同的目录下时,非常有用
 >4. 例如 `FW.UIMgr.SetUrlReplace("[L]","English");`即可将`UGUIResAttribute`特性中资源地址中带有`[L]`的地方替换为`English`
+
+>* 返回键队列管理器(BackBtnQueueMgr)自动支持
+>* 重写UIBase的beBackBtnQueueUI为True即可将UI添加到返回键队列管理器(BackBtnQueueMgr),当返回键被触发,会按照顺序关闭设定的ui.此字段默认为false
 
 ### 对FairyGUI的支持
 >1. 针对项目需求,我们添加了对FairyGUI的管理支持,请先在项目中添加`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`包中安装示例:`FairyGUIExtention`**_

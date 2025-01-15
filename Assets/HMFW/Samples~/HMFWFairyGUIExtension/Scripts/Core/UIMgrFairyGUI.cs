@@ -211,7 +211,7 @@ namespace HMFW
             }
 
             if (uiCom != null) await uiCom.OnUIOpen(uiInfo.Arg);
-
+            if (uiCom.beBackBtnQueueUI) FW.BackBtnQueueMgr.AddToQueue(uiCom);
             if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
             {
                 for (int i = 0; i < showedList.Count; i++)
@@ -329,6 +329,7 @@ namespace HMFW
             if (uiInfo.UIBase != null)
             {
                 await uiInfo.UIBase.OnUIClose(args);
+                if (uiInfo.UIBase.beBackBtnQueueUI) FW.BackBtnQueueMgr.RemoveQueue(uiInfo.UIBase);
                 var fgui = uiInfo.UIBase as FairyGUIBase;
                 if (fgui != null)
                 {

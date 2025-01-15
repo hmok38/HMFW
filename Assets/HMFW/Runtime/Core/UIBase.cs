@@ -8,6 +8,11 @@ namespace HMFW.Core
     /// </summary>
     public abstract class UIBase : MonoBehaviour
     {
+        /// <summary>
+        /// 是不是返回按钮队列的ui,设置为ture,会在开启和关闭时自动添加到返回键队列管理器(FW.BackBtnQueueMgr)中
+        /// </summary>
+        public virtual bool beBackBtnQueueUI { get; }
+
         public UIInfo UiInfo { get; set; }
 
         /// <summary>

@@ -11,6 +11,7 @@ namespace HMFW
         new[] { "Assets/HMFWSampleBundle/Fgui/Common/UICommon_fui.bytes" }, true)]
     public class Home : FairyGUIBase
     {
+        public override bool beBackBtnQueueUI => true; 
         public override UISystem MyUISystem => UISystem.FairyGui;
 
         private void Awake()

@@ -70,4 +70,26 @@ public class FW
     /// 对象池管理器
     /// </summary>
     public static ObjectPoolMgrBase ObjectPoolMgr { get; set; } = new ObjectPoolMgr();
+
+
+    private static BackBtnQueueMgrBase _backBtnQueueMgr;
+
+    /// <summary>
+    /// 返回键队列管理器,添加如管理器中时,会在返回键被触发时,自动关闭最后添加的UI或者调用最后添加的函数
+    /// ui的关闭不需要手动添加,重写UI类的beBackBtnQueueUI为true即可自动添加和移除.此字段默认为false
+    /// </summary>
+    public static BackBtnQueueMgrBase BackBtnQueueMgr
+    {
+        get
+        {
+            if (_backBtnQueueMgr == null)
+            {
+                _backBtnQueueMgr = new GameObject("BackBtnQueueMgr").AddComponent<BackBtnQueueMgr>();
+                UnityEngine.Object.DontDestroyOnLoad(_backBtnQueueMgr.gameObject);
+            }
+
+            return _backBtnQueueMgr;
+        }
+        set => _backBtnQueueMgr = value;
+    }
 }
