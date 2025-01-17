@@ -92,4 +92,10 @@ public class FW
         }
         set => _backBtnQueueMgr = value;
     }
+
+    /// <summary>
+    /// 时间同步管理器,可以获取服务器校正过的utc时间,使用前请检查hadSyncTime属性
+    /// 也可以自定义自己的服务器校正接口,只用同步一次即可
+    /// </summary>
+    public static TimeSyncMgrBase TimeSyncMgr { get; set; } = new TimeSyncMgr();
 }
