@@ -161,7 +161,8 @@ namespace HMFW
                     Debug.Log($"BaseTimeSyncFunc downloadHandler:  {request.downloadHandler.text}");
                     var serverTime = ParseServerTime(json);
                     Debug.Log($"同步时间成功! time: {serverTime:yyyy MMMM dd HH:mm:ss fff}");
-                    Debug.Log($"同步时间成功! time: {serverTime:yyyy MMMM dd HH:mm:ss fff zzz} Utc:{serverTime.ToUniversalTime():yyyy MMMM dd HH:mm:ss fff zzz}");
+                    Debug.Log(
+                        $"同步时间成功! time: {serverTime:yyyy MMMM dd HH:mm:ss fff zzz} Utc:{serverTime.ToUniversalTime():yyyy MMMM dd HH:mm:ss fff zzz}");
                     return new TimeSyncResult()
                     {
                         Result = request.result,
@@ -193,8 +194,12 @@ namespace HMFW
         private DateTime ParseServerTime(string json)
         {
             // 简单 JSON 解析（适用于 WorldTimeAPI 的响应格式）
-            int dateTimeIndex = json.IndexOf("\"dateTime\":\"") + 12;
-            string dateTimeString = json.Substring(dateTimeIndex, 27) + "Z"; // 获取 ISO 8601 格式时间 "z"代表的是utc时间
+            int dateTimeIndex = json.IndexOf("\"dateTime\":\"", StringComparison.Ordinal) + 12;
+
+            json = json.Substring(dateTimeIndex);
+            var end = json.IndexOf("\"", StringComparison.Ordinal); //找第一个冒号,就是DateTime字段的结尾冒号
+            json = json.Substring(0, end);
+            string dateTimeString = json + "Z"; // 获取 ISO 8601 格式时间 "z"代表的是utc时间
             Debug.Log($"dateTimeString {dateTimeString}");
 
             return DateTime.Parse(dateTimeString);
