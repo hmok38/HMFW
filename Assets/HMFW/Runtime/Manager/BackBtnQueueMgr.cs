@@ -33,7 +33,8 @@ namespace HMFW
         /// <param name="uiBase"></param>
         public override void RemoveQueue(UIBase uiBase)
         {
-            _list.RemoveAll(x => x.BeUI && x.TargetObj.Equals(uiBase));
+            _list.RemoveAll(x =>
+                x.BeUI && (x.TargetObj == null || x.TargetObj.Equals(uiBase)));
         }
 
         /// <summary>
@@ -66,7 +67,10 @@ namespace HMFW
         /// <param name="onBackBtnFunc"></param>
         public override void RemoveQueue(object targetObj, Func<object, bool> onBackBtnFunc)
         {
-            _list.RemoveAll(x => !x.BeUI && x.TargetObj.Equals(targetObj) && x.OnBackBtnAction.Equals(onBackBtnFunc));
+            _list.RemoveAll(x =>
+                !x.BeUI && (x.TargetObj == null || x.TargetObj.Equals(targetObj)) &&
+                (x.OnBackBtnAction == null || x.OnBackBtnAction.Target == null ||
+                 x.OnBackBtnAction.Equals(onBackBtnFunc)));
         }
 
         private void Update()
@@ -84,7 +88,7 @@ namespace HMFW
                 var info = _list[i];
                 if (info?.TargetObj == null)
                 {
-                    _list.RemoveAt(i);
+                    _list.Remove(info);
 
                     if (info != null)
                     {
@@ -100,16 +104,16 @@ namespace HMFW
                     }
                     else
                     {
-                        if (info.OnBackBtnAction == null)
+                        if (info.OnBackBtnAction == null || info.OnBackBtnAction.Target == null)
                         {
-                            _list.RemoveAt(i);
+                            _list.Remove(info);
                         }
                         else
                         {
                             var needRemove = info.OnBackBtnAction.Invoke(info.TargetObj);
                             if (needRemove)
                             {
-                                _list.RemoveAt(i);
+                                _list.Remove(info);
                             }
 
                             break;
