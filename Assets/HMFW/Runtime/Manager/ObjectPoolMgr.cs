@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-#if UNITY_2021_1_OR_NEWER
-using UnityEngine.Pool;
-#endif
-
 
 namespace HMFW
 {
     public class ObjectPoolMgr : ObjectPoolMgrBase
     {
-        private readonly Dictionary<Type, Dictionary<string, object>> _maps =
-            new Dictionary<Type, Dictionary<string, object>>();
+        private readonly Dictionary<Type, Dictionary<string, IMyObjectPoolBase>> _maps =
+            new Dictionary<Type, Dictionary<string, IMyObjectPoolBase>>();
 
         /// <summary>
         /// 清理某个对象池,所有对象会被销毁
@@ -21,13 +17,18 @@ namespace HMFW
         /// <param name="name"></param>
         public override void ClearPool<T>(string name = null) where T : class
         {
+            ClearPool(typeof(T), name);
+        }
+
+        public override void ClearPool(Type type, string name = null)
+        {
             if (string.IsNullOrEmpty(name))
             {
-                name = typeof(T).FullName;
+                name = type.FullName;
             }
 
             var pool =
-                GetPool<T>(name);
+                GetPool(type, name);
             if (pool != null)
             {
                 pool.Clear();
@@ -39,14 +40,18 @@ namespace HMFW
         /// </summary>
         public override void ClearAllPoolByType<T>() where T : class
         {
-            if (_maps.TryGetValue(typeof(T), out var dic))
+            ClearAllPoolByType(typeof(T));
+        }
+
+        public override void ClearAllPoolByType(Type type)
+        {
+            if (_maps.TryGetValue(type, out var dic))
             {
                 if (dic != null)
                 {
                     foreach (var variable in dic)
                     {
-                        IMyObjectPool<T> pool = (IMyObjectPool<T>)variable.Value;
-                        pool.Clear();
+                        variable.Value?.Clear();
                     }
                 }
             }
@@ -61,16 +66,10 @@ namespace HMFW
                     MethodInfo methodInfo = null;
                     foreach (var poolKv in dic.Value)
                     {
-                        object pool = poolKv.Value;
+                        var pool = poolKv.Value;
                         if (pool != null)
                         {
-                            if (methodInfo == null)
-                                methodInfo = pool.GetType()
-                                    .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public);
-                            if (methodInfo != null)
-                            {
-                                methodInfo.Invoke(pool, null);
-                            }
+                            pool.Clear();
                         }
                     }
                 }
@@ -84,20 +83,33 @@ namespace HMFW
         /// <returns></returns>
         public override IMyObjectPool<T> GetPool<T>(string name = null) where T : class
         {
+            var pool = GetPool(typeof(T), name);
+            if (pool != null)
+            {
+                return pool as IMyObjectPool<T>;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public override IMyObjectPoolBase GetPool(Type type, string name = null)
+        {
             if (string.IsNullOrEmpty(name))
             {
-                name = typeof(T).FullName;
+                name = type.FullName;
             }
 
-            if (_maps.TryGetValue(typeof(T), out var poolDic))
+            if (_maps.TryGetValue(type, out var poolDic))
             {
                 if (poolDic.TryGetValue(name, out var pool))
                 {
-                    return (IMyObjectPool<T>)pool;
+                    return pool;
                 }
             }
 
-            Debug.LogError($"未能找到初始化后的对象池: {name} 类型:{typeof(T).FullName} ");
+            Debug.LogError($"未能找到初始化后的对象池: {name} 类型:{type.FullName} ");
             return null;
         }
 
@@ -126,7 +138,7 @@ namespace HMFW
 
             if (!_maps.TryGetValue(typeof(T), out var dic))
             {
-                _maps[typeof(T)] = new Dictionary<string, object>();
+                _maps[typeof(T)] = new Dictionary<string, IMyObjectPoolBase>();
                 dic = _maps[typeof(T)];
             }
 
@@ -134,15 +146,34 @@ namespace HMFW
                 defaultCapacity, maxSize);
             return (MyObjectPool<T>)dic[name];
         }
+
+        public override bool HasPool<T>(string name = null)
+        {
+            return HasPool(typeof(T), name);
+        }
+
+        public override bool HasPool(Type type, string name = null)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                name = type.FullName;
+            }
+
+            if (_maps.TryGetValue(type, out var poolDic))
+            {
+                if (poolDic.TryGetValue(name, out var pool))
+                {
+                    return pool != null;
+                }
+            }
+
+            return false;
+        }
     }
 
 
     public class MyObjectPool<T> :
-#if UNITY_2021_1_OR_NEWER
-        UnityEngine.Pool.ObjectPool<T>, IMyObjectPool<T> where T : class
-#else
-        MyObjectPoolBase<T>, IMyObjectPool<T> where T : class
-#endif
+        MyObjectPoolBase<T> where T : class
 
     {
         public MyObjectPool(Func<T> createFunc,
@@ -166,11 +197,23 @@ namespace HMFW
         /// <param name="name"></param>
         public abstract void ClearPool<T>(string name = null) where T : class;
 
+        /// <summary>
+        /// 清理某个对象池,所有对象会被销毁
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        public abstract void ClearPool(Type type, string name = null);
 
         /// <summary>
         /// 清理某个类型的所有对象池
         /// </summary>
         public abstract void ClearAllPoolByType<T>() where T : class;
+
+        /// <summary>
+        /// 清理某个类型的所有对象池
+        /// </summary>
+        /// <param name="type"></param>
+        public abstract void ClearAllPoolByType(Type type);
 
         /// <summary>
         /// 清理所有对象池
@@ -184,6 +227,14 @@ namespace HMFW
         /// <param name="name">传入null的话会默认使用类型的全名作为name</param>
         /// <returns></returns>
         public abstract IMyObjectPool<T> GetPool<T>(string name = null) where T : class;
+
+        /// <summary>
+        /// 根据名字获取对象池
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name">传入null的话会默认使用类型的全名作为name</param>
+        /// <returns></returns>
+        public abstract IMyObjectPoolBase GetPool(Type type, string name = null);
 
 
         /// <summary>
@@ -203,9 +254,27 @@ namespace HMFW
             Action<T> actionOnDestroy = null,
             int defaultCapacity = 10,
             int maxSize = 10000) where T : class;
+
+
+        /// <summary>
+        /// 判断某个池子是否拥有了(初始化过)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public abstract bool HasPool<T>(string name = null);
+
+        /// <summary>
+        /// 判断某个池子是否拥有了(初始化过)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public abstract bool HasPool(Type type, string name = null);
     }
 
-    public interface IMyObjectPool<T> where T : class
+    public interface IMyObjectPoolBase : IDisposable
     {
         /// <summary>
         /// 一共多少个
@@ -223,6 +292,16 @@ namespace HMFW
         public int CountInactive { get; }
 
         /// <summary>
+        /// 清理所有的对象
+        /// </summary>
+        public void Clear();
+
+        public void Dispose();
+    }
+
+    public interface IMyObjectPool<T> : IMyObjectPoolBase where T : class
+    {
+        /// <summary>
         /// 获取一个对象
         /// </summary>
         /// <returns></returns>
@@ -233,17 +312,9 @@ namespace HMFW
         /// </summary>
         /// <param name="element"></param>
         public void Release(T element);
-
-        /// <summary>
-        /// 清理所有的对象
-        /// </summary>
-        public void Clear();
-
-        public void Dispose();
     }
 
-#if !UNITY_2021_1_OR_NEWER
-    public class MyObjectPoolBase<T> : IDisposable where T : class
+    public class MyObjectPoolBase<T> : IMyObjectPool<T> where T : class
     {
         internal readonly List<T> m_List;
         private readonly Func<T> m_CreateFunc;
@@ -346,5 +417,4 @@ namespace HMFW
 
         public void Dispose() => this.Clear();
     }
-#endif
 }
