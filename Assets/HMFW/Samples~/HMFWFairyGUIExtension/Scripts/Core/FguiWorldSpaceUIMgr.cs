@@ -345,9 +345,9 @@ namespace HMFW
                     for (int i = list.Count - 1; i >= 0; i--)
                     {
                         var ui = list[i];
-                        if (ui != null && ui.Follow != null)
+                        if (ui != null && ui.WorldSpaceUIItem != null && ui.WorldSpaceUIItem.gameObject != null)
                         {
-                            Object.Destroy(ui.Follow.gameObject);
+                            Object.Destroy(ui.WorldSpaceUIItem.gameObject);
                         }
                     }
                 }
