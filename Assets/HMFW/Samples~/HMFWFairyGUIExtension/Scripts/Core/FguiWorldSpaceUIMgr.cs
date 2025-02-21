@@ -85,7 +85,8 @@ namespace HMFW
         /// <param name="followTr">跟随的物体,设置为SetNoManagerUI()的ui可以不传</param>
         /// <param name="uiType"></param>
         /// <param name="args">需要传入ui控制类的参数,如果是可堆叠的ui,args得第一位必须是堆叠id(int)</param>
-        public void CreatWorldSpaceUI(Transform followTr, Enum uiType, object[] args)
+        /// <param name="uiItem">外部传入的UI实体，如果外部传入可用的UI实体，则这里不生成实体，只进行初始化</param>
+        public void CreatWorldSpaceUI(Transform followTr, Enum uiType, object[] args,WorldSpaceUIItemBase uiItem = null)
         {
             if (!BeNoManagerUI(uiType))
             {
@@ -100,7 +101,7 @@ namespace HMFW
                             var info = uiInfos[index];
                             if (info.WorldSpaceUIItem != null)
                             {
-                                UnityEngine.Object.Destroy(info.WorldSpaceUIItem.gameObject);
+                                info.WorldSpaceUIItem.OnDispose();
                             }
 
                             uiInfos.RemoveAt(index);
@@ -134,7 +135,7 @@ namespace HMFW
                 }
 
                 uiInfos.Add(uiInfo);
-                uiInfo.WorldSpaceUIItem = CreatItem(uiInfo);
+                uiInfo.WorldSpaceUIItem = CreatItem(uiInfo,uiItem);
             }
             else
             {
@@ -145,7 +146,7 @@ namespace HMFW
                     UiType = uiType
                 };
 
-                CreatItem(uiInfo);
+                CreatItem(uiInfo,uiItem);
             }
         }
 
@@ -167,7 +168,7 @@ namespace HMFW
                         var info = uiInfos[index];
                         if (info.WorldSpaceUIItem != null)
                         {
-                            info.WorldSpaceUIItem.Destroy();
+                            info.WorldSpaceUIItem.OnDispose();
                         }
 
                         uiInfos.RemoveAt(index);
@@ -189,7 +190,7 @@ namespace HMFW
                         var info = uiInfos[index];
                         if (info.WorldSpaceUIItem != null)
                         {
-                            info.WorldSpaceUIItem.Destroy();
+                            info.WorldSpaceUIItem.OnDispose();
                         }
 
                         uiInfos.RemoveAt(index);
@@ -198,43 +199,64 @@ namespace HMFW
             }
         }
 
-        private WorldSpaceUIItemBase CreatItem(WorldSpaceUIInfo uiInfo)
+        private WorldSpaceUIItemBase CreatItem(WorldSpaceUIInfo uiInfo, WorldSpaceUIItemBase uiItem = null)
         {
             if (_itemTypeFguiInfoMap.TryGetValue(uiInfo.UiType, out var demo))
             {
                 // var item = FairyGUI.UIPackage.CreateObject(demo.PackageName, demo.ViewName).asCom;
 
-                var go = new GameObject(uiInfo.UiType.ToString())
-                {
-                    transform =
-                    {
-                        parent = this.transform
-                    }
-                };
-
-                var panel = go.AddComponent<UIPanel>();
-                panel.packageName = demo.PackageName;
-                panel.componentName = demo.ViewName;
-                panel.container.renderMode = RenderMode.WorldSpace;
-                panel.CreateUI();
-
-                go.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-                go.AddComponent<SortingGroup>().sortingLayerName = "WorldUILayer";
-                WorldSpaceUIItemBase uiItem = null;
-
-                if (_scriptMap.TryGetValue(uiInfo.UiType, out Type baseClass))
-                {
-                    uiItem = go.AddComponent(baseClass) as WorldSpaceUIItemBase;
-                    uiItem.MyUIPanel = panel;
-                }
-                else
+                if (!_scriptMap.TryGetValue(uiInfo.UiType, out Type baseClass))
                 {
                     Debug.LogError(
                         $"添加 WorldSpaceUIItem 类型{uiInfo.UiType} 时,"
                         + "未找到其对应的控制脚本,它必须继承于WorldSpaceUIItemBase,且需在WorldSpaceUI类的InitUIItemDemo函数内添加");
                 }
 
-                uiItem.Init(uiInfo.Follow, uiInfo.Args);
+                GameObject go = null;
+                UIPanel panel = null;
+                SortingGroup sortingGroup = null;
+
+                if (uiItem != null)
+                {
+                    go = uiItem.gameObject;
+                    panel = uiItem.GetComponent<UIPanel>();
+                    sortingGroup = uiItem.GetComponent<SortingGroup>();
+                    //检查下自己的ui类是不是跟需要的一致，如果不一致的话，要销毁掉
+                    if (uiItem.GetType() != baseClass)
+                    {
+                        Destroy(uiItem);
+                        uiItem = null;
+                    }
+                }
+
+                //检查下自己的ui类是不是跟需要的一致，如果不一致的话，要销毁掉
+                //设置gameObject
+                if (go == null) go = new GameObject();
+                go.name = uiInfo.UiType.ToString();
+                go.transform.parent = this.transform;
+                go.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                //设置uiPanel
+                if (panel == null) panel = go.AddComponent<UIPanel>();
+                //具体的ui内容与需要的不同，重新赋值
+                if (panel.packageName != demo.PackageName || panel.componentName != demo.ViewName || panel.ui == null)
+                {
+                    panel.packageName = demo.PackageName;
+                    panel.componentName = demo.ViewName;
+                    panel.container.renderMode = RenderMode.WorldSpace;
+                    panel.CreateUI();
+                }
+
+                //设置层级
+                if (sortingGroup == null) sortingGroup = go.AddComponent<SortingGroup>();
+                sortingGroup.sortingLayerName = "WorldUILayer";
+                if (uiItem == null && baseClass != null) uiItem = go.AddComponent(baseClass) as WorldSpaceUIItemBase;
+                //可能会添加失败，所以这里要判空
+                if (uiItem != null)
+                {
+                    uiItem.MyUIPanel = panel;
+                    uiItem.Init(uiInfo.Follow, uiInfo.Args);
+                }
+
                 return uiItem;
             }
             else
@@ -421,7 +443,7 @@ namespace HMFW
             this.transform.position = tr.position + FollowOffset;
         }
 
-        public virtual void Destroy()
+        public virtual void OnDispose()
         {
             Destroy(this.gameObject);
         }

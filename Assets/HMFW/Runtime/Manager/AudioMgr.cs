@@ -304,6 +304,8 @@ public class AudioMgr : AudioMgrBase
                 }
 
                 audioSource.clip = audioInfo.Clip;
+                audioSource.spatialBlend = 0f;
+                audioSource.volume = _soundVolume;
 
                 if (audioInfo.ForceReplay || !audioSource.isPlaying)
                 {

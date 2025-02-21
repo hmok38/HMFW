@@ -14,6 +14,9 @@ namespace HMFW
         protected readonly Dictionary<Enum, Dictionary<int, List<Action>>> ChangeActionMap =
             new Dictionary<Enum, Dictionary<int, List<Action>>>();
 
+        protected readonly Dictionary<Enum, Dictionary<int, List<Action<int>>>> ChangeActionWithSubIdMap =
+            new Dictionary<Enum, Dictionary<int, List<Action<int>>>>();
+
         protected readonly Dictionary<Enum, List<int>> ChangeMap = new Dictionary<Enum, List<int>>();
 
         public override bool HasData(Enum typeEnum, int subId = 0)
@@ -122,6 +125,28 @@ namespace HMFW
             }
         }
 
+        public override void AddListener(Enum typeEnum, Action<int> action, int subId = 0)
+        {
+            if (!ChangeActionWithSubIdMap.ContainsKey(typeEnum))
+            {
+                var map = new Dictionary<int, List<Action<int>>>();
+                map.Add(subId, new List<Action<int>>() { action });
+                ChangeActionWithSubIdMap.Add(typeEnum, map);
+            }
+            else
+            {
+                var map = ChangeActionWithSubIdMap[typeEnum];
+                if (!map.ContainsKey(subId))
+                {
+                    map.Add(subId, new List<Action<int>>() { action });
+                }
+                else
+                {
+                    map[subId].Add(action);
+                }
+            }
+        }
+
         public override void RemoveListener(Enum typeEnum, Action action, int subId = 0)
         {
             if (!ChangeActionMap.ContainsKey(typeEnum)) return;
@@ -130,36 +155,83 @@ namespace HMFW
             list.RemoveAll(x => x.Target == null || (action.Target.Equals(x.Target) && action.Method.Equals(x.Method)));
         }
 
+        public override void RemoveListener(Enum typeEnum, Action<int> action, int subId = 0)
+        {
+            if (!ChangeActionWithSubIdMap.ContainsKey(typeEnum)) return;
+            if (!ChangeActionWithSubIdMap[typeEnum].ContainsKey(subId)) return;
+            var list = ChangeActionWithSubIdMap[typeEnum][subId];
+            list.RemoveAll(x => x.Target == null || (action.Target.Equals(x.Target) && action.Method.Equals(x.Method)));
+        }
+
         public override void RemoveAllListener(Enum typeEnum, int subId = 0)
         {
-            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
-            if (!ChangeActionMap[typeEnum].ContainsKey(subId)) return;
-            var list = ChangeActionMap[typeEnum][subId];
-            list.Clear();
+            if (ChangeActionMap.ContainsKey(typeEnum))
+            {
+                if (ChangeActionMap[typeEnum].ContainsKey(subId))
+                {
+                    var list = ChangeActionMap[typeEnum][subId];
+                    list.Clear();
+                }
+            }
+
+            if (ChangeActionWithSubIdMap.ContainsKey(typeEnum))
+            {
+                if (ChangeActionWithSubIdMap[typeEnum].ContainsKey(subId))
+                {
+                    var list = ChangeActionWithSubIdMap[typeEnum][subId];
+                    list.Clear();
+                }
+            }
         }
 
         public override void RemoveAllTypeListener(Enum typeEnum)
         {
-            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
-            ChangeActionMap[typeEnum].Clear();
+            if (ChangeActionMap.TryGetValue(typeEnum, out var value))
+            {
+                value.Clear();
+            }
+
+            if (ChangeActionWithSubIdMap.TryGetValue(typeEnum, out var value1))
+            {
+                value1.Clear();
+            }
         }
 
         public override void RemoveAllListenerOnMgr()
         {
             ChangeActionMap.Clear();
+            ChangeActionWithSubIdMap.Clear();
         }
 
         public override void DispatchChangeEvent(Enum typeEnum, int subId)
         {
-            if (!ChangeActionMap.ContainsKey(typeEnum)) return;
-            if (!ChangeActionMap[typeEnum].ContainsKey(subId)) return;
-
-            var list = ChangeActionMap[typeEnum][subId];
-            for (var i = list.Count - 1; i >= 0; i--)
+            if (ChangeActionMap.ContainsKey(typeEnum))
             {
-                if (list[i].Target != null)
+                if (ChangeActionMap[typeEnum].ContainsKey(subId))
                 {
-                    list[i].Invoke();
+                    var list = ChangeActionMap[typeEnum][subId];
+                    for (var i = list.Count - 1; i >= 0; i--)
+                    {
+                        if (list[i].Target != null)
+                        {
+                            list[i].Invoke();
+                        }
+                    }
+                }
+            }
+
+            if (ChangeActionWithSubIdMap.ContainsKey(typeEnum))
+            {
+                if (ChangeActionWithSubIdMap[typeEnum].ContainsKey(subId))
+                {
+                    var list = ChangeActionWithSubIdMap[typeEnum][subId];
+                    for (var i = list.Count - 1; i >= 0; i--)
+                    {
+                        if (list[i].Target != null)
+                        {
+                            list[i].Invoke(subId);
+                        }
+                    }
                 }
             }
         }
@@ -255,12 +327,28 @@ namespace HMFW
         public abstract void AddListener(Enum typeEnum, Action action, int subId = 0);
 
         /// <summary>
+        /// 添加数据变化事件的监听(附带subId)
+        /// </summary>
+        /// <param name="typeEnum"></param>
+        /// <param name="action"></param>
+        /// <param name="subId"></param>
+        public abstract void AddListener(Enum typeEnum, Action<int> action, int subId = 0);
+
+        /// <summary>
         /// 移除对数据变化的监听
         /// </summary>
         /// <param name="typeEnum"></param>
         /// <param name="action"></param>
         /// <param name="subId"></param>
         public abstract void RemoveListener(Enum typeEnum, Action action, int subId = 0);
+
+        /// <summary>
+        /// 移除对数据变化的监听
+        /// </summary>
+        /// <param name="typeEnum"></param>
+        /// <param name="action"></param>
+        /// <param name="subId"></param>
+        public abstract void RemoveListener(Enum typeEnum, Action<int> action, int subId = 0);
 
         /// <summary>
         /// 移除某个数据的所有监听事件
