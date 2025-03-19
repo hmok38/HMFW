@@ -4,7 +4,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
-using Object = UnityEngine.Object;
 
 public class AudioMgr : AudioMgrBase
 {
@@ -13,11 +12,11 @@ public class AudioMgr : AudioMgrBase
     private float _soundVolume = 1;
     private float _musicVolume = 1;
     private float _musicPitch = 1;
-    protected readonly Dictionary<Enum, AudioInfo> AudioClips = new Dictionary<Enum, AudioInfo>();
+    protected readonly Dictionary<string, AudioInfo> AudioClips = new Dictionary<string, AudioInfo>();
 
     private readonly AudioSource _musicAudioSource;
-    private UnityAction<Enum, string> _musicCompleteCb;
-    private Enum _lastMusicEnum;
+    private UnityAction<string, string> _musicCompleteCb;
+    private string _lastMusicEnum;
     private string _lastMusicFlagStr;
 
     private bool _musicBeLoop;
@@ -25,7 +24,7 @@ public class AudioMgr : AudioMgrBase
     CancellationTokenSource _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
     //管理不可叠加的音效(只存在唯一音频)
-    private readonly Dictionary<Enum, AudioSource> _audioSources = new Dictionary<Enum, AudioSource>();
+    private readonly Dictionary<string, AudioSource> _audioSources = new Dictionary<string, AudioSource>();
 
     //不可叠加音效的管理节点
     private GameObject _audioLayer;
@@ -45,6 +44,7 @@ public class AudioMgr : AudioMgrBase
                 _audioLayer = new GameObject("AudioLayer");
                 UnityEngine.Object.DontDestroyOnLoad(_audioLayer);
             }
+
             return _audioLayer;
         }
     }
@@ -61,6 +61,7 @@ public class AudioMgr : AudioMgrBase
                 _audioPoolLayer = new GameObject("AudioPoolLayer");
                 UnityEngine.Object.DontDestroyOnLoad(_audioPoolLayer);
             }
+
             return _audioPoolLayer;
         }
     }
@@ -73,7 +74,7 @@ public class AudioMgr : AudioMgrBase
     /// <summary>
     /// 正在或者上一个播放的音乐
     /// </summary>
-    public override Enum lastMusic => _lastMusicEnum;
+    public override string lastMusic => _lastMusicEnum;
 
     /// <summary>
     /// 正在或者上一个播放的音乐是否是循环的
@@ -171,7 +172,20 @@ public class AudioMgr : AudioMgrBase
     public override void AddAudioClip(Enum @enum, AudioClip audioClip, bool canMultiplePlay = true,
         bool forceReplay = false)
     {
-        AudioClips[@enum] = new AudioInfo()
+        AddAudioClip(@enum.ToString(), audioClip, canMultiplePlay, forceReplay);
+    }
+
+    /// <summary>
+    /// 增加音频
+    /// </summary>
+    /// <param name="enum"></param>
+    /// <param name="audioClip"></param>
+    /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
+    /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    public override void AddAudioClip(string @enum, AudioClip audioClip, bool canMultiplePlay = true,
+        bool forceReplay = false)
+    {
+        AudioClips[@enum.ToString()] = new AudioInfo()
             { Clip = audioClip, CanMultiplePlay = canMultiplePlay, ForceReplay = forceReplay };
     }
 
@@ -181,10 +195,24 @@ public class AudioMgr : AudioMgrBase
     /// <param name="enum"></param>
     public override void RemoveAudioClip(Enum @enum)
     {
+        RemoveAudioClip(@enum.ToString());
+    }
+
+    /// <summary>
+    /// 移除音频
+    /// </summary>
+    /// <param name="enum"></param>
+    public override void RemoveAudioClip(string @enum)
+    {
         AudioClips.Remove(@enum);
     }
 
     public override AudioClip GetAudioClip(Enum @enum)
+    {
+        return GetAudioClip(@enum.ToString());
+    }
+
+    public override AudioClip GetAudioClip(string @enum)
     {
         AudioClips.TryGetValue(@enum, out var audioInfo);
         return audioInfo?.Clip;
@@ -198,10 +226,24 @@ public class AudioMgr : AudioMgrBase
     /// <param name="completeCb">完成时的回调,不需要可以为空</param>
     /// <param name="beLoop">是否需要loop,默认需要</param>
     public override async void PlayMusic(Enum @enum, bool beLoop = true, string completeFlag = "",
-        UnityAction<Enum, string> completeCb = null
+        UnityAction<string, string> completeCb = null
     )
     {
-        if (AudioClips.TryGetValue(@enum, out var audioInfo))
+        PlayMusic(@enum.ToString(), beLoop, completeFlag, completeCb);
+    }
+
+    /// <summary>
+    /// 播放音乐
+    /// </summary>
+    /// <param name="enum">音乐的枚举</param>
+    /// <param name="completeFlag">完成时回调的标签,不需要可以为空,会原样传回</param>
+    /// <param name="completeCb">完成时的回调,不需要可以为空</param>
+    /// <param name="beLoop">是否需要loop,默认需要</param>
+    public override async void PlayMusic(string @enum, bool beLoop = true, string completeFlag = "",
+        UnityAction<string, string> completeCb = null
+    )
+    {
+        if (AudioClips.TryGetValue(@enum.ToString(), out var audioInfo))
         {
             try
             {
@@ -221,7 +263,7 @@ public class AudioMgr : AudioMgrBase
                 _musicAudioSource.clip = audioInfo.Clip;
                 _musicAudioSource.Play();
                 _musicCompleteCb = completeCb;
-                _lastMusicEnum = @enum;
+                _lastMusicEnum = @enum.ToString();
                 _lastMusicFlagStr = completeFlag;
                 _musicBeLoop = beLoop;
                 _musicAudioSource.loop = false; //不自动loop
@@ -266,6 +308,16 @@ public class AudioMgr : AudioMgrBase
     /// <param name="enum"></param>
     public override void PlaySound(Enum @enum)
     {
+        PlaySound(@enum.ToString());
+    }
+
+    /// <summary>
+    /// 可叠加播放的类型不做播放器管理
+    /// 只能存在一个的才做播放器管理
+    /// </summary>
+    /// <param name="enum"></param>
+    public override void PlaySound(string @enum)
+    {
         if (AudioClips.TryGetValue(@enum, out var audioInfo))
         {
             if (audioInfo.CanMultiplePlay)
@@ -281,6 +333,7 @@ public class AudioMgr : AudioMgrBase
                         break;
                     }
                 }
+
                 //如果遍历完还没找到空闲的audioSource就创建一个新的audioSource使用
                 if (targetAudioSource == null)
                 {
@@ -288,6 +341,7 @@ public class AudioMgr : AudioMgrBase
                         Debug.LogError($"当前存在的音频数量为:{audioSources.Length}");
                     targetAudioSource = (AudioSource)audioPoolLayer.AddComponent(typeof(AudioSource));
                 }
+
                 targetAudioSource.clip = audioInfo.Clip;
                 targetAudioSource.spatialBlend = 0f;
                 targetAudioSource.volume = _soundVolume;
@@ -401,7 +455,18 @@ public abstract class AudioMgrBase
     /// <param name="completeCb">完成时的回调,不需要可以为空</param>
     /// <param name="beLoop">是否需要loop,默认需要</param>
     public abstract void PlayMusic(Enum @enum, bool beLoop = true, string completeFlag = "",
-        UnityAction<Enum, string> completeCb = null
+        UnityAction<string, string> completeCb = null
+    );
+
+    /// <summary>
+    /// 播放音乐,仅一个音源,播放另外一个时,会停止之前的
+    /// </summary>
+    /// <param name="enum">音乐的枚举</param>
+    /// <param name="completeFlag">完成时回调的标签,不需要可以为空,会原样传回</param>
+    /// <param name="completeCb">完成时的回调,不需要可以为空</param>
+    /// <param name="beLoop">是否需要loop,默认需要</param>
+    public abstract void PlayMusic(string @enum, bool beLoop = true, string completeFlag = "",
+        UnityAction<string, string> completeCb = null
     );
 
 
@@ -410,6 +475,12 @@ public abstract class AudioMgrBase
     /// </summary>
     /// <param name="enum"></param>
     public abstract void PlaySound(Enum @enum);
+
+    /// <summary>
+    /// 播放音效,会根据添加时的
+    /// </summary>
+    /// <param name="enum"></param>
+    public abstract void PlaySound(string @enum);
 
     /// <summary>
     /// 增加音频
@@ -422,10 +493,26 @@ public abstract class AudioMgrBase
         bool forceReplay = false);
 
     /// <summary>
+    /// 增加音频
+    /// </summary>
+    /// <param name="enum"></param>
+    /// <param name="audioClip"></param>
+    /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
+    /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    public abstract void AddAudioClip(string @enum, AudioClip audioClip, bool canMultiplePlay = true,
+        bool forceReplay = false);
+
+    /// <summary>
     /// 移除音频
     /// </summary>
     /// <param name="enum"></param>
     public abstract void RemoveAudioClip(Enum @enum);
+
+    /// <summary>
+    /// 移除音频
+    /// </summary>
+    /// <param name="enum"></param>
+    public abstract void RemoveAudioClip(string @enum);
 
     /// <summary>
     /// 获取clip
@@ -435,6 +522,13 @@ public abstract class AudioMgrBase
     public abstract AudioClip GetAudioClip(Enum @enum);
 
     /// <summary>
+    /// 获取clip
+    /// </summary>
+    /// <param name="enum"></param>
+    /// <returns></returns>
+    public abstract AudioClip GetAudioClip(string @enum);
+
+    /// <summary>
     /// 背景音乐是否在播放
     /// </summary>
     public abstract bool beMusicPlaying { get; }
@@ -442,7 +536,7 @@ public abstract class AudioMgrBase
     /// <summary>
     /// 正在或者上一个播放的音乐
     /// </summary>
-    public abstract Enum lastMusic { get; }
+    public abstract string lastMusic { get; }
 
     /// <summary>
     /// 正在或者上一个播放的音乐是否是循环的
