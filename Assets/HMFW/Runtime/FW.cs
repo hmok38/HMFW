@@ -98,4 +98,10 @@ public class FW
     /// 也可以自定义自己的服务器校正接口,只用同步一次即可
     /// </summary>
     public static TimeSyncMgrBase TimeSyncMgr { get; set; } = new TimeSyncMgr();
+
+    
+    /// <summary>
+    /// 震动管理器
+    /// </summary>
+    public static VibrationMgrBase VibrationMgr { get; set; } = new VibrationMgr();
 }
