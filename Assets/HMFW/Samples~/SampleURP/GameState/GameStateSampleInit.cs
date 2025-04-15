@@ -20,8 +20,11 @@ namespace HMFW.SampleURP.GameState
                 Debug.Log($"测试返回键队列2-调用后会删除自己");
                 return true;
             });
-
-
+            //Ugui设置UI的参数
+            FW.UIMgr.UguiOrderInLayer = 8;
+            FW.UIMgr.UguiOrderInLayer = 101;
+            FW.UIMgr.UguiRenderMode = RenderMode.ScreenSpaceOverlay;
+            
             var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
             setting.BusyLimit = 0; //设置这一组是否限制最大显示的ui数,多余的会等待,
             await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);

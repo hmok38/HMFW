@@ -5,6 +5,8 @@ using System.Text;
 using Cysharp.Threading.Tasks;
 using HMFW.Core;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace HMFW
@@ -32,7 +34,7 @@ namespace HMFW
         protected readonly Dictionary<uint, List<UIInfo>> UIInGroupMap = new Dictionary<uint, List<UIInfo>>();
 
         protected Transform MyUGUIRoot;
-
+        public Transform MyRootCanvasTr;
         public override Transform UGUIRoot
         {
             get
@@ -51,6 +53,20 @@ namespace HMFW
 
         #region ----------Public Method----------------------------------
 
+        private void OnActiveSceneChanged(Scene arg0, Scene arg1)
+        {
+            for (int i = 0; i < Camera.allCameras.Length; i++)
+            {
+                var camera = Camera.allCameras[i];
+                if (camera == _uguiMyUICamera) continue;
+                var ad = camera.GetUniversalAdditionalCameraData();
+                if (ad != null && ad.renderType == CameraRenderType.Base)
+                {
+                    ad.cameraStack.Add(_uguiMyUICamera);
+                }
+            }
+        }
+
         public override void Init()
         {
             GameObject rootTeam = null;
@@ -59,6 +75,24 @@ namespace HMFW
                 var prefab = UnityEngine.Resources.Load<GameObject>(UGUIRootResourcesPath);
                 rootTeam = UnityEngine.Object.Instantiate(prefab);
                 UnityEngine.Object.DontDestroyOnLoad(rootTeam);
+
+                _uguiMyUICamera = rootTeam.transform.Find("UICamera").GetComponent<Camera>();
+                MyRootCanvasTr = rootTeam.transform.Find("RootCanvas");
+                var rootCanvas =MyRootCanvasTr.GetComponent<Canvas>();
+                rootCanvas.renderMode = this.UguiRenderMode;
+                if (rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                {
+                    SceneManager.activeSceneChanged += OnActiveSceneChanged;
+                    _uguiMyUICamera.gameObject.SetActive(true);
+                    rootCanvas.worldCamera = _uguiMyUICamera;
+                    rootCanvas.sortingLayerID = this.UguiSortingLayer;
+                    rootCanvas.sortingOrder = this.UguiOrderInLayer;
+                }
+                else
+                {
+                    _uguiMyUICamera.gameObject.SetActive(false);
+                }
+
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
                 if (eventObj == null)
                 {
@@ -73,12 +107,13 @@ namespace HMFW
 
             UIGroupSettings = new Dictionary<uint, UIGroupSetting>
             {
-                { 0, new UIGroupSetting() { GroupId = 0, GroupRoot = MyUGUIRoot.Find($"{UIGroupRootName}0") } },
-                { 100, new UIGroupSetting() { GroupId = 100, GroupRoot = MyUGUIRoot.Find($"{UIGroupRootName}100") } }
+                { 0, new UIGroupSetting() { GroupId = 0, GroupRoot = MyRootCanvasTr.Find($"{UIGroupRootName}0") } },
+                { 100, new UIGroupSetting() { GroupId = 100, GroupRoot = MyRootCanvasTr.Find($"{UIGroupRootName}100") } }
             };
 
             Inited = true;
         }
+
 
         public override UIGroupSetting GetGroupSetting(uint priorityBase)
         {
@@ -551,10 +586,10 @@ namespace HMFW
 
         protected virtual Transform CreatGroupRoot(uint groupId)
         {
-            int newIndex = MyUGUIRoot.childCount;
-            for (int i = 0; i < MyUGUIRoot.childCount; i++)
+            int newIndex = MyRootCanvasTr.childCount;
+            for (int i = 0; i < MyRootCanvasTr.childCount; i++)
             {
-                var name = MyUGUIRoot.GetChild(i).name;
+                var name = MyRootCanvasTr.GetChild(i).name;
                 if (uint.TryParse(name.Replace(UIGroupRootName, ""), out var childGroupId))
                 {
                     if (groupId < childGroupId)
@@ -566,15 +601,15 @@ namespace HMFW
                 }
                 else
                 {
-                    Debug.Log($"请移除 {MyUGUIRoot.name} Ui根节点下的 {name} 物体,ui根节点下只能自动创建ui组节点");
+                    Debug.Log($"请移除 {MyRootCanvasTr.name} Ui根节点下的 {name} 物体,ui根节点下只能自动创建ui组节点");
                 }
             }
 
-            var tr = MyUGUIRoot.Find($"{UIGroupRootName}{groupId}");
+            var tr = MyRootCanvasTr.Find($"{UIGroupRootName}{groupId}");
             if (tr == null)
             {
-                var group0 = MyUGUIRoot.Find($"{UIGroupRootName}0");
-                tr = Object.Instantiate(group0, MyUGUIRoot);
+                var group0 = MyRootCanvasTr.Find($"{UIGroupRootName}0");
+                tr = Object.Instantiate(group0, MyRootCanvasTr);
                 tr.name = $"{UIGroupRootName}{groupId}";
                 tr.SetSiblingIndex(newIndex);
                 tr.GetComponent<Canvas>().sortingOrder = (int)groupId;
@@ -610,7 +645,7 @@ namespace HMFW
             }
 
 
-            var ui = UnityEngine.Object.Instantiate(uiPrefab, groupSetting.GroupRoot, true) as GameObject;
+            var ui = UnityEngine.Object.Instantiate(uiPrefab, groupSetting.GroupRoot) as GameObject;
             var rectTransform = ui.transform as RectTransform;
             ResetRectTransform(rectTransform);
 
@@ -810,6 +845,38 @@ namespace HMFW
         /// UGUIRoot的资源路径，必须是Resources目录下的资源，请参考框架Resources/FWPrefabs/UGUIRoot预制体
         /// </summary>
         public string UGUIRootResourcesPath = "FWPrefabs/UGUIRoot";
+
+        /// <summary>
+        /// 画布的渲染模式===仅Ugui有效,在第一次使用ui前设置才有效
+        /// </summary>
+        public RenderMode UguiRenderMode = RenderMode.ScreenSpaceCamera;
+
+        /// <summary>
+        /// 画布根节点的默认sortLayer--仅Ugui有效,在第一次使用ui前设置才有效
+        /// </summary>
+        public int UguiSortingLayer = 128;
+
+        /// <summary>
+        /// 画布的排序--仅Ugui有效,在第一次使用ui前设置才有效
+        /// </summary>
+        public int UguiOrderInLayer = 1000;
+
+        /// <summary>
+        /// 结构带的ui相机--仅Ugui有效
+        /// </summary>
+        protected Camera _uguiMyUICamera;
+
+        /// <summary>
+        /// ui摄像机--非ScreenSpaceCamera模式时请不要每帧频繁调用--仅Ugui有效
+        /// </summary>
+        public Camera UguiUICamera
+        {
+            get
+            {
+                if (this.UguiRenderMode == RenderMode.ScreenSpaceCamera) return this._uguiMyUICamera;
+                return Camera.main;
+            }
+        }
 
         protected readonly Dictionary<string, string> UrlReplaceMap = new Dictionary<string, string>();
 
