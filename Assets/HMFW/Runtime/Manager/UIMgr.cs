@@ -33,8 +33,11 @@ namespace HMFW
         /// </summary>
         protected readonly Dictionary<uint, List<UIInfo>> UIInGroupMap = new Dictionary<uint, List<UIInfo>>();
 
+        /// <summary>
+        /// UI根节点
+        /// </summary>
         protected Transform MyUGUIRoot;
-        public Transform MyRootCanvasTr;
+
         public override Transform UGUIRoot
         {
             get
@@ -50,6 +53,7 @@ namespace HMFW
 
         protected Dictionary<uint, UIGroupSetting> UIGroupSettings;
 
+        private GameObject _uIGroupDemo;
 
         #region ----------Public Method----------------------------------
 
@@ -77,16 +81,16 @@ namespace HMFW
                 UnityEngine.Object.DontDestroyOnLoad(rootTeam);
 
                 _uguiMyUICamera = rootTeam.transform.Find("UICamera").GetComponent<Camera>();
-                MyRootCanvasTr = rootTeam.transform.Find("RootCanvas");
-                var rootCanvas =MyRootCanvasTr.GetComponent<Canvas>();
-                rootCanvas.renderMode = this.UguiRenderMode;
-                if (rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                MyUGuiRootCanvasTr = rootTeam.transform.Find("RootCanvas");
+                MyUGuiRootCanvas = MyUGuiRootCanvasTr.GetComponent<Canvas>();
+                MyUGuiRootCanvas.renderMode = this.UguiRenderMode;
+                if (MyUGuiRootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                 {
                     SceneManager.activeSceneChanged += OnActiveSceneChanged;
                     _uguiMyUICamera.gameObject.SetActive(true);
-                    rootCanvas.worldCamera = _uguiMyUICamera;
-                    rootCanvas.sortingLayerID = this.UguiSortingLayer;
-                    rootCanvas.sortingOrder = this.UguiOrderInLayer;
+                    MyUGuiRootCanvas.worldCamera = _uguiMyUICamera;
+                    MyUGuiRootCanvas.sortingLayerID = this.UguiSortingLayer;
+                    MyUGuiRootCanvas.sortingOrder = this.UguiOrderInLayer;
                 }
                 else
                 {
@@ -103,12 +107,17 @@ namespace HMFW
 
                 UnityEngine.Object.DontDestroyOnLoad(eventObj.gameObject);
                 MyUGUIRoot = rootTeam.transform;
+                _uIGroupDemo = MyUGuiRootCanvasTr.Find("UIGroupDemo").gameObject;
+                _uIGroupDemo.gameObject.SetActive(false); //关闭
             }
 
             UIGroupSettings = new Dictionary<uint, UIGroupSetting>
             {
-                { 0, new UIGroupSetting() { GroupId = 0, GroupRoot = MyRootCanvasTr.Find($"{UIGroupRootName}0") } },
-                { 100, new UIGroupSetting() { GroupId = 100, GroupRoot = MyRootCanvasTr.Find($"{UIGroupRootName}100") } }
+                { 0, new UIGroupSetting() { GroupId = 0, GroupRoot = MyUGuiRootCanvasTr.Find($"{UIGroupRootName}0") } },
+                {
+                    100,
+                    new UIGroupSetting() { GroupId = 100, GroupRoot = MyUGuiRootCanvasTr.Find($"{UIGroupRootName}100") }
+                }
             };
 
             Inited = true;
@@ -586,10 +595,10 @@ namespace HMFW
 
         protected virtual Transform CreatGroupRoot(uint groupId)
         {
-            int newIndex = MyRootCanvasTr.childCount;
-            for (int i = 0; i < MyRootCanvasTr.childCount; i++)
+            int newIndex = MyUGuiRootCanvasTr.childCount;
+            for (int i = 0; i < MyUGuiRootCanvasTr.childCount; i++)
             {
-                var name = MyRootCanvasTr.GetChild(i).name;
+                var name = MyUGuiRootCanvasTr.GetChild(i).name;
                 if (uint.TryParse(name.Replace(UIGroupRootName, ""), out var childGroupId))
                 {
                     if (groupId < childGroupId)
@@ -601,17 +610,17 @@ namespace HMFW
                 }
                 else
                 {
-                    Debug.Log($"请移除 {MyRootCanvasTr.name} Ui根节点下的 {name} 物体,ui根节点下只能自动创建ui组节点");
+                    Debug.Log($"请移除 {MyUGuiRootCanvasTr.name} Ui根节点下的 {name} 物体,ui根节点下只能自动创建ui组节点");
                 }
             }
 
-            var tr = MyRootCanvasTr.Find($"{UIGroupRootName}{groupId}");
+            var tr = MyUGuiRootCanvasTr.Find($"{UIGroupRootName}{groupId}");
             if (tr == null)
             {
-                var group0 = MyRootCanvasTr.Find($"{UIGroupRootName}0");
-                tr = Object.Instantiate(group0, MyRootCanvasTr);
+                tr = Object.Instantiate(_uIGroupDemo, MyUGuiRootCanvasTr).transform;
                 tr.name = $"{UIGroupRootName}{groupId}";
-                tr.SetSiblingIndex(newIndex);
+                tr.SetSiblingIndex(newIndex + 1);
+                tr.gameObject.SetActive(true);
                 tr.GetComponent<Canvas>().sortingOrder = (int)groupId;
             }
 
@@ -998,5 +1007,15 @@ namespace HMFW
         /// <param name="uiId">可多实例的ui的Id,传默认0则代表这个ui不是多实例ui</param>
         /// <returns></returns>
         public abstract UIInfo GetUIInfo(string uiNameOrAlias, uint uiId = 0);
+
+        /// <summary>
+        /// UGUI的根画布Transform(fgui下为空)
+        /// </summary>
+        public virtual Transform MyUGuiRootCanvasTr { get; protected set; }
+
+        /// <summary>
+        /// UGUI的根画布(fgui下为空)
+        /// </summary>
+        public virtual Canvas MyUGuiRootCanvas { get; protected set; }
     }
 }
