@@ -53,11 +53,11 @@ namespace HMFW
 
         protected Dictionary<uint, UIGroupSetting> UIGroupSettings;
 
-        private GameObject _uIGroupDemo;
+        protected GameObject _uIGroupDemo;
 
         #region ----------Public Method----------------------------------
 
-        private void OnActiveSceneChanged(Scene arg0, Scene arg1)
+        protected void OnActiveSceneChanged(Scene arg0, Scene arg1)
         {
             for (int i = 0; i < Camera.allCameras.Length; i++)
             {
@@ -569,6 +569,7 @@ namespace HMFW
                 if (uiInfo.UIBase.beBackBtnQueueUI) FW.BackBtnQueueMgr.RemoveQueue(uiInfo.UIBase);
                 Object.Destroy(uiInfo.UIBase.gameObject);
                 uiInfo.UIBase = null;
+                FW.GEventMgr.Trigger(UIMgr.UiCloseEventInternal, uiInfo.UIName, uiInfo.Priority);
             }
 
             if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
@@ -599,6 +600,7 @@ namespace HMFW
             for (int i = 0; i < MyUGuiRootCanvasTr.childCount; i++)
             {
                 var name = MyUGuiRootCanvasTr.GetChild(i).name;
+                if (name.Equals("UIGroupDemo")) continue;
                 if (uint.TryParse(name.Replace(UIGroupRootName, ""), out var childGroupId))
                 {
                     if (groupId < childGroupId)
@@ -619,7 +621,7 @@ namespace HMFW
             {
                 tr = Object.Instantiate(_uIGroupDemo, MyUGuiRootCanvasTr).transform;
                 tr.name = $"{UIGroupRootName}{groupId}";
-                tr.SetSiblingIndex(newIndex + 1);
+                tr.SetSiblingIndex(newIndex);
                 tr.gameObject.SetActive(true);
                 tr.GetComponent<Canvas>().sortingOrder = (int)groupId;
             }
@@ -673,7 +675,10 @@ namespace HMFW
                 uiCom.gameObject.SetActive(false); //关闭显示
             }
 
+            //触发ui被打开前的事件
+            FW.GEventMgr.Trigger(UIMgr.UiPreOpenEventInternal, uiInfo.UIName, uiInfo.Priority);
             if (uiCom != null) await uiCom.OnUIOpen(uiInfo.Arg);
+
             if (uiCom.beBackBtnQueueUI) FW.BackBtnQueueMgr.AddToQueue(uiCom);
 
             if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
@@ -699,7 +704,7 @@ namespace HMFW
                 }
             }
 
-
+            FW.GEventMgr.Trigger(UIMgr.UiOpenedEventInternal, uiInfo.UIName, uiInfo.Priority);
             return uiInfo;
         }
 
@@ -850,6 +855,37 @@ namespace HMFW
     /// </summary>
     public abstract class UIMgrBase
     {
+        /// <summary>
+        /// ui即将被打开,在ui的onAwake之后onOpen之前被调用,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        public readonly string UiPreOpenEvent = "UiPreOpenEvent";
+
+        /// <summary>
+        /// ui已经被打开,在ui的onOpen之后被调用,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        public readonly string UiOpenedEvent = "UiOpenedEvent";
+
+        /// <summary>
+        /// ui被关闭,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        public readonly string UiCloseEvent = "UiCloseEvent";
+
+
+        /// <summary>
+        /// ui即将被打开,在ui的onAwake之后onOpen之前被调用,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        protected const string UiPreOpenEventInternal = "UiPreOpenEvent";
+
+        /// <summary>
+        /// ui已经被打开,在ui的onOpen之后被调用,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        protected const string UiOpenedEventInternal = "UiOpenedEvent";
+
+        /// <summary>
+        /// ui被关闭,监听此事件可获得ui被打开的回调,参数为 uiName(字符串) uiPriority(uint)
+        /// </summary>
+        protected const string UiCloseEventInternal = "UiCloseEvent";
+
         /// <summary>
         /// UGUIRoot的资源路径，必须是Resources目录下的资源，请参考框架Resources/FWPrefabs/UGUIRoot预制体
         /// </summary>

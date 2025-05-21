@@ -19,7 +19,18 @@ public class FairyGuiSampleInitGameState : HMFW.Core.GameStateBase
         });
         
         FW.UIMgr = new UIMgrFairyGUI();//替换框架的ui管理器为扩展的ui管理器
-
+        FW.GEventMgr.Add(FW.UIMgr.UiPreOpenEvent, (string uiName,uint g) =>
+        {
+            Debug.Log($"UI {uiName} 准备打开 优先级:{g}");
+        });
+        FW.GEventMgr.Add(FW.UIMgr.UiOpenedEvent, (string uiName,uint g) =>
+        {
+            Debug.Log($"UI {uiName} 被打开 优先级:{g}");
+        });
+        FW.GEventMgr.Add(FW.UIMgr.UiCloseEvent, (string uiName,uint g) =>
+        {
+            Debug.Log($"UI {uiName} 被关闭 优先级:{g}");
+        });
         FW.UIMgr.OpenUI("FguiSampleLoadingUI",200);//打开UGui的loadingUI;
         
         return default;

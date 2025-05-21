@@ -24,9 +24,22 @@ namespace HMFW.SampleURP.GameState
             FW.UIMgr.UguiOrderInLayer = 8;
             FW.UIMgr.UguiOrderInLayer = 101;
             FW.UIMgr.UguiRenderMode = RenderMode.ScreenSpaceOverlay;
-            
+            FW.GEventMgr.Add(FW.UIMgr.UiPreOpenEvent, (string uiName,uint g) =>
+            {
+                Debug.Log($"UI {uiName} 准备打开 优先级:{g}");
+            });
+            FW.GEventMgr.Add(FW.UIMgr.UiOpenedEvent, (string uiName,uint g) =>
+            {
+                Debug.Log($"UI {uiName} 被打开 优先级:{g}");
+            });
+            FW.GEventMgr.Add(FW.UIMgr.UiCloseEvent, (string uiName,uint g) =>
+            {
+                Debug.Log($"UI {uiName} 被关闭 优先级:{g}");
+            });
             var setting = FW.UIMgr.GetGroupSetting(200); //获取组设置,
             setting.BusyLimit = 0; //设置这一组是否限制最大显示的ui数,多余的会等待,
+            await FW.UIMgr.OpenUI("PlayerCoin", 2000, UIOpenType.Wait, Color.gray);
+            
             await FW.UIMgr.OpenUI("UISampleLoading", 200, UIOpenType.Wait, Color.gray);
 
             Debug.Log("完成关闭");

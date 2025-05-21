@@ -5,6 +5,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using FairyGUI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace HMFW
@@ -23,6 +24,23 @@ namespace HMFW
                 var prefab = UnityEngine.Resources.Load<GameObject>(UGUIRootResourcesPath);
                 rootTeam = UnityEngine.Object.Instantiate(prefab);
                 UnityEngine.Object.DontDestroyOnLoad(rootTeam);
+                _uguiMyUICamera = rootTeam.transform.Find("UICamera").GetComponent<Camera>();
+                MyUGuiRootCanvasTr = rootTeam.transform.Find("RootCanvas");
+                MyUGuiRootCanvas = MyUGuiRootCanvasTr.GetComponent<Canvas>();
+                MyUGuiRootCanvas.renderMode = this.UguiRenderMode;
+                if (MyUGuiRootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                {
+                    SceneManager.activeSceneChanged += OnActiveSceneChanged;
+                    _uguiMyUICamera.gameObject.SetActive(true);
+                    MyUGuiRootCanvas.worldCamera = _uguiMyUICamera;
+                    MyUGuiRootCanvas.sortingLayerID = this.UguiSortingLayer;
+                    MyUGuiRootCanvas.sortingOrder = this.UguiOrderInLayer;
+                }
+                else
+                {
+                    _uguiMyUICamera.gameObject.SetActive(false);
+                }
+
                 var eventObj = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
                 if (eventObj == null)
                 {
@@ -33,6 +51,8 @@ namespace HMFW
 
                 UnityEngine.Object.DontDestroyOnLoad(eventObj.gameObject);
                 MyUGUIRoot = rootTeam.transform;
+                _uIGroupDemo = MyUGuiRootCanvasTr.Find("UIGroupDemo").gameObject;
+                _uIGroupDemo.gameObject.SetActive(false); //关闭
             }
 
             //创建groupRoot
@@ -210,6 +230,7 @@ namespace HMFW
                 uiCom.gameObject.SetActive(false); //关闭显示
             }
 
+            FW.GEventMgr.Trigger(UIMgr.UiPreOpenEventInternal, uiInfo.UIName, uiInfo.Priority);
             if (uiCom != null) await uiCom.OnUIOpen(uiInfo.Arg);
             if (uiCom.beBackBtnQueueUI) FW.BackBtnQueueMgr.AddToQueue(uiCom);
             if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
@@ -235,6 +256,7 @@ namespace HMFW
                 }
             }
 
+            FW.GEventMgr.Trigger(UIMgrBase.UiOpenedEventInternal, uiInfo.UIName, uiInfo.Priority);
             return uiInfo;
         }
 
@@ -342,6 +364,7 @@ namespace HMFW
 
 
                 uiInfo.UIBase = null;
+                FW.GEventMgr.Trigger(UIMgr.UiCloseEventInternal, uiInfo.UIName, uiInfo.Priority);
             }
 
             if (uiInfo.UIOpenType is UIOpenType.CoveredNow or UIOpenType.CoveredOrWait)
