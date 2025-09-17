@@ -23,7 +23,7 @@
 
 ***
 
-### 现有功能模块
+### 现有功能模块[README.md](README.md)
 
 > 1. 游戏逻辑控制器(GameFsmMgr),访问接口 `FW.GameFsmMgr`
 >2. 全局框架数据类（FWData）,访问接口 `FW.FWData`
@@ -36,8 +36,8 @@
 >9. 返回键队列管理器(BackBtnQueueMgr),访问接口 `FW.BackBtnQueueMgr`
     _**按返回键按队列关闭UI或者调用Func,UI系统自动支持**_
 >10. 时间同步管理器(TimeSyncMgr),访问接口 `FW.TimeSyncMgr`
-     _**可以获取经过服务器校正的时间,有效防止玩家修改时间.需要在启动时调用一次同步**_
-
+     _**可以获取经过服务器校正的时间,有效防止玩家修改时间.需要在启动时调用一次同步**_[README.md](README.md)
+> 11.  框架提供 泛型有限状态机类,可以在宿主类new一个状态机 `HMFW.Fsm<T>` ,并自行编写状态类 `HMFW.FsmState<T>`
 ### 框架扩展方法
 
 _模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类_
