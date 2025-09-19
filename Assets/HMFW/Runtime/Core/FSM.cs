@@ -204,6 +204,21 @@ namespace HMFW
                 CurrentState.LeaveState().Forget();
             }
         }
+
+        /// <summary>
+        /// 获取当前状态的某个接口(如受击),如果返回null代表这个状态不支持这个接口(如无敌状态不支持受击)
+        /// </summary>
+        /// <typeparam name="InterfaceT"></typeparam>
+        /// <returns></returns>
+        public virtual InterfaceT GetCurrentStateInterface<InterfaceT>() where InterfaceT : class, IFsmInterfaceBase
+        {
+            if (this.CurrentState is InterfaceT state)
+            {
+                return state;
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -235,5 +250,12 @@ namespace HMFW
         public virtual void OnFixedUpdate()
         {
         }
+    }
+
+    /// <summary>
+    /// fsm的接口类型,用來約束fsmState上要实现的功能接口的定义
+    /// </summary>
+    public interface IFsmInterfaceBase
+    {
     }
 }
