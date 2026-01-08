@@ -402,6 +402,34 @@ public class AudioMgr : AudioMgrBase
         StopSound(audioPoolLayer);
     }
 
+    /// <summary>
+    /// 暂停音乐
+    /// </summary>
+    public override void PauseMusic()
+    {
+        _musicAudioSource.Pause();
+    }
+
+    /// <summary>
+    /// 恢复暂停的音乐
+    /// </summary>
+    /// <returns>返回是否恢复成功,如果之前未暂停或者未播放过音乐,则返回失败</returns>
+    public override bool ResumeMusic()
+    {
+        if (!MusicBePause()) return false;
+        _musicAudioSource.UnPause();
+        return true;
+    }
+
+    /// <summary>
+    /// 音乐是否处于暂停状态
+    /// </summary>
+    /// <returns>如果之前未播放过音乐或者音乐正在播放则返回false</returns>
+    public override bool MusicBePause()
+    {
+        return _musicAudioSource.clip != null && _musicAudioSource.isPlaying;
+    }
+
     private void StopSound(GameObject parentObject)
     {
         AudioSource[] audioSources = parentObject.GetComponents<AudioSource>();
@@ -565,6 +593,23 @@ public abstract class AudioMgrBase
     /// </summary>
     /// <param name="onVolumeChange"></param>
     public abstract void RemoveVolumeChange(UnityAction onVolumeChange);
+
+    /// <summary>
+    /// 暂停音乐
+    /// </summary>
+    public abstract void PauseMusic();
+
+    /// <summary>
+    /// 恢复暂停的音乐
+    /// </summary>
+    /// <returns>返回是否恢复成功,如果之前未暂停或者未播放过音乐,则返回失败</returns>
+    public abstract bool ResumeMusic();
+
+    /// <summary>
+    /// 音乐是否处于暂停状态
+    /// </summary>
+    /// <returns>如果之前未播放过音乐或者音乐正在播放则返回false</returns>
+    public abstract bool MusicBePause();
 
     protected class AudioInfo
     {
