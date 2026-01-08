@@ -38,6 +38,7 @@
 >10. 时间同步管理器(TimeSyncMgr),访问接口 `FW.TimeSyncMgr`
      _**可以获取经过服务器校正的时间,有效防止玩家修改时间.需要在启动时调用一次同步**_[README.md](README.md)
 > 11.  框架提供 泛型有限状态机类,可以在宿主类new一个状态机 `HMFW.Fsm<T>` ,并自行编写状态类 `HMFW.FsmState<T>`
+> 12. 反内存修改作弊管理器(AntiCheatDataMgr),访问接口 `FW.AntiCheatDataMgr`,使用方式请参考AntiCheatDataMgr类的注释
 ### 框架扩展方法
 
 _模块的扩展和增加新模块的方式请参考示例中的 **`Assets/HMFW/Samples/SampleURP/FWExtend.cs`** 类_
