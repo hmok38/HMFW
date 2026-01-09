@@ -28,9 +28,57 @@ namespace HMFW.SampleURP
 
             //---GData模块使用演示
             //GDataDemo();
+            AudioTest();
         }
 
+        private async void AudioTest()
+        {
+            var musicClip =
+                await FW.AssetsMgr.LoadAsync<AudioClip>(
+                    "Assets/HMFWSampleBundle/Audio/sound_background_ChristmasIsland.mp3");
+            var musicClip2 =
+                await FW.AssetsMgr.LoadAsync<AudioClip>(
+                    "Assets/HMFWSampleBundle/Audio/sound_background_ActivityIsland.mp3");
+            FW.AudioMgr.AddAudioClip("bg1",musicClip);
+            FW.AudioMgr.AddAudioClip("bg2",musicClip2);
+            
+           
+        }
+        
+        [ContextMenu("StopMusic")]
+        public void StopMusic()
+        {
+            FW.AudioMgr.StopMusic();
+        }
+        
+        
+        [ContextMenu("PlayMusic1")]
+        public void PlayMusic1()
+        {
+            FW.AudioMgr.PlayMusic("bg1", true, "背景音乐",
+                (x, y) => { Debug.Log($"MusicPlay Complete {x}  {y}"); });
+        }
 
+        [ContextMenu("PlayMusic2")]
+        public void PlayMusic2()
+        {
+            FW.AudioMgr.PlayMusic("bg2", true, "背景音乐",
+                (x, y) => { Debug.Log($"MusicPlay Complete {x}  {y}"); });
+        }
+        
+        [ContextMenu("AudioPuase")]
+        public void AudioPuase()
+        {
+            FW.AudioMgr.PauseMusic();
+        }
+        
+        [ContextMenu("AudioUnPuase")]
+        public void AudioUnPuase()
+        {
+            FW.AudioMgr.ResumeMusic();
+        }
+        
+        
         /// <summary>
         /// GData模块
         /// </summary>

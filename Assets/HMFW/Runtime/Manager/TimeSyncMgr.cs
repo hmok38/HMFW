@@ -127,7 +127,7 @@ namespace HMFW
                 }
                 else
                 {
-                    Debug.LogError(
+                    Debug.LogWarning(
                         $"同步时间错误,同步函数名:{func.Method.Name} Result:{result.Result} error:{result.ErrorMsg} code:{result.ResponseCode}");
 
                     return result;

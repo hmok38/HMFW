@@ -20,7 +20,7 @@ public class AudioMgr : AudioMgrBase
     private string _lastMusicFlagStr;
 
     private bool _musicBeLoop;
-
+    private bool _bePause = false;
     CancellationTokenSource _musicCompleteCbCancelTokenS = new CancellationTokenSource();
 
     //管理不可叠加的音效(只存在唯一音频)
@@ -247,6 +247,7 @@ public class AudioMgr : AudioMgrBase
         {
             try
             {
+                _bePause = false;
                 if (_musicCompleteCbCancelTokenS != null)
                 {
                     _musicCompleteCbCancelTokenS.Cancel(); //取消之前等待的执行逻辑
@@ -267,7 +268,7 @@ public class AudioMgr : AudioMgrBase
                 _lastMusicFlagStr = completeFlag;
                 _musicBeLoop = beLoop;
                 _musicAudioSource.loop = false; //不自动loop
-                await UniTask.WaitUntil(() => _musicAudioSource != null && !_musicAudioSource.isPlaying,
+                await UniTask.WaitUntil(() => _musicAudioSource != null && !_musicAudioSource.isPlaying && !_bePause,
                     cancellationToken: _musicCompleteCbCancelTokenS.Token);
 
                 if (_musicBeLoop)
@@ -386,6 +387,7 @@ public class AudioMgr : AudioMgrBase
             _musicCompleteCbCancelTokenS.Dispose();
             _musicCompleteCbCancelTokenS = null;
             _musicAudioSource.Stop();
+            _bePause = false;
         }
         catch
         {
@@ -407,7 +409,11 @@ public class AudioMgr : AudioMgrBase
     /// </summary>
     public override void PauseMusic()
     {
-        _musicAudioSource.Pause();
+        if (_musicAudioSource.clip != null && _musicAudioSource.isPlaying)
+        {
+            _bePause = true;
+            _musicAudioSource.Pause();
+        }
     }
 
     /// <summary>
@@ -417,6 +423,7 @@ public class AudioMgr : AudioMgrBase
     public override bool ResumeMusic()
     {
         if (!MusicBePause()) return false;
+        _bePause = true;
         _musicAudioSource.UnPause();
         return true;
     }
@@ -427,7 +434,7 @@ public class AudioMgr : AudioMgrBase
     /// <returns>如果之前未播放过音乐或者音乐正在播放则返回false</returns>
     public override bool MusicBePause()
     {
-        return _musicAudioSource.clip != null && _musicAudioSource.isPlaying;
+        return _musicAudioSource.clip != null && !_musicAudioSource.isPlaying && _bePause;
     }
 
     private void StopSound(GameObject parentObject)
