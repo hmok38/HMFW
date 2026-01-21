@@ -65,7 +65,7 @@ namespace HMFW
                 {
                     var old = subMap[subId];
                     subMap[subId] = v;
-                    if (!old.Equals(v))
+                    if (!object.Equals(old, v))
                     {
                         DispatchChangeEvent(typeEnum, subId);
                     }
