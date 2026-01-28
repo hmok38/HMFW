@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using HM;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace HMFW
@@ -77,6 +78,19 @@ namespace HMFW
         {
             HM.HMAddressableManager.ClearLastVerCacheRes();
         }
+
+        /// <summary>
+        /// 下载一些资源到本地缓存,但不加载,如果已经下载过则不会重复下载
+        /// 整个组的资源都会下载
+        /// </summary>
+        /// <param name="assetsNames"></param>
+        /// <param name="progressCb"></param>
+        /// <returns></returns>
+        public override UniTask<(List<string> assetsNames, string message)> DownloadAssetsToLocal(
+            List<string> assetsNames, UnityAction<long, long, float> progressCb = null)
+        {
+            return HM.HMAddressableManager.DownloadAssetsToLocal(assetsNames, progressCb);
+        }
     }
 
     public abstract class AssetsMgrBase
@@ -145,5 +159,15 @@ namespace HMFW
 
         /// <summary>清理之前版本的缓存资源</summary>
         public abstract void ClearLastVerCacheRes();
+
+        /// <summary>
+        /// 下载一些资源到本地缓存,但不加载,如果已经下载过则不会重复下载
+        /// 整个组的资源都会下载
+        /// </summary>
+        /// <param name="assetsNames"></param>
+        /// <param name="progressCb"></param>
+        /// <returns></returns>
+        public abstract UniTask<(List<string> assetsNames, string message)> DownloadAssetsToLocal(
+            List<string> assetsNames, UnityAction<long, long, float> progressCb = null);
     }
 }
