@@ -3,6 +3,7 @@
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.hm.hmaddressable": "https://github.com/hmok38/hmaddressable.git?path=Assets/HMAddressable",
     "com.hm.hmexcelconfig": "https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig",
+    "com.unity.addressables": "1.21.21",
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.entities.graphics": "1.2.3",
     "com.unity.ide.rider": "3.0.28",
