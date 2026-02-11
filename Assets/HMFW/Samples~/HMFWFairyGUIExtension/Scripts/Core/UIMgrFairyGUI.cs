@@ -388,5 +388,14 @@ namespace HMFW
             await CheckWaitUI(setting);
             return uiInfo;
         }
+        
+        /// <summary>
+        /// 获取所有打开的UI信息--请勿手动添加和修改
+        /// </summary>
+        /// <returns></returns>
+        public override Dictionary<string, List<UIInfo>> GetAllUIInfo()
+        {
+            return NameToUIMap;
+        }
     }
 }

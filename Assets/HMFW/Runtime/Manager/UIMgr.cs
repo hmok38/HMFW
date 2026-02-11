@@ -848,6 +848,15 @@ namespace HMFW
                 Debug.Log(allMapinfoB.ToString());
             }
         }
+
+        /// <summary>
+        /// 获取所有打开的UI信息--请勿手动添加和修改
+        /// </summary>
+        /// <returns></returns>
+        public override Dictionary<string, List<UIInfo>> GetAllUIInfo()
+        {
+            return NameToUIMap;
+        }
     }
 
     /// <summary>
@@ -1053,5 +1062,11 @@ namespace HMFW
         /// UGUI的根画布(fgui下为空)
         /// </summary>
         public virtual Canvas MyUGuiRootCanvas { get; protected set; }
+
+        /// <summary>
+        /// 获取所有打开的UI信息--请勿手动添加和修改
+        /// </summary>
+        /// <returns></returns>
+        public abstract Dictionary<string, List<UIInfo>> GetAllUIInfo();
     }
 }
