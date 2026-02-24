@@ -64,16 +64,20 @@ namespace HMFW
         /// </summary>
         public override void TriggerSampleVibration()
         {
-            if (beOn)
-                Handheld.Vibrate();
+#if UNITY_ANDROID || UNITY_IOS
+ if (beOn)
+                 Handheld.Vibrate();
+#else
+
+#endif
         }
-        
+
         /// <summary>
         /// 触发指定长度的震动(安卓)
         /// ios下小于0.500则为短震动 等于0.500则为unity标准震动 大于0.5则为ios原生长震动
         /// </summary>
         /// <param name="milliseconds"></param>
-        public override  void TriggerVibration(int milliseconds)
+        public override void TriggerVibration(int milliseconds)
         {
             if (!beOn) return;
 
