@@ -5,7 +5,7 @@ using System.Reflection;
 using Cysharp.Threading.Tasks;
 using FairyGUI;
 using UnityEngine;
-using Object = UnityEngine.Object;
+
 
 namespace HMFW
 {
@@ -101,7 +101,10 @@ namespace HMFW
             {
                 return;
             }
-
+#if UNITY_EDITOR
+            // 在编辑中，模拟延迟加载
+            await UniTask.DelayFrame(10);
+#endif
             var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(name + extension);
 
             var method = DestroyMethod.None;
@@ -172,6 +175,77 @@ namespace HMFW
             {
                 pkg.LoadAllAssets();
             }
+        }
+
+        /// <summary>
+        /// 检查这个包的所有资源是否都加载完毕的,主要是配合上面的 PkgLoadAllAssets 的接口就行判断
+        /// </summary> 
+        /// <param name="pkgNameOrPkgPath"></param>
+        /// <returns></returns>
+        public bool CheckPkgAllAssetsLoaded(string pkgNameOrPkgPath)
+        {
+            var pkn = GetPkgNameByPkgPath(pkgNameOrPkgPath);
+            var pkg = UIPackage.GetByName(pkn);
+            if (pkg == null)
+            {
+                Debug.LogError($"{pkgNameOrPkgPath} 包,不存在,请先加载它,或检查名字");
+                return false;
+            }
+
+            var items = pkg.GetItems();
+            if (items == null)
+            {
+                Debug.LogError($"{pkgNameOrPkgPath} 包的items列表为空");
+                return false;
+            }
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                if (item == null)
+                {
+                    Debug.LogError($"{pkgNameOrPkgPath} 包的第 {i} 个item不存在");
+                    return false;
+                }
+
+                switch (item.type)
+                {
+                    case PackageItemType.Image:
+                    case PackageItemType.Atlas:
+                        if (item.texture == null)
+                            return false;
+                        break;
+
+                    case PackageItemType.Sound:
+                        if (item.audioClip == null)
+                            return false;
+                        break;
+
+                    case PackageItemType.Font:
+                        if (item.bitmapFont == null)
+                            return false;
+                        break;
+
+                    case PackageItemType.MovieClip:
+                        if (item.frames == null)
+                            return false;
+                        break;
+
+                    case PackageItemType.Component:
+                        break; //一定有
+
+                    case PackageItemType.Misc:
+                        break; //音频不管
+
+                    case PackageItemType.Spine:
+                    case PackageItemType.DragoneBones:
+                        if (item.skeletonAsset == null)
+                            return false;
+                        break;
+                }
+            }
+
+            return true;
         }
 
         // ~FguiHelper()
