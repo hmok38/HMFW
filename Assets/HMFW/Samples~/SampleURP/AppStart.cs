@@ -1,4 +1,4 @@
-﻿﻿using HMFW.SampleURP.GameState;
+﻿using HMFW.SampleURP.GameState;
 using UnityEngine;
 
 namespace HMFW.SampleURP
@@ -14,10 +14,10 @@ namespace HMFW.SampleURP
             //FW.GameFsmMgr = new GameObject("GM").AddComponent<GameFsmMgr>();
 
 
-            FW.GameFsmMgr.ChangeState<GameStateSampleInit>();//这是访问框架自带模块的方式
-            FW.CustomAPI.FWTestMgr();//这是访问自定义扩展模块的方式
-            
-            
+            FW.GameFsmMgr.ChangeState<GameStateSampleInit>(); //这是访问框架自带模块的方式
+            FW.CustomAPI.FWTestMgr(); //这是访问自定义扩展模块的方式
+
+
             /*
              * 注意:首个场景中的其他脚本尽量不要在Awake中调用框架的逻辑和接口,
              * 因为不能保证这个脚本的awake是第一个被调用,
@@ -39,19 +39,17 @@ namespace HMFW.SampleURP
             var musicClip2 =
                 await FW.AssetsMgr.LoadAsync<AudioClip>(
                     "Assets/HMFWSampleBundle/Audio/sound_background_ActivityIsland.mp3");
-            FW.AudioMgr.AddAudioClip("bg1",musicClip);
-            FW.AudioMgr.AddAudioClip("bg2",musicClip2);
-            
-           
+            FW.AudioMgr.AddAudioClip("bg1", musicClip);
+            FW.AudioMgr.AddAudioClip("bg2", musicClip2);
         }
-        
+
         [ContextMenu("StopMusic")]
         public void StopMusic()
         {
             FW.AudioMgr.StopMusic();
         }
-        
-        
+
+
         [ContextMenu("PlayMusic1")]
         public void PlayMusic1()
         {
@@ -65,20 +63,31 @@ namespace HMFW.SampleURP
             FW.AudioMgr.PlayMusic("bg2", true, "背景音乐",
                 (x, y) => { Debug.Log($"MusicPlay Complete {x}  {y}"); });
         }
-        
+
         [ContextMenu("AudioPuase")]
         public void AudioPuase()
         {
             FW.AudioMgr.PauseMusic();
         }
-        
+
         [ContextMenu("AudioUnPuase")]
         public void AudioUnPuase()
         {
             FW.AudioMgr.ResumeMusic();
         }
-        
-        
+
+        [ContextMenu("ShowAllUISorted")]
+        public void ShowAllUISorted()
+        {
+            var list = FW.UIMgr.GetAllUIInfoSorted();
+            foreach (var uiInfo in list)
+            {
+                Debug.Log(
+                    $"UI Name:{uiInfo.UIName}  SortLayer:{uiInfo.UIAlias}  SortOrder:{uiInfo.UIShapeType} IsShow:{uiInfo.Priority}");
+            }
+        }
+
+
         /// <summary>
         /// GData模块
         /// </summary>

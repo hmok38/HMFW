@@ -50,4 +50,30 @@ namespace HMFW.Core
         Other0,
         Other1,
     }
+
+    /// <summary>
+    /// UI的形态类型
+    /// </summary>
+    public enum UIShapeType
+    {
+        /// <summary>
+        /// 界面UI,有透视,可以看到场景,比如主界面,设置界面等,一般来说界面UI会有一个固定的位置,并且在打开的时候会关闭其他界面UI,界面UI之间一般不同时存在
+        /// </summary>
+        View,
+
+        /// <summary>
+        /// 全屏界面ui,无透视,无法看到这个界面ui下面的任何ui和场景
+        /// </summary>
+        FullCoverView,
+
+        /// <summary>
+        /// 弹窗UI,有透视,可以看到界面UI和场景
+        /// </summary>
+        PopUp,
+
+        /// <summary>
+        /// 全屏弹窗ui,无透视,无法看到这个全屏弹窗ui下面的任何ui和场景,会遮蔽下面所有的内容
+        /// </summary>
+        FullCoverModal
+    }
 }

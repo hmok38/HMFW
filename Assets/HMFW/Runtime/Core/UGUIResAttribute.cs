@@ -11,12 +11,14 @@ namespace HMFW.Core
         public readonly bool BeMultiple;
         public readonly string UIAlias;
         public readonly UISystem UISystem;
+        public readonly UIShapeType UIShapeType;
 
-        public UIAttribute(string uiAlias, UISystem uiSystem, bool beMultiple = false)
+        public UIAttribute(string uiAlias, UISystem uiSystem, bool beMultiple = false, UIShapeType uiShapeType = UIShapeType.View)
         {
             BeMultiple = beMultiple;
             UIAlias = uiAlias;
             UISystem = uiSystem;
+            UIShapeType = uiShapeType;
         }
     }
 
@@ -39,8 +41,10 @@ namespace HMFW.Core
         /// <param name="uiAlias">为开启ui的别名</param>
         /// <param name="beMultiple">是否允许多个实例同时存在</param>
         /// <param name="preloadResUrl">开启UI前需要预加载的资源</param>
+        /// <param name="uiShapeType">ui的类型,分为view,全屏view,popup,全屏popup</param>
         public UGUIResAttribute(string uiLoadUrl, string uiAlias, bool beMultiple = false,
-            string[] preloadResUrl = null) : base(uiAlias, UISystem.UGUI, beMultiple)
+            string[] preloadResUrl = null, UIShapeType uiShapeType = UIShapeType.View) : base(uiAlias, UISystem.UGUI, beMultiple,
+            uiShapeType)
         {
             this.UILoadUrl = uiLoadUrl;
             if (preloadResUrl != null)

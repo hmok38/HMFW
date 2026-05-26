@@ -25,9 +25,11 @@ namespace HMFW
         /// <param name="dependencyPackagesFileUrl">依赖的包文件所在,FGUI不处理包依赖,需要自己处理包依赖</param>
         /// <param name="beMultiple">是否允许多个实例同时存在</param>
         /// <param name="beFairyBatching">是否需要开启合批</param>
+        /// <param name="uiShapeType">ui的类型,分为view,全屏view,popup,全屏popup</param>
         public FGUIResUrlAttribute(string uIName, string packageName, string packageFileUrl, string uiAlias = null,
             string[] dependencyPackagesFileUrl = null, bool beMultiple = false,
-            bool beFairyBatching = false) : base(uiAlias, UISystem.FairyGui, beMultiple)
+            bool beFairyBatching = false, UIShapeType uiShapeType = UIShapeType.View) : base(uiAlias, UISystem.FairyGui, beMultiple,
+            uiShapeType)
         {
             this.PackageFileUrl = packageFileUrl.Replace("_fui.bytes", "");
             this.DependencyPackagesFileUrl = dependencyPackagesFileUrl;

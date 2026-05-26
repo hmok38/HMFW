@@ -141,7 +141,16 @@ namespace HMFW
         public UIState UIState = UIState.Loading;
         public object[] Arg;
         public UIOpenType UIOpenType;
-
+        /// <summary>
+        /// ui的别名,也可以用它来开启ui
+        /// </summary>
+        public string UIAlias;
+        
+        /// <summary>
+        /// UI的形态类型
+        /// </summary>
+        public UIShapeType UIShapeType;
+        
         /// <summary>
         /// 是空
         /// </summary>

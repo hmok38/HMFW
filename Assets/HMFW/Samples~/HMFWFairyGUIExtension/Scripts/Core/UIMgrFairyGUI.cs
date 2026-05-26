@@ -256,6 +256,7 @@ namespace HMFW
                 }
             }
 
+            DirtyAllUIInfoSorted = true;
             FW.GEventMgr.Trigger(UIMgrBase.UiOpenedEventInternal, uiInfo.UIName, uiInfo.Priority);
             return uiInfo;
         }
@@ -364,6 +365,7 @@ namespace HMFW
 
 
                 uiInfo.UIBase = null;
+                DirtyAllUIInfoSorted = true;
                 FW.GEventMgr.Trigger(UIMgr.UiCloseEventInternal, uiInfo.UIName, uiInfo.Priority);
             }
 
@@ -388,7 +390,7 @@ namespace HMFW
             await CheckWaitUI(setting);
             return uiInfo;
         }
-        
+
         /// <summary>
         /// 获取所有打开的UI信息--请勿手动添加和修改
         /// </summary>

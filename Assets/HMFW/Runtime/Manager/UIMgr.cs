@@ -173,7 +173,9 @@ namespace HMFW
                 UIState = UIState.Wait,
                 Arg = args,
                 UIOpenType = uiOpenType,
-                UIType = uiType
+                UIType = uiType,
+                UIAlias = attribute.UIAlias,
+                UIShapeType = attribute.UIShapeType,
             };
 
             var rv = await OpenUIByUIInfo(uiInfo);
@@ -569,6 +571,7 @@ namespace HMFW
                 if (uiInfo.UIBase.beBackBtnQueueUI) FW.BackBtnQueueMgr.RemoveQueue(uiInfo.UIBase);
                 Object.Destroy(uiInfo.UIBase.gameObject);
                 uiInfo.UIBase = null;
+                DirtyAllUIInfoSorted = true;
                 FW.GEventMgr.Trigger(UIMgr.UiCloseEventInternal, uiInfo.UIName, uiInfo.Priority);
             }
 
@@ -704,7 +707,9 @@ namespace HMFW
                 }
             }
 
+            DirtyAllUIInfoSorted = true;
             FW.GEventMgr.Trigger(UIMgr.UiOpenedEventInternal, uiInfo.UIName, uiInfo.Priority);
+
             return uiInfo;
         }
 
@@ -857,6 +862,42 @@ namespace HMFW
         {
             return NameToUIMap;
         }
+
+        /// <summary>
+        /// 获取所有打开的UI信息,并且按照优先级排序--请勿手动添加和修改,包含所有状态的UI,优先级从低到高排序,同优先级的UI没有特定顺序
+        /// </summary>
+        /// <returns></returns>
+        public override List<UIInfo> GetAllUIInfoSorted()
+        {
+            if (DirtyAllUIInfoSorted)
+            {
+                CalculateAllUIInfoSorted();
+            }
+
+            return AllUIInfoSorted;
+        }
+
+        protected virtual void CalculateAllUIInfoSorted()
+        {
+            AllUIInfoSorted.Clear();
+            foreach (var kv in NameToUIMap)
+            {
+                if (kv.Value != null && kv.Value.Count > 0)
+                {
+                    AllUIInfoSorted.AddRange(kv.Value);
+                }
+            }
+
+            AllUIInfoSorted.Sort((x, y) =>
+            {
+                if (x.Priority - y.Priority == 0) return 0;
+                return x.Priority - y.Priority > 0 ? 1 : -1;
+            });
+            DirtyAllUIInfoSorted = false;
+        }
+
+        protected bool DirtyAllUIInfoSorted = true;
+        protected readonly List<UIInfo> AllUIInfoSorted = new List<UIInfo>();
     }
 
     /// <summary>
@@ -1068,5 +1109,11 @@ namespace HMFW
         /// </summary>
         /// <returns></returns>
         public abstract Dictionary<string, List<UIInfo>> GetAllUIInfo();
+
+        /// <summary>
+        /// 获取所有打开的UI信息,并且按照优先级排序--请勿手动添加和修改,包含所有状态的UI,优先级从低到高排序,同优先级的UI没有特定顺序
+        /// </summary>
+        /// <returns></returns>
+        public abstract List<UIInfo> GetAllUIInfoSorted();
     }
 }
