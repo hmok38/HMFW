@@ -92,7 +92,7 @@ namespace HMFW
                 return;
             }
 
-            InitUIItem(uIItemType, packageName, viewName, typeName);
+            InitUIItem(uIItemType, packageName, viewName, ty);
         }
 
         /// <summary>
