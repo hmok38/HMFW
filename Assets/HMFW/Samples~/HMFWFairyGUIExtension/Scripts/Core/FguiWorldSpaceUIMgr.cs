@@ -21,7 +21,7 @@ namespace HMFW
         private readonly Dictionary<Enum, Type> _scriptMap =
             new Dictionary<Enum, Type>();
 
-
+        private readonly Dictionary<string, Type> _nameToTypeMap = new Dictionary<string, Type>();
         private readonly HashSet<Enum> _stackableUI = new HashSet<Enum>();
         private readonly HashSet<Enum> _noManagerUI = new HashSet<Enum>();
 
@@ -38,6 +38,61 @@ namespace HMFW
             _itemTypeFguiInfoMap.Add(uIItemType,
                 new WorldSpaceUIFguiInfo() { PackageName = packageName, ViewName = viewName });
             _scriptMap.Add(uIItemType, type);
+        }
+
+        /// <summary>
+        /// 根据类型名获取type
+        /// </summary>
+        /// <param name="typeName">类的名字,需要带上命名空间</param>
+        /// <returns></returns>
+        public Type GetTypeByName(string typeName)
+        {
+            if (!_nameToTypeMap.ContainsKey(typeName))
+            {
+                try
+                {
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        Type type = assembly.GetType(typeName);
+
+                        if (type != null)
+                        {
+                            _nameToTypeMap[typeName] = type;
+                        }
+                    }
+
+                    if (!_nameToTypeMap.ContainsKey(typeName))
+                    {
+                        Debug.LogError($"通过名字获取类型时生成错误:{typeName} 请输入全名(命名空间+类名)");
+                        return null;
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
+            return _nameToTypeMap[typeName];
+        }
+
+        /// <summary>
+        /// 初始化世界坐标ui的对象,
+        /// </summary>
+        /// <param name="uIItemType"></param>
+        /// <param name="packageName"></param>
+        /// <param name="viewName"></param>
+        /// <param name="typeName">类的名字,需要带上命名空间</param>
+        public void InitUIItem(Enum uIItemType, string packageName, string viewName, string typeName)
+        {
+            var ty = GetTypeByName(typeName);
+            if (ty == null)
+            {
+                Debug.LogError($"注册失败,注销{uIItemType.ToString()} typeName:{typeName}");
+                return;
+            }
+
+            InitUIItem(uIItemType, packageName, viewName, typeName);
         }
 
         /// <summary>
@@ -86,7 +141,8 @@ namespace HMFW
         /// <param name="uiType"></param>
         /// <param name="args">需要传入ui控制类的参数,如果是可堆叠的ui,args得第一位必须是堆叠id(int)</param>
         /// <param name="uiItem">外部传入的UI实体，如果外部传入可用的UI实体，则这里不生成实体，只进行初始化</param>
-        public void CreatWorldSpaceUI(Transform followTr, Enum uiType, object[] args,WorldSpaceUIItemBase uiItem = null)
+        public void CreatWorldSpaceUI(Transform followTr, Enum uiType, object[] args,
+            WorldSpaceUIItemBase uiItem = null)
         {
             if (!BeNoManagerUI(uiType))
             {
@@ -135,7 +191,7 @@ namespace HMFW
                 }
 
                 uiInfos.Add(uiInfo);
-                uiInfo.WorldSpaceUIItem = CreatItem(uiInfo,uiItem);
+                uiInfo.WorldSpaceUIItem = CreatItem(uiInfo, uiItem);
             }
             else
             {
@@ -146,7 +202,7 @@ namespace HMFW
                     UiType = uiType
                 };
 
-                CreatItem(uiInfo,uiItem);
+                CreatItem(uiInfo, uiItem);
             }
         }
 
