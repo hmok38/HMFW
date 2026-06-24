@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using EventInfo = HMFW.Core.EventInfo;
 
 namespace HMFW
@@ -32,7 +34,7 @@ namespace HMFW
             Add(key, func.Target, func.Method, 4);
         }
 
-        protected virtual void Add(string key, object target, MethodInfo metod, int paramNum)
+        protected virtual void Add(string key, object target, MethodInfo method, int paramNum)
         {
             List<EventInfo> list = null;
             if (!FuncMap.TryGetValue(key, out list))
@@ -40,9 +42,31 @@ namespace HMFW
                 list = new List<EventInfo>();
                 FuncMap[key] = list;
             }
+            else
+            {
+                if (list.Count > 0)
+                {
+                    EventInfo firstEventInfo = default;
+                    if (list[0].info != null)
+                    {
+                        firstEventInfo = list[0];
+                    }
+                    else
+                    {
+                        firstEventInfo = list.FirstOrDefault(x => x.info != null);
+                    }
+
+                    if (firstEventInfo.info != null && firstEventInfo.ParamCount != paramNum)
+                    {
+                        Debug.LogError(
+                            $"监听GEventMgr事件:{key} 失败,参数数量不正确,新增函数参数:{paramNum},原有函数:{firstEventInfo.info},参数:{firstEventInfo.ParamCount} ");
+                        return;
+                    }
+                }
+            }
 
             EventInfo ev;
-            ev.info = metod;
+            ev.info = method;
             ev.Target = target;
             ev.ParamCount = paramNum;
             FuncMap[key].Add(ev);
@@ -132,9 +156,31 @@ namespace HMFW
                 int paramCount = objList.Length;
                 for (var i = list.Count - 1; i >= 0; i--)
                 {
-                    if (list[i].ParamCount == paramCount)
+                    if (list[i].ParamCount == paramCount && list[i].Target != null)
                     {
-                        list[i].Trigger(objList);
+                        try
+                        {
+                            list[i].Trigger(objList);
+                        }
+                        catch (TargetParameterCountException ex)
+                        {
+                            Debug.LogError(
+                                $"触发GEventMgr事件:{key} 失败,触发参数数量:{paramCount} 监听函数{list[i].info} 的参数为{list[i].ParamCount}个");
+                        }
+                        catch (ArgumentException e)
+                        {
+                            Debug.LogError(
+                                $"触发GEventMgr事件:{key} 失败,参数类型错误 正确的函数参数为:{list[i].info}");
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"触发GEventMgr事件:{key} 时出错: {e}");
+                        }
+                    }
+                    else if (list[i].ParamCount != paramCount)
+                    {
+                        Debug.LogError(
+                            $"触发GEventMgr事件:{key} 失败,触发参数数量:{paramCount} 监听函数{list[i].info} 的参数为{list[i].ParamCount}个");
                     }
                 }
             }
