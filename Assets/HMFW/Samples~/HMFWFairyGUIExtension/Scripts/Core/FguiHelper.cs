@@ -91,6 +91,12 @@ namespace HMFW
 
             var descDataAssetUIHome =
                 await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
+            
+            if (UIPackage.GetPackages().FindIndex(x => x.name.Equals(pkgName)) >= 0)
+            {
+                return;
+            }
+
             var descData = descDataAssetUIHome.bytes;
             UIPackage.AddPackage(descData, packagePath, OnLoadResourceAsync);
         }
