@@ -160,7 +160,8 @@ namespace HMFW
                 NameToUIMap.TryGetValue(uiType.FullName, out List<UIInfo> uiInfos))
             {
                 //不能多实例的,去查找,如果发现有相同的页面就直接返回即可
-                if (uiInfos != null && uiInfos.Count > 0 && !uiInfos[0].IsNull())
+                if (uiInfos != null && uiInfos.Count > 0 &&
+                    (!uiInfos[0].IsNull() || uiInfos[0].UIState == UIState.Loading))
                 {
                     return uiInfos[0];
                 }
@@ -564,12 +565,13 @@ namespace HMFW
                 list.Remove(uiInfo);
             }
 
-            uiInfo.UIState = UIState.Destroy;
+            uiInfo.UIState = UIState.Closing;
             if (uiInfo.UIBase != null)
             {
                 await uiInfo.UIBase.OnUIClose(args);
                 if (uiInfo.UIBase.beBackBtnQueueUI) FW.BackBtnQueueMgr.RemoveQueue(uiInfo.UIBase);
                 Object.Destroy(uiInfo.UIBase.gameObject);
+                uiInfo.UIState = UIState.Destroy;
                 uiInfo.UIBase = null;
                 DirtyAllUIInfoSorted = true;
                 FW.GEventMgr.Trigger(UIMgr.UiCloseEventInternal, uiInfo.UIName, uiInfo.Priority);

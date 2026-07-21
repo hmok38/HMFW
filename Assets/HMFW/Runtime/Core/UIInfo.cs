@@ -103,9 +103,14 @@ namespace HMFW
         /// UI显示了,但是因为cover被隐藏了
         /// </summary>
         Hide,
-
+        
         /// <summary>
-        /// UI被销毁了(关闭)
+        /// 正在关闭,但没有关闭完成(正在跑OnUIClose)
+        /// </summary>
+        Closing,
+        
+        /// <summary>
+        /// UI被销毁了(关闭完成了)
         /// </summary>
         Destroy,
 

@@ -348,7 +348,7 @@ namespace HMFW
                 list.Remove(uiInfo);
             }
 
-            uiInfo.UIState = UIState.Destroy;
+            uiInfo.UIState = UIState.Closing;
             if (uiInfo.UIBase != null)
             {
                 await uiInfo.UIBase.OnUIClose(args);
@@ -363,6 +363,7 @@ namespace HMFW
                     Object.Destroy(uiInfo.UIBase.gameObject);
                 }
 
+                uiInfo.UIState = UIState.Destroy;
 
                 uiInfo.UIBase = null;
                 DirtyAllUIInfoSorted = true;
