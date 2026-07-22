@@ -18,7 +18,7 @@ namespace HMFW
             {
                 try
                 {
-                    FW.GEventMgr.Trigger(OnFWLoadResFailEvent, resName, ex);
+                    FW.GEventMgr.Trigger(FWLoadResFailEventName, resName, ex);
                 }
                 catch
                 {
@@ -115,7 +115,7 @@ namespace HMFW
         /// 加载资源失败事件,参数1:字符串 加载失败的资源名字 参数2:Exception 具体错误类
         /// 业务可以根据阶段不同监听此事件以采取不同的处理手段(进入游戏阶段->弹出网络问题重试弹窗 ,游戏场景->忽略或者更换场景)
         /// </summary>
-        public readonly string OnFWLoadResFailEvent = "OnFWLoadResFailEvent";
+        public readonly string FWLoadResFailEventName = "FWLoadResFailEventName";
 
         /// <summary>
         /// 加载资源 同步加载,尽量使用异步加载
