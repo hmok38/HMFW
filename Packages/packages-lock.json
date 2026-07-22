@@ -15,7 +15,7 @@
         "com.unity.addressables": "1.20.5",
         "com.unity.nuget.newtonsoft-json": "3.1.0"
       },
-      "hash": "a1e7a788438549ebf99aca360a4f825da1891b02"
+      "hash": "c4d126558459fab2187c91ac60c305dc69eb8c27"
     },
     "com.hm.hmexcelconfig": {
       "version": "https://github.com/hmok38/HMExcelConfig.git?path=Assets/HMExcelConfig",
