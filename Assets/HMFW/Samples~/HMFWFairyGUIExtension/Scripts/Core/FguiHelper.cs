@@ -91,9 +91,15 @@ namespace HMFW
 
             var descDataAssetUIHome =
                 await FW.AssetsMgr.LoadAsync<TextAsset>($"{packagePath}_fui.bytes");
-            
+
             if (UIPackage.GetPackages().FindIndex(x => x.name.Equals(pkgName)) >= 0)
             {
+                return;
+            }
+
+            if (descDataAssetUIHome == null)
+            {
+                Debug.LogError($"加载Fgui包声明数据失败:{packagePath}");
                 return;
             }
 
@@ -112,6 +118,11 @@ namespace HMFW
             await UniTask.DelayFrame(10);
 #endif
             var obj = await FW.AssetsMgr.LoadAsync<UnityEngine.Object>(name + extension);
+            if (obj == null)
+            {
+                Debug.LogError($"加载Fgui包资源失败:{name + extension}");
+                return;
+            }
 
             var method = DestroyMethod.None;
 
