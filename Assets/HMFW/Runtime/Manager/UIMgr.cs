@@ -706,6 +706,11 @@ namespace HMFW
                             tempUI.UIBase.gameObject.SetActive(false);
                         }
                     }
+                    else if (tempUI == uiInfo)
+                    {
+                        //不要对权限更高的内容进行处理
+                        break;
+                    }
                 }
             }
 
