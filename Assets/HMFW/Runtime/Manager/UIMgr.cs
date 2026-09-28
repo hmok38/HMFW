@@ -476,7 +476,7 @@ namespace HMFW
             }
 
             NameToUIMap[uiInfo.UIName].Add(uiInfo);
-
+            DirtyAllUIInfoSorted = true;
             var attribute =
                 (UIAttribute)Attribute.GetCustomAttribute(uiInfo.UIType, typeof(UIAttribute));
 
