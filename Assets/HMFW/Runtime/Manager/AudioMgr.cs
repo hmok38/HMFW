@@ -15,16 +15,16 @@ public class AudioMgr : AudioMgrBase
     protected readonly Dictionary<string, AudioInfo> AudioClips = new Dictionary<string, AudioInfo>();
 
     private readonly AudioSource _musicAudioSource;
-    private UnityAction<string, string> _musicCompleteCb;
     private string _lastMusicEnum;
     private string _lastMusicFlagStr;
 
     private bool _musicBeLoop;
     private bool _bePause = false;
-    CancellationTokenSource _musicCompleteCbCancelTokenS = new CancellationTokenSource();
+    private CancellationTokenSource _musicCompleteCbCancelTokenS;
 
     //管理不可叠加的音效(只存在唯一音频)
     private readonly Dictionary<string, AudioSource> _audioSources = new Dictionary<string, AudioSource>();
+    private readonly Dictionary<AudioSource, string> _audioPoolSources = new Dictionary<AudioSource, string>();
 
     //不可叠加音效的管理节点
     private GameObject _audioLayer;
@@ -58,6 +58,7 @@ public class AudioMgr : AudioMgrBase
         {
             if (_audioPoolLayer == null)
             {
+                _audioPoolSources.Clear();
                 _audioPoolLayer = new GameObject("AudioPoolLayer");
                 UnityEngine.Object.DontDestroyOnLoad(_audioPoolLayer);
             }
@@ -126,7 +127,10 @@ public class AudioMgr : AudioMgrBase
             var v = Mathf.Clamp(value, 0f, 1f);
             PlayerPrefs.SetFloat(MusicPrefsKey, v);
             _musicVolume = v;
-            _musicAudioSource.volume = v;
+            if (_musicAudioSource != null)
+            {
+                _musicAudioSource.volume = v;
+            }
             _onVolumeChange?.Invoke();
         }
     }
@@ -187,6 +191,11 @@ public class AudioMgr : AudioMgrBase
     public override void AddAudioClip(string @enum, AudioClip audioClip, bool canMultiplePlay = true,
         bool forceReplay = false, float multiplePlayInterval = 0.1f)
     {
+        if (audioClip == null)
+        {
+            throw new ArgumentNullException(nameof(audioClip), "注册的音频不能为空或已被销毁。");
+        }
+
         if (multiplePlayInterval < 0f || float.IsNaN(multiplePlayInterval) || float.IsInfinity(multiplePlayInterval))
         {
             throw new ArgumentOutOfRangeException(nameof(multiplePlayInterval), "音效播放间隔必须为有限的非负秒数。");
@@ -202,7 +211,7 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
-    /// 移除音频
+    /// 移除音频，停止对应播放并清理音效播放器
     /// </summary>
     /// <param name="enum"></param>
     public override void RemoveAudioClip(Enum @enum)
@@ -211,12 +220,48 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
-    /// 移除音频
+    /// 移除音频，停止对应播放并清理音效播放器
     /// </summary>
     /// <param name="enum"></param>
     public override void RemoveAudioClip(string @enum)
     {
         AudioClips.Remove(@enum);
+
+        if (_audioSources.TryGetValue(@enum, out var audioSource))
+        {
+            _audioSources.Remove(@enum);
+            DestroySoundSource(audioSource);
+        }
+
+        foreach (var source in new List<AudioSource>(_audioPoolSources.Keys))
+        {
+            if (_audioPoolSources[source] == @enum)
+            {
+                _audioPoolSources.Remove(source);
+                DestroySoundSource(source);
+            }
+        }
+
+        if (_lastMusicEnum == @enum)
+        {
+            StopMusic();
+            if (_musicAudioSource != null)
+            {
+                _musicAudioSource.clip = null;
+            }
+        }
+    }
+
+    private static void DestroySoundSource(AudioSource audioSource)
+    {
+        if (audioSource == null)
+        {
+            return;
+        }
+
+        audioSource.Stop();
+        audioSource.clip = null;
+        UnityEngine.Object.Destroy(audioSource);
     }
 
     public override AudioClip GetAudioClip(Enum @enum)
@@ -237,7 +282,7 @@ public class AudioMgr : AudioMgrBase
     /// <param name="completeFlag">完成时回调的标签,不需要可以为空,会原样传回</param>
     /// <param name="completeCb">完成时的回调,不需要可以为空</param>
     /// <param name="beLoop">是否需要loop,默认需要</param>
-    public override async void PlayMusic(Enum @enum, bool beLoop = true, string completeFlag = "",
+    public override void PlayMusic(Enum @enum, bool beLoop = true, string completeFlag = "",
         UnityAction<string, string> completeCb = null
     )
     {
@@ -255,49 +300,70 @@ public class AudioMgr : AudioMgrBase
         UnityAction<string, string> completeCb = null
     )
     {
-        if (AudioClips.TryGetValue(@enum.ToString(), out var audioInfo))
-        {
-            try
-            {
-                _bePause = false;
-                if (_musicCompleteCbCancelTokenS != null)
-                {
-                    _musicCompleteCbCancelTokenS.Cancel(); //取消之前等待的执行逻辑
-                    _musicCompleteCbCancelTokenS.Dispose();
-                }
-
-                _musicCompleteCbCancelTokenS = new CancellationTokenSource();
-
-                if (_lastMusicEnum == null || !_lastMusicEnum.Equals(@enum)) //不同的就恢复正常音调
-                {
-                    musicPitch = 1;
-                }
-
-                _musicAudioSource.clip = audioInfo.Clip;
-                _musicAudioSource.Play();
-                _musicCompleteCb = completeCb;
-                _lastMusicEnum = @enum.ToString();
-                _lastMusicFlagStr = completeFlag;
-                _musicBeLoop = beLoop;
-                _musicAudioSource.loop = false; //不自动loop
-                await UniTask.WaitUntil(() => _musicAudioSource != null && !_musicAudioSource.isPlaying && !_bePause,
-                    cancellationToken: _musicCompleteCbCancelTokenS.Token);
-
-                if (_musicBeLoop)
-                {
-                    PlayMusic(_lastMusicEnum, beLoop, _lastMusicFlagStr, completeCb);
-                }
-
-                _musicCompleteCb?.Invoke(_lastMusicEnum, _lastMusicFlagStr);
-            }
-            catch
-            {
-                //隐藏取消抛出的错误
-            }
-        }
-        else
+        if (!AudioClips.TryGetValue(@enum, out var audioInfo))
         {
             Debug.LogError($"PlayMusic not exist music : {@enum}");
+            return;
+        }
+
+        if (audioInfo.Clip == null || _musicAudioSource == null)
+        {
+            Debug.LogError($"PlayMusic 音频或音乐播放器已被销毁：{@enum}");
+            return;
+        }
+
+        StopMusic();
+        var cancelTokenSource = new CancellationTokenSource();
+        _musicCompleteCbCancelTokenS = cancelTokenSource;
+        try
+        {
+            if (_lastMusicEnum == null || !_lastMusicEnum.Equals(@enum)) //不同的就恢复正常音调
+            {
+                musicPitch = 1;
+            }
+
+            _musicAudioSource.clip = audioInfo.Clip;
+            _musicAudioSource.Play();
+            _lastMusicEnum = @enum;
+            _lastMusicFlagStr = completeFlag;
+            _musicBeLoop = beLoop;
+            _musicAudioSource.loop = false; //不自动loop
+            try
+            {
+                await UniTask.WaitUntil(
+                    () => _musicAudioSource == null || audioInfo.Clip == null ||
+                          (!_musicAudioSource.isPlaying && !_bePause),
+                    cancellationToken: cancelTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            if (_musicAudioSource == null || audioInfo.Clip == null)
+            {
+                return;
+            }
+
+            if (_musicBeLoop)
+            {
+                PlayMusic(_lastMusicEnum, beLoop, _lastMusicFlagStr, completeCb);
+            }
+
+            completeCb?.Invoke(@enum, completeFlag);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+        finally
+        {
+            if (_musicCompleteCbCancelTokenS == cancelTokenSource)
+            {
+                _musicCompleteCbCancelTokenS = null;
+                cancelTokenSource.Dispose();
+                _bePause = false;
+            }
         }
     }
 
@@ -315,8 +381,7 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
-    /// 可叠加播放的类型不做播放器管理
-    /// 只能存在一个的才做播放器管理
+    /// 可叠加音效复用空闲播放器，不可叠加音效使用独立播放器
     /// </summary>
     /// <param name="enum"></param>
     public override void PlaySound(Enum @enum)
@@ -325,14 +390,19 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
-    /// 可叠加播放的类型不做播放器管理
-    /// 只能存在一个的才做播放器管理
+    /// 可叠加音效复用空闲播放器，不可叠加音效使用独立播放器
     /// </summary>
     /// <param name="enum"></param>
     public override void PlaySound(string @enum)
     {
         if (AudioClips.TryGetValue(@enum, out var audioInfo))
         {
+            if (audioInfo.Clip == null)
+            {
+                Debug.LogError($"PlaySound 音频已被销毁：{@enum}");
+                return;
+            }
+
             if (audioInfo.CanMultiplePlay)
             {
                 double currentTime = Time.unscaledTimeAsDouble;
@@ -347,7 +417,8 @@ public class AudioMgr : AudioMgrBase
                 AudioSource[] audioSources = audioPoolLayer.GetComponents<AudioSource>();
                 for (int i = 0; i < audioSources.Length; i++)
                 {
-                    if (!audioSources[i].isPlaying)
+                    //移除的组件要等帧末才销毁，不能再次复用。
+                    if (_audioPoolSources.ContainsKey(audioSources[i]) && !audioSources[i].isPlaying)
                     {
                         targetAudioSource = audioSources[i];
                         break;
@@ -365,6 +436,7 @@ public class AudioMgr : AudioMgrBase
                 targetAudioSource.clip = audioInfo.Clip;
                 targetAudioSource.spatialBlend = 0f;
                 targetAudioSource.volume = _soundVolume;
+                _audioPoolSources[targetAudioSource] = @enum;
                 targetAudioSource.Play();
                 audioInfo.LastPlayTime = currentTime;
             }
@@ -401,18 +473,20 @@ public class AudioMgr : AudioMgrBase
     /// </summary>
     public override void StopMusic()
     {
-        try
+        var cancelTokenSource = _musicCompleteCbCancelTokenS;
+        _musicCompleteCbCancelTokenS = null;
+        if (cancelTokenSource != null)
         {
-            _musicCompleteCbCancelTokenS.Cancel(); //取消之前等待的执行逻辑
-            _musicCompleteCbCancelTokenS.Dispose();
-            _musicCompleteCbCancelTokenS = null;
+            cancelTokenSource.Cancel();
+            cancelTokenSource.Dispose();
+        }
+
+        if (_musicAudioSource != null)
+        {
             _musicAudioSource.Stop();
-            _bePause = false;
         }
-        catch
-        {
-            // 隐藏取消抛出的错误
-        }
+
+        _bePause = false;
     }
 
     /// <summary>
@@ -429,7 +503,7 @@ public class AudioMgr : AudioMgrBase
     /// </summary>
     public override void PauseMusic()
     {
-        if (_musicAudioSource.clip != null && _musicAudioSource.isPlaying)
+        if (_musicAudioSource != null && _musicAudioSource.clip != null && _musicAudioSource.isPlaying)
         {
             _bePause = true;
             _musicAudioSource.Pause();
@@ -442,8 +516,12 @@ public class AudioMgr : AudioMgrBase
     /// <returns>返回是否恢复成功,如果之前未暂停或者未播放过音乐,则返回失败</returns>
     public override bool ResumeMusic()
     {
-        if (!MusicBePause()) return false;
-        _bePause = true;
+        if (!MusicBePause())
+        {
+            return false;
+        }
+
+        _bePause = false;
         _musicAudioSource.UnPause();
         return true;
     }
@@ -454,7 +532,8 @@ public class AudioMgr : AudioMgrBase
     /// <returns>如果之前未播放过音乐或者音乐正在播放则返回false</returns>
     public override bool MusicBePause()
     {
-        return _musicAudioSource.clip != null && !_musicAudioSource.isPlaying && _bePause;
+        return _musicAudioSource != null && _musicAudioSource.clip != null &&
+               !_musicAudioSource.isPlaying && _bePause;
     }
 
     private void StopSound(GameObject parentObject)
