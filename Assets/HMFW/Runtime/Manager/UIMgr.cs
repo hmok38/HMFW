@@ -772,11 +772,7 @@ namespace HMFW
         {
             var showUIInfosCopy = showUIInfos.ToArray();
 
-            Array.Sort(showUIInfosCopy, (x, y) =>
-            {
-                if (x.Priority - y.Priority == 0) return 0;
-                return x.Priority - y.Priority > 0 ? 1 : -1;
-            });
+            Array.Sort(showUIInfosCopy, (x, y) => x.Priority.CompareTo(y.Priority));
 
             for (var i = 0; i < showUIInfosCopy.Length; i++)
             {
@@ -895,11 +891,7 @@ namespace HMFW
                 }
             }
 
-            AllUIInfoSorted.Sort((x, y) =>
-            {
-                if (x.Priority - y.Priority == 0) return 0;
-                return x.Priority - y.Priority > 0 ? 1 : -1;
-            });
+            AllUIInfoSorted.Sort((x, y) => x.Priority.CompareTo(y.Priority));
             DirtyAllUIInfoSorted = false;
         }
 

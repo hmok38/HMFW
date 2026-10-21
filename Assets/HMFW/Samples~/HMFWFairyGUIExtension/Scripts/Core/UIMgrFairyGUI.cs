@@ -270,11 +270,7 @@ namespace HMFW
         {
             var showUIInfosCopy = showUIInfos.ToArray();
 
-            Array.Sort(showUIInfosCopy, (x, y) =>
-            {
-                if (x.Priority - y.Priority == 0) return 0;
-                return x.Priority - y.Priority > 0 ? 1 : -1;
-            });
+            Array.Sort(showUIInfosCopy, (x, y) => x.Priority.CompareTo(y.Priority));
             int uGuiIndex = 0;
             int fguiIndex = 0;
             for (var i = 0; i < showUIInfosCopy.Length; i++)
