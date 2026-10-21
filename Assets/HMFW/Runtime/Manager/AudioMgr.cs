@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -163,30 +163,42 @@ public class AudioMgr : AudioMgrBase
     }
 
     /// <summary>
-    /// 增加音频
+    /// 增加音频，可叠加音效的最短播放间隔默认为 0.1 秒
     /// </summary>
     /// <param name="enum"></param>
     /// <param name="audioClip"></param>
     /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
     /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    /// <param name="multiplePlayInterval">可叠加音效的间隔秒数，0 表示不限制；音乐不受影响。</param>
     public override void AddAudioClip(Enum @enum, AudioClip audioClip, bool canMultiplePlay = true,
-        bool forceReplay = false)
+        bool forceReplay = false, float multiplePlayInterval = 0.1f)
     {
-        AddAudioClip(@enum.ToString(), audioClip, canMultiplePlay, forceReplay);
+        AddAudioClip(@enum.ToString(), audioClip, canMultiplePlay, forceReplay, multiplePlayInterval);
     }
 
     /// <summary>
-    /// 增加音频
+    /// 增加音频，可叠加音效的最短播放间隔默认为 0.1 秒
     /// </summary>
     /// <param name="enum"></param>
     /// <param name="audioClip"></param>
     /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
     /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    /// <param name="multiplePlayInterval">可叠加音效的间隔秒数，0 表示不限制；音乐不受影响。</param>
     public override void AddAudioClip(string @enum, AudioClip audioClip, bool canMultiplePlay = true,
-        bool forceReplay = false)
+        bool forceReplay = false, float multiplePlayInterval = 0.1f)
     {
+        if (multiplePlayInterval < 0f || float.IsNaN(multiplePlayInterval) || float.IsInfinity(multiplePlayInterval))
+        {
+            throw new ArgumentOutOfRangeException(nameof(multiplePlayInterval), "音效播放间隔必须为有限的非负秒数。");
+        }
+
         AudioClips[@enum.ToString()] = new AudioInfo()
-            { Clip = audioClip, CanMultiplePlay = canMultiplePlay, ForceReplay = forceReplay };
+        {
+            Clip = audioClip,
+            CanMultiplePlay = canMultiplePlay,
+            ForceReplay = forceReplay,
+            MultiplePlayInterval = multiplePlayInterval
+        };
     }
 
     /// <summary>
@@ -323,6 +335,13 @@ public class AudioMgr : AudioMgrBase
         {
             if (audioInfo.CanMultiplePlay)
             {
+                double currentTime = Time.unscaledTimeAsDouble;
+                if (audioInfo.MultiplePlayInterval > 0f &&
+                    currentTime - audioInfo.LastPlayTime < audioInfo.MultiplePlayInterval)
+                {
+                    return;
+                }
+
                 //遍历找空闲的audioSource
                 AudioSource targetAudioSource = null;
                 AudioSource[] audioSources = audioPoolLayer.GetComponents<AudioSource>();
@@ -347,6 +366,7 @@ public class AudioMgr : AudioMgrBase
                 targetAudioSource.spatialBlend = 0f;
                 targetAudioSource.volume = _soundVolume;
                 targetAudioSource.Play();
+                audioInfo.LastPlayTime = currentTime;
             }
             else
             {
@@ -518,24 +538,26 @@ public abstract class AudioMgrBase
     public abstract void PlaySound(string @enum);
 
     /// <summary>
-    /// 增加音频
+    /// 增加音频，可叠加音效的最短播放间隔默认为 0.1 秒
     /// </summary>
     /// <param name="enum"></param>
     /// <param name="audioClip"></param>
     /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
     /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    /// <param name="multiplePlayInterval">可叠加音效的间隔秒数，0 表示不限制；音乐不受影响。</param>
     public abstract void AddAudioClip(Enum @enum, AudioClip audioClip, bool canMultiplePlay = true,
-        bool forceReplay = false);
+        bool forceReplay = false, float multiplePlayInterval = 0.1f);
 
     /// <summary>
-    /// 增加音频
+    /// 增加音频，可叠加音效的最短播放间隔默认为 0.1 秒
     /// </summary>
     /// <param name="enum"></param>
     /// <param name="audioClip"></param>
     /// <param name="forceReplay">这个音频如果正在播放时,如果再次播放,则强制从头开始播放(canMultiplePlay=false时生效)</param>
     /// <param name="canMultiplePlay">这个音频是否可同时播放多个,不允许时,</param>
+    /// <param name="multiplePlayInterval">可叠加音效的间隔秒数，0 表示不限制；音乐不受影响。</param>
     public abstract void AddAudioClip(string @enum, AudioClip audioClip, bool canMultiplePlay = true,
-        bool forceReplay = false);
+        bool forceReplay = false, float multiplePlayInterval = 0.1f);
 
     /// <summary>
     /// 移除音频
@@ -623,5 +645,7 @@ public abstract class AudioMgrBase
         public AudioClip Clip;
         public bool ForceReplay;
         public bool CanMultiplePlay;
+        public float MultiplePlayInterval=0.1f;
+        public double LastPlayTime = double.NegativeInfinity;
     }
 }
