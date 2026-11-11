@@ -429,7 +429,7 @@ public class AudioMgr : AudioMgrBase
                 if (targetAudioSource == null)
                 {
                     if (audioSources.Length >= 20)
-                        Debug.LogError($"当前存在的音频数量为:{audioSources.Length}");
+                        Debug.LogWarning($"当前存在的音频数量为:{audioSources.Length}");
                     targetAudioSource = (AudioSource)audioPoolLayer.AddComponent(typeof(AudioSource));
                 }
 
