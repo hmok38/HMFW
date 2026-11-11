@@ -62,6 +62,11 @@ public class FW
     public static GDataMgrBase GDataMgr { get; set; } = new GDataMgr();
 
     /// <summary>
+    /// 反内存修改作弊管理器，每次加载存档后需要调用 Init 清理旧数据
+    /// </summary>
+    public static AntiCheatDataMgrBase AntiCheatDataMgr { get; set; } = new AntiCheatDataMgr();
+
+    /// <summary>
     /// 音频管理器
     /// </summary>
     public static AudioMgrBase AudioMgr { get; set; } = new AudioMgr();

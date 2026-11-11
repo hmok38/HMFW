@@ -9,11 +9,12 @@ namespace HMFW
     /*
      *  反内存修改作弊管理器
      * 使用方法:
-     * 1:每次加载存档后调用init方法进行初始化-清理之前的数据和初始化
+     * 1:每次加载存档后调用 FW.AntiCheatDataMgr.Init()，清理之前的数据
      * 2:将需要保护的货币调用InitData进行初始化
      * 3:业务层每次设置货币数值时调用SetValue方法进行设置-保持业务数据和反作弊数据一致
      * 4:业务层每次使用货币或者获取货币时检查数值是否合法，调用CheckValue方法,如果不合法则认为被修改作弊
      * 5:如果发现作弊,请上报事件并将这个货币设置为0,防止继续作弊
+     * 6:需要详细日志时设置 FW.AntiCheatDataMgr.IsLog = true，默认关闭
      */
     public class AntiCheatDataMgr : AntiCheatDataMgrBase
     {
@@ -56,6 +57,9 @@ namespace HMFW
 
         public override void InitData(string currencyId, long value)
         {
+            if (IsLog)
+                Debug.Log($"antiCheat:初始化 {currencyId} 数据 {value}");
+
             if (!_antiCheatKeyDatas.ContainsKey(currencyId))
             {
                 //添加Encryp的类
@@ -88,6 +92,8 @@ namespace HMFW
 
             if (actualValue.HasValue)
             {
+                if (IsLog)
+                    Debug.Log($"antiCheat 解出来的数据是:{actualValue.Value} 原有的数据是:{value} ");
                 return actualValue.Value == value;
             }
             else
@@ -117,7 +123,7 @@ namespace HMFW
             }
 
             var saveV = _antiWrapper.GetValue();
-            var v = _antiCheatKeyData.GetDecryptValue(Math.Abs(saveV));
+            var v = _antiCheatKeyData.GetDecryptValue(Math.Abs(saveV), currencyId, IsLog);
             return v * _antiWrapper.SignV;
         }
 
@@ -138,7 +144,7 @@ namespace HMFW
             //每次设置值都重新创建一个加密key，防止被破解
             _antiCheatKeyDatas[currencyId] = AntiCheatEncryptKey.CreatFromPool();
             _antiCheatKeyData = _antiCheatKeyDatas[currencyId];
-            long encryptValue = _antiCheatKeyData.GetEncryptValue(Math.Abs(value));
+            long encryptValue = _antiCheatKeyData.GetEncryptValue(Math.Abs(value), currencyId, IsLog);
 
 
             if (_antiCheatDataWrapper.TryGetValue(currencyId, out var antiCheatDataWrapper))
@@ -189,8 +195,6 @@ namespace HMFW
                 new ObjectPool<AntiCheatEncryptKey>(() => new AntiCheatEncryptKey(),
                     actionOnRelease: item => item.Reset());
 
-            public string CurrencyId;
-
             //需要的随机key放在这里
             private long _addKey = Random.Range(50, 200);
             private long _mulKey = Random.Range(3, 10);
@@ -214,10 +218,15 @@ namespace HMFW
             /// 根据加密后的值获取实际的值
             /// </summary>
             /// <param name="entryValue"></param>
+            /// <param name="currencyId"></param>
+            /// <param name="isLog"></param>
             /// <returns></returns>
-            public long GetDecryptValue(long entryValue)
+            public long GetDecryptValue(long entryValue, string currencyId, bool isLog)
             {
                 long value = (entryValue - _addKey) / _mulKey;
+                if (isLog)
+                    Debug.Log(
+                        $"antiCheat 解密 currencyId:{currencyId} AddKey:{_addKey} MulKey:{_mulKey} oriValue:{value} encryptValue:{entryValue}");
                 return value;
             }
 
@@ -225,10 +234,15 @@ namespace HMFW
             /// 根据真实的值获取加密后的值
             /// </summary>
             /// <param name="actualValue"></param>
+            /// <param name="currencyId"></param>
+            /// <param name="isLog"></param>
             /// <returns></returns>
-            public long GetEncryptValue(long actualValue)
+            public long GetEncryptValue(long actualValue, string currencyId, bool isLog)
             {
                 long value = (long)actualValue * _mulKey + _addKey;
+                if (isLog)
+                    Debug.Log(
+                        $"antiCheat 加密 currencyId:{currencyId} AddKey:{_addKey} MulKey:{_mulKey} oriValue:{actualValue} encryptValue:{value}");
                 return value;
             }
         }
@@ -430,6 +444,11 @@ namespace HMFW
 
     public abstract class AntiCheatDataMgrBase
     {
+        /// <summary>
+        /// 是否输出详细日志，默认关闭
+        /// </summary>
+        public virtual bool IsLog { get; set; }
+
         /// <summary>
         /// 每次确定存档后初始化都需要执行的逻辑,一定要执行，不然可能会用到之前存档的数据
         /// </summary>
