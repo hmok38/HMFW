@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Cysharp.Threading.Tasks;
 using HMFW.Core;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
@@ -17,6 +19,7 @@ namespace HMFW
         protected bool Inited;
         protected readonly Dictionary<string, Type> AllUIBaseTypes = new Dictionary<string, Type>();
         protected readonly Dictionary<string, Type> AllUIAliasTypes = new Dictionary<string, Type>();
+        private bool useManualUITypeList;
 
         /// <summary>
         /// 所有排队中,显示的,隐藏的UI,加载中的UI字典
@@ -722,7 +725,7 @@ namespace HMFW
 
         protected virtual Type GetUIDataType(string typeName)
         {
-            if (AllUIBaseTypes.Count <= 0)
+            if (AllUIBaseTypes.Count <= 0 || (useManualUITypeList && !Inited))
             {
                 this.UITypeDataInit();
             }
@@ -736,6 +739,7 @@ namespace HMFW
         protected virtual void UITypeDataInit()
         {
             if (!Inited) Init();
+            if (useManualUITypeList) return;
             AllUIBaseTypes.Clear();
             AllUIAliasTypes.Clear();
             var subTypes = Tools.Util.GetAllSubClass(typeof(UIBase));
@@ -756,6 +760,148 @@ namespace HMFW
             }
         }
 
+        public override bool SetUITypeListJson(string json)
+        {
+            // 即使列表为空或解析失败，本次调用也已选择手动注册。
+            useManualUITypeList = true;
+            var errors = new List<string>();
+            var types = ReadUITypes(json, errors);
+            return RegisterUITypeList(types, errors);
+        }
+
+        private bool RegisterUITypeList(IReadOnlyList<Type> types, List<string> errors)
+        {
+            var typesByName = new Dictionary<string, Type>();
+            var typesByAlias = new Dictionary<string, Type>();
+            foreach (var type in types)
+            {
+                if (type == null || type.IsAbstract || !type.IsSubclassOf(typeof(UIBase)))
+                {
+                    errors.Add($"类型列表中的“{type?.FullName ?? "null"}”无效，需要具体的 UIBase 子类。");
+                    continue;
+                }
+
+                if (typesByName.TryGetValue(type.FullName, out var existing))
+                {
+                    errors.Add($"UI 类名重复：{type.AssemblyQualifiedName} 和 {existing.AssemblyQualifiedName}。");
+                    continue;
+                }
+
+                typesByName.Add(type.FullName, type);
+                var attribute = (UIAttribute)Attribute.GetCustomAttribute(type, typeof(UIAttribute));
+                if (attribute?.UIAlias == null)
+                {
+                    errors.Add($"{type.FullName} 需要设置 UIAttribute 及其 UIAlias。");
+                    continue;
+                }
+
+                if (typesByAlias.TryGetValue(attribute.UIAlias, out var aliasType))
+                {
+                    errors.Add($"{type.FullName} 和 {aliasType.FullName} 使用了相同的 UI 别名“{attribute.UIAlias}”。");
+                    continue;
+                }
+
+                typesByAlias.Add(attribute.UIAlias, type);
+            }
+
+#if UNITY_EDITOR
+            CheckUITypeListInEditor(typesByName.Values, errors);
+#endif
+            if (errors.Count > 0)
+            {
+                Debug.LogError("UI 类型列表校验失败。\n" + string.Join("\n", errors));
+                return false;
+            }
+
+            AllUIBaseTypes.Clear();
+            AllUIAliasTypes.Clear();
+            foreach (var pair in typesByAlias)
+            {
+                AllUIBaseTypes.Add(pair.Value.FullName, pair.Value);
+                AllUIAliasTypes.Add(pair.Key, pair.Value);
+            }
+
+            return true;
+        }
+
+        private static IReadOnlyList<Type> ReadUITypes(string json, List<string> errors)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return Array.Empty<Type>();
+
+            JToken root;
+            try
+            {
+                root = JToken.Parse(json);
+            }
+            catch (JsonException e)
+            {
+                errors.Add($"JSON 解析失败：{e.Message}");
+                return Array.Empty<Type>();
+            }
+
+            if (root.Type == JTokenType.Null) return Array.Empty<Type>();
+            var entries = (root is JObject obj ? obj["types"] : root) as JArray;
+            if (entries == null)
+            {
+                errors.Add("JSON 中缺少字符串数组 types。");
+                return Array.Empty<Type>();
+            }
+
+            var types = new List<Type>(entries.Count);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                var type = entry.Type == JTokenType.String ? ResolveUIType(((string)entry).Trim()) : null;
+                if (type == null)
+                {
+                    errors.Add($"types[{i}] 的“{entry}”无效。请填写“完整类名, 程序集名”。");
+                    continue;
+                }
+
+                types.Add(type);
+            }
+
+            return types;
+        }
+
+        private static Type ResolveUIType(string entry)
+        {
+            if (string.IsNullOrEmpty(entry) || entry.IndexOf(',') <= 0) return null;
+            try
+            {
+                return Type.GetType(entry, false);
+            }
+            catch (Exception e) when (e is ArgumentException || e is TypeLoadException ||
+                                      e is System.IO.IOException || e is BadImageFormatException)
+            {
+                return null;
+            }
+        }
+
+#if UNITY_EDITOR
+        private static void CheckUITypeListInEditor(IEnumerable<Type> listedTypes, List<string> errors)
+        {
+            var discovered = Tools.Util.GetAllSubClass(typeof(UIBase));
+            var remaining = new HashSet<Type>(listedTypes);
+            foreach (var type in discovered)
+            {
+                if (!remaining.Remove(type)) errors.Add($"缺少 UI 类 {type.FullName}, {type.Assembly.GetName().Name}。");
+            }
+
+            foreach (var type in remaining)
+            {
+                errors.Add($"编辑器扫描结果中没有 {type.AssemblyQualifiedName}。");
+            }
+
+            if (errors.Count > 0)
+            {
+                var names = discovered.Select(type => $"{type.FullName}, {type.Assembly.GetName().Name}")
+                    .OrderBy(name => name, StringComparer.Ordinal);
+                var completeList = new JObject { ["types"] = new JArray(names) };
+                errors.Add("请复制以下完整 JSON：\n" + completeList.ToString(Formatting.Indented));
+            }
+        }
+#endif
 
         protected virtual void ResetRectTransform(RectTransform rectTransform)
         {
@@ -990,6 +1136,19 @@ namespace HMFW
         /// </summary>
         /// <returns></returns>
         public abstract void Init();
+
+        
+        /// <summary>
+        /// 在首次使用 UI 前设置类型列表可跳过 Player 的程序集扫描。空值表示手动设置空列表。
+        /// 在编辑器下会立即校对传入的列表，有误时在同一条错误中给出完整 JSON,所以希望收集时可以传入空字符串。
+        /// </summary>
+        /// <param name="json">包含 types 字符串数组的 JSON 或直接传入该数组，每项为“完整类名, 程序集名”。</param>
+        /// <returns>列表有效时返回 true。失败时保留原有注册结果，可修正后再次调用。</returns>
+        public virtual bool SetUITypeListJson(string json)
+        {
+            Debug.LogError($"{GetType().FullName} 未实现 UI 类型列表注册。");
+            return false;
+        }
 
 
         /// <summary>

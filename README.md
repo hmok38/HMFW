@@ -88,6 +88,15 @@ public static class FWExtend
 UI管理器(UIMgr),访问接口 `FW.UIMgr`  
 _**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`
 包中安装示例:`FairyGUIExtention`**_
+
+**可选：手动注册 UI 类型**
+
+业务代码可以在首次使用 UI 前调用 `FW.UIMgr.SetUITypeListJson(json)`。JSON 中每项填写“完整类名, 程序集名”，打开 UI 时仍可使用原有别名。FairyGUI 示例在 `FairyGuiSampleInitGameState.EnterState` 中创建 `UIMgrFairyGUI`，注册成功后打开加载页。
+
+首次配置时，可以在编辑器调用 `FW.UIMgr.SetUITypeListJson("")`。如果工程中有 UI 类，Console 会列出缺项，并给出可直接复制的完整 JSON。以后新增、改名或删除 UI 类，编辑器也会在校验报错时给出更新后的全文。
+
+调用该接口即启用手动注册，传入 `null`、空列表或空白字符串也算设置。Player 只注册业务传入的类型。校验失败时返回 `false`，修正后可以再次调用。业务未调用该接口时，管理器在首次需要 UI 类型时自动反射查找。
+
 > * 优先级(priority)的定义
 >1. 框架对所有管理的ui进行了优先级(priority)的设定,且按照priority每100进行分组,如(0-99)为一个ui组,(100-199)又是一个ui组
 >2. 在打开ui时可传入priority(默认100),即可对ui的展示层级进行排序.
