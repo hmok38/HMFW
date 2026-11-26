@@ -83,19 +83,26 @@ public static class FWExtend
 
  ***
 
+### 收集框架子类
+
+在首次运行项目前，执行 Unity 编辑器菜单 **HMFW/收集框架子类**。新增、删除或改名 UI 和状态类后，或切换到包含不同程序集的构建目标后，再执行一次。将 `Assets/HMFWGenerated` 连同 Unity 生成的 `.meta` 文件纳入项目版本管理。
+
+| 生成到 `Assets/HMFWGenerated/Resources` 的文件 | 使用方 |
+| --- | --- |
+| `HMFWUIClassData.json` | `FW.UIMgr` 和 FairyGUI 扩展，支持完整类名和 UI 别名。 |
+| `HMFWGameStateClassData.json` | `FW.GameFsmMgr`，按状态短类名查找。 |
+| `HMFWFsmStateClassData.json` | `FSM<T>`，按宿主分组，每个宿主内的状态短类名唯一。 |
+
+每次进入 Unity 编辑器的 Play 模式时，框架会重新收集当前项目的类型，校对三份 JSON。Console 会列出缺少或多余的类名，并提示重新运行 **HMFW/收集框架子类**。打包后的 Player 只读取生成的清单。
+
+框架首次使用相应模块时读取并缓存清单。业务直接调用原有的打开 UI 或切换状态接口即可。缺少文件时，Console 会指出文件名并提示运行收集菜单。菜单还会生成 `Assets/HMFWGenerated/link.xml`，供 Unity 构建时保留按名称加载的类型。
+
 ### UI管理器(UIMgr)模块使用说明
 
-UI管理器(UIMgr),访问接口 `FW.UIMgr`  
+UI管理器(UIMgr),访问接口 `FW.UIMgr`
+
 _**框架ui已经支持对`FairyGUI`的扩展,请在安装完`FairyGUI SDK`后到`UnityPackageManager`中`HMFW`
 包中安装示例:`FairyGUIExtention`**_
-
-**可选：手动注册 UI 类型**
-
-业务代码可以在首次使用 UI 前调用 `FW.UIMgr.SetUITypeListJson(json)`。JSON 中每项填写“完整类名, 程序集名”，打开 UI 时仍可使用原有别名。FairyGUI 示例在 `FairyGuiSampleInitGameState.EnterState` 中创建 `UIMgrFairyGUI`，注册成功后打开加载页。
-
-首次配置时，可以在编辑器调用 `FW.UIMgr.SetUITypeListJson("")`。如果工程中有 UI 类，Console 会列出缺项，并给出可直接复制的完整 JSON。以后新增、改名或删除 UI 类，编辑器也会在校验报错时给出更新后的全文。
-
-调用该接口即启用手动注册，传入 `null`、空列表或空白字符串也算设置。Player 只注册业务传入的类型。校验失败时返回 `false`，修正后可以再次调用。业务未调用该接口时，管理器在首次需要 UI 类型时自动反射查找。
 
 > * 优先级(priority)的定义
 >1. 框架对所有管理的ui进行了优先级(priority)的设定,且按照priority每100进行分组,如(0-99)为一个ui组,(100-199)又是一个ui组

@@ -1,0 +1,23 @@
+<linker>
+  <assembly fullname="HM.HMFW">
+    <type fullname="FsmDemo/FsmStateDemoPlayerControlMove" preserve="all" />
+    <type fullname="FsmDemo/FsmStateDemo_BeHit" preserve="all" />
+    <type fullname="FsmDemo/FsmStateDemo_Dead" preserve="all" />
+    <type fullname="FsmDemo/FsmStateDemo_Idle" preserve="all" />
+    <type fullname="HMFW.Core.UGUIResAttribute" preserve="all" />
+  </assembly>
+  <assembly fullname="HM.HMFWFairyGUIExtension">
+    <type fullname="FairyGuiSampleInitGameState" preserve="all" />
+    <type fullname="FguiSampleLoadingUI" preserve="all" />
+    <type fullname="HMFW.FGUIResUrlAttribute" preserve="all" />
+    <type fullname="HMFW.FairyGuiSampleMainGameState" preserve="all" />
+    <type fullname="HMFW.FguiSample" preserve="all" />
+    <type fullname="HMFW.Home" preserve="all" />
+  </assembly>
+  <assembly fullname="HMFW.SampleURP">
+    <type fullname="HMFW.SampleURP.GameState.GameStateSampleInit" preserve="all" />
+    <type fullname="HMFW.SampleURP.GameState.GameStateSampleLoading" preserve="all" />
+    <type fullname="HMFW.SampleURP.UI.UISampleLoading" preserve="all" />
+    <type fullname="HMFW.SampleURP.UI.UISamplePlayerCoinInfo" preserve="all" />
+  </assembly>
+</linker>

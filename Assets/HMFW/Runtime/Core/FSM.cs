@@ -34,7 +34,8 @@ namespace HMFW
                 return null;
             }
 
-            return RegState(GetStateType(type));
+            var stateType = GetStateType(type);
+            return stateType == null ? null : RegState(stateType);
         }
 
         public virtual FsmState<T> RegState(Type type)
@@ -46,6 +47,7 @@ namespace HMFW
             }
 
 
+            if (!EnsureStateTypes()) return null;
             if (this.StateMap.TryGetValue(type.Name, out var state)) return state;
 
             var obj = Activator.CreateInstance(type) as FsmState<T>;
@@ -68,7 +70,8 @@ namespace HMFW
 
         public virtual void ChangeState(string type, params object[] args)
         {
-            ChangeStateHandle(GetStateType(type), args).Forget();
+            var stateType = GetStateType(type);
+            if (stateType != null) ChangeStateHandle(stateType, args).Forget();
         }
 
 
@@ -84,6 +87,8 @@ namespace HMFW
 
         private async UniTaskVoid ChangeStateHandle(Type type, params object[] args)
         {
+            if (!EnsureStateTypes()) return;
+
             CheckBeChanging:
             if (this.BeStateChanging)
             {
@@ -115,7 +120,8 @@ namespace HMFW
 
         public virtual FsmState<T> GetStateInstance(string type)
         {
-            return GetStateInstance(GetStateType(type));
+            var stateType = GetStateType(type);
+            return stateType == null ? null : GetStateInstance(stateType);
         }
 
         public virtual T GetStateInstance<T2>() where T2 : T
@@ -126,6 +132,7 @@ namespace HMFW
 
         public virtual FsmState<T> GetStateInstance(Type tp)
         {
+            if (!EnsureStateTypes()) return null;
             if (this.StateMap.TryGetValue(tp.Name, out var instance)) return instance;
             var clasT = Activator.CreateInstance(tp);
             var clasR = clasT as FsmState<T>;
@@ -145,29 +152,30 @@ namespace HMFW
             return CheckCurrentState(typeof(T2).Name);
         }
 
-        private static readonly Dictionary<string, Type> _allGameStateTypes = new Dictionary<string, Type>();
+        private static Dictionary<string, Type> _allGameStateTypes;
+        private static int _classDataVersion = -1;
+
+        private bool EnsureStateTypes()
+        {
+            if (_classDataVersion != Tools.FrameworkClassData.Version)
+            {
+                UITypeDataInit();
+                _classDataVersion = Tools.FrameworkClassData.Version;
+            }
+            return _allGameStateTypes != null;
+        }
 
         protected virtual Type GetStateType(string typeName)
         {
-            if (_allGameStateTypes.Count <= 0)
-            {
-                this.UITypeDataInit();
-            }
-
-            if (_allGameStateTypes.TryGetValue(typeName, out var type)) return type;
-            Debug.LogError($"FSM({typeof(T).Namespace}) 未找到名为{typeName} 的State类");
+            if (!EnsureStateTypes()) return null;
+            if (typeName != null && _allGameStateTypes.TryGetValue(typeName, out var type)) return type;
+            Debug.LogError($"未找到名为 {typeName} 的状态，请检查类名并运行「{Tools.FrameworkClassData.Menu}」。");
             return null;
         }
 
         protected virtual void UITypeDataInit()
         {
-            _allGameStateTypes.Clear();
-            var subTypes = Tools.Util.GetAllSubClass(typeof(FsmState<T>));
-            for (var i = 0; i < subTypes.Count; i++)
-            {
-                var tempType = subTypes[i];
-                if (!string.IsNullOrEmpty(tempType.Name)) _allGameStateTypes.Add(tempType.Name, tempType);
-            }
+            _allGameStateTypes = Tools.FrameworkClassData.GetTypes(Tools.FrameworkClassData.FsmStates, typeof(FsmState<T>));
         }
 
         public virtual void FsmUpdate()

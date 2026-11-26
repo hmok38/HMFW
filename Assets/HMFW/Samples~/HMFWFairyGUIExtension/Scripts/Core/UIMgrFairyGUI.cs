@@ -81,6 +81,7 @@ namespace HMFW
             };
             SortFairyGuiGroup();
             Inited = true;
+            LoadUIClassData();
         }
 
         public override UIGroupSetting GetGroupSetting(uint priorityBase)

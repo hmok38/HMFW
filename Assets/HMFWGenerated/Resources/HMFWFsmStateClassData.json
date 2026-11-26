@@ -1,0 +1,8 @@
+{
+  "FsmDemo, HM.HMFW": [
+    "FsmDemo+FsmStateDemoPlayerControlMove, HM.HMFW",
+    "FsmDemo+FsmStateDemo_BeHit, HM.HMFW",
+    "FsmDemo+FsmStateDemo_Dead, HM.HMFW",
+    "FsmDemo+FsmStateDemo_Idle, HM.HMFW"
+  ]
+}

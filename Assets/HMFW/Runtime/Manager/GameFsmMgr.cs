@@ -26,7 +26,8 @@ namespace HMFW
                 return null;
             }
 
-            return RegState(GetStateType(type));
+            var stateType = GetStateType(type);
+            return stateType == null ? null : RegState(stateType);
         }
 
         public override GameStateBase RegState(Type type)
@@ -38,6 +39,7 @@ namespace HMFW
             }
 
 
+            if (!EnsureStateTypes()) return null;
             if (this.StateMap.TryGetValue(type.Name, out var state)) return state;
 
             var obj = Activator.CreateInstance(type) as GameStateBase;
@@ -60,7 +62,8 @@ namespace HMFW
 
         public override void ChangeState(string type, params object[] args)
         {
-            ChangeStateHandle(GetStateType(type), args).Forget();
+            var stateType = GetStateType(type);
+            if (stateType != null) ChangeStateHandle(stateType, args).Forget();
         }
 
 
@@ -76,6 +79,8 @@ namespace HMFW
 
         private async UniTaskVoid ChangeStateHandle(Type type, params object[] args)
         {
+            if (!EnsureStateTypes()) return;
+
             CheckBeChanging:
             if (this.BeStateChanging)
             {
@@ -107,7 +112,8 @@ namespace HMFW
 
         public override GameStateBase GetStateInstance(string type)
         {
-            return GetStateInstance(GetStateType(type));
+            var stateType = GetStateType(type);
+            return stateType == null ? null : GetStateInstance(stateType);
         }
 
         public override T GetStateInstance<T>()
@@ -118,6 +124,7 @@ namespace HMFW
 
         public override GameStateBase GetStateInstance(Type tp)
         {
+            if (!EnsureStateTypes()) return null;
             if (this.StateMap.TryGetValue(tp.Name, out var instance)) return instance;
             var clasT = Activator.CreateInstance(tp);
             this.StateMap.Add(tp.Name, clasT as GameStateBase);
@@ -135,29 +142,30 @@ namespace HMFW
             return CheckCurrentState(typeof(T).Name);
         }
 
-        private readonly Dictionary<string, Type> _allGameStateTypes = new Dictionary<string, Type>();
+        private Dictionary<string, Type> _allGameStateTypes;
+        private int _classDataVersion = -1;
+
+        private bool EnsureStateTypes()
+        {
+            if (_classDataVersion != Tools.FrameworkClassData.Version)
+            {
+                UITypeDataInit();
+                _classDataVersion = Tools.FrameworkClassData.Version;
+            }
+            return _allGameStateTypes != null;
+        }
 
         protected virtual Type GetStateType(string typeName)
         {
-            if (_allGameStateTypes.Count <= 0)
-            {
-                this.UITypeDataInit();
-            }
-
-            if (_allGameStateTypes.TryGetValue(typeName, out var type)) return type;
-            Debug.LogError($"未找到名为{typeName} 的GameState类");
+            if (!EnsureStateTypes()) return null;
+            if (typeName != null && _allGameStateTypes.TryGetValue(typeName, out var type)) return type;
+            Debug.LogError($"未找到名为 {typeName} 的状态，请检查类名并运行「{Tools.FrameworkClassData.Menu}」。");
             return null;
         }
 
         protected virtual void UITypeDataInit()
         {
-            _allGameStateTypes.Clear();
-            var subTypes = Tools.Util.GetAllSubClass(typeof(GameStateBase));
-            for (var i = 0; i < subTypes.Count; i++)
-            {
-                var tempType = subTypes[i];
-                if (tempType.Name != null) _allGameStateTypes.Add(tempType.Name, tempType);
-            }
+            _allGameStateTypes = Tools.FrameworkClassData.GetTypes(Tools.FrameworkClassData.GameStates, typeof(GameStateBase));
         }
 
         protected override void Update()

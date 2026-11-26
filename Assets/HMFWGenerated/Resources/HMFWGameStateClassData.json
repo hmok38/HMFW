@@ -1,0 +1,6 @@
+[
+  "FairyGuiSampleInitGameState, HM.HMFWFairyGUIExtension",
+  "HMFW.FairyGuiSampleMainGameState, HM.HMFWFairyGUIExtension",
+  "HMFW.SampleURP.GameState.GameStateSampleInit, HMFW.SampleURP",
+  "HMFW.SampleURP.GameState.GameStateSampleLoading, HMFW.SampleURP"
+]
