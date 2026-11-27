@@ -93,7 +93,9 @@ public static class FWExtend
 | `HMFWGameStateClassData.json` | `FW.GameFsmMgr`，按状态短类名查找。 |
 | `HMFWFsmStateClassData.json` | `FSM<T>`，按宿主分组，每个宿主内的状态短类名唯一。 |
 
-每次进入 Unity 编辑器的 Play 模式时，框架会重新收集当前项目的类型，校对三份 JSON。Console 会列出缺少或多余的类名，并提示重新运行 **HMFW/收集框架子类**。打包后的 Player 只读取生成的清单。
+每次进入 Unity 编辑器的 Play 模式时，框架会重新收集当前项目的类型，校对三份 JSON。Console 会列出缺少或多余的类名，并提示重新运行 **HMFW/收集框架子类**。
+
+构建 Player 前，框架会从磁盘重新读取这三份 JSON。缺少文件、JSON 无效，或类和宿主与清单有出入时，会抛出 `BuildFailedException` 停止打包，并列出对应文件和原因。重新运行 **HMFW/收集框架子类** 后即可再次打包。打包后的 Player 只读取生成的清单。
 
 框架首次使用相应模块时读取并缓存清单。业务直接调用原有的打开 UI 或切换状态接口即可。缺少文件时，Console 会指出文件名并提示运行收集菜单。菜单还会生成 `Assets/HMFWGenerated/link.xml`，供 Unity 构建时保留按名称加载的类型。
 

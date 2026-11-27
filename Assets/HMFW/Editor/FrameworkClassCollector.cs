@@ -9,12 +9,13 @@ using HMFW.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace HMFW.Editor
 {
-    internal static class FrameworkClassCollector
+    internal sealed class FrameworkClassCollector : BuildPlayerProcessor
     {
         private const string Output = "Assets/HMFWGenerated";
         private const string ResourcesFolder = Output + "/Resources";
@@ -50,22 +51,56 @@ namespace HMFW.Editor
         {
             if (state != PlayModeStateChange.EnteredPlayMode) return;
 
+            var error = GetValidationError(FrameworkClassData.LoadFile);
+            if (error != null) Debug.LogError(error);
+        }
+
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext)
+        {
+            var error = GetValidationError(ReadGeneratedFile);
+            if (error != null) throw new BuildFailedException(error);
+        }
+
+        private static JToken ReadGeneratedFile(string name)
+        {
+            var path = $"{ResourcesFolder}/{name}.json";
+            if (!File.Exists(path)) throw new FileNotFoundException($"缺少清单文件 {path}。", path);
+
+            return JToken.Parse(File.ReadAllText(path), new JsonLoadSettings
+            {
+                DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error
+            });
+        }
+
+        private static string GetValidationError(Func<string, JToken> loadFile)
+        {
+            var errors = new List<string>();
             try
             {
                 foreach (var list in CollectClassLists())
                 {
-                    var saved = FrameworkClassData.LoadFile(list.Key);
-                    if (saved == null) continue;
                     var differences = new List<string>();
-                    CompareList(list.Value, saved, string.Empty, differences);
+                    try
+                    {
+                        var saved = loadFile(list.Key);
+                        if (saved == null) continue;
+                        CompareList(list.Value, saved, string.Empty, differences);
+                    }
+                    catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is JsonException)
+                    {
+                        differences.Add(e.Message);
+                    }
                     if (differences.Count > 0)
-                        Debug.LogError($"{list.Key}.json 与当前项目不一致，请重新运行「{FrameworkClassData.Menu}」。\n{string.Join("\n", differences)}");
+                        errors.Add($"{list.Key}.json\n{string.Join("\n", differences)}");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"框架子类清单校对失败：{e.Message} 请修正后重新运行「{FrameworkClassData.Menu}」。");
+                errors.Add(e.Message);
             }
+
+            return errors.Count == 0 ? null
+                : $"框架子类清单校对失败，请重新运行「{FrameworkClassData.Menu}」。\n{string.Join("\n", errors)}";
         }
 
         private static Dictionary<string, JToken> CollectClassLists(HashSet<Type> preserved = null)
